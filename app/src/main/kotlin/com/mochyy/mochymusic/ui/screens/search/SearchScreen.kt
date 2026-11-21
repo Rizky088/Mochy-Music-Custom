@@ -115,8 +115,8 @@ fun SearchScreen(
                 .background(SearchColors.page(pureBlack))
         ) {
         val wallpaperOnSearch = com.mochyy.mochymusic.utils.rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperSearchKey, defaultValue = false).value
-        com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(enabled = wallpaperOnSearch)
-            SearchBrowseContent(
+        com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(enabled = wallpaperOnSearch, smoothBottomFade = true, paletteOverlay = true)
+SearchBrowseContent(
                 listState = rememberLazyListState(),
                 navController = navController,
                 columns = 3,

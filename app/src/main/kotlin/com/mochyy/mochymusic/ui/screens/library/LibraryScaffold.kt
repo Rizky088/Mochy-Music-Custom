@@ -75,8 +75,8 @@ fun LibraryScaffold(
             .background(SearchColors.page(pureBlack)),
     ) {
         val wallpaperOnLibrary = com.mochyy.mochymusic.utils.rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperLibraryKey, defaultValue = true).value
-        com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(enabled = wallpaperOnLibrary)
-        // Only the list is recorded. The top bar draws this recording as its glass, so recording
+        com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(enabled = wallpaperOnLibrary, smoothBottomFade = true, paletteOverlay = true)
+// Only the list is recorded. The top bar draws this recording as its glass, so recording
         // the bar too made the node draw itself: a native stack overflow the moment a scroll
         // settled with the title collapsed. The bar stays a sibling, as on Search.
         // Recorded while scrolling too: the bar's blur stays up through a scroll instead of

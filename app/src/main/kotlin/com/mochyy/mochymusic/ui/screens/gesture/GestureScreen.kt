@@ -581,7 +581,7 @@ private fun PlayerGestureCard() {
 private fun WallpaperPickerSection() {
     val context = LocalContext.current
     val (path, setPath) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "")
-    val (dim, setDim) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperDimKey, defaultValue = 0.45f)
+    val (dim, setDim) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperDimKey, defaultValue = 0.42f)
     val (blur, setBlur) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperBlurKey, defaultValue = 0f)
     val (onHome, setOnHome) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperHomeKey, defaultValue = true)
     val (onLibrary, setOnLibrary) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperLibraryKey, defaultValue = true)

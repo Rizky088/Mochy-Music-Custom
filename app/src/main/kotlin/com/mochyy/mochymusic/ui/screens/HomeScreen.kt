@@ -1341,7 +1341,7 @@ fun HomeScreen(
                     .fillMaxSize()
             ) {
                 val wallpaperOnHome by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperHomeKey, defaultValue = true)
-                com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(enabled = wallpaperOnHome)
+                com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(enabled = wallpaperOnHome, smoothBottomFade = true, paletteOverlay = true)
                 val backgroundColor = Color.Black
                 CompositionLocalProvider(
                     com.mochyy.mochymusic.ui.component.LocalGridItemPadding provides 0.dp
