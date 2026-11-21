@@ -696,7 +696,7 @@ private fun WallpaperScopeRow(label: String, checked: Boolean, onCheckedChange: 
 @Composable
 private fun WallpaperPickerSection() {
     val context = LocalContext.current
-    val path by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "")
+    val (path, setPath) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "")
     val (dim, setDim) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperDimKey, defaultValue = 0.45f)
     val (blur, setBlur) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperBlurKey, defaultValue = 0f)
     val (onHome, setOnHome) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperHomeKey, defaultValue = true)
@@ -716,28 +716,21 @@ private fun WallpaperPickerSection() {
                     }
                     true
                 }.getOrDefault(false)
-                if (copied && outFile.exists() && outFile.length() > 0L) {
-                    appCtx.getSharedPreferences("mochy_wallpaper_sync", android.content.Context.MODE_PRIVATE)
-                        .edit().putString("latest_path", outFile.absolutePath).apply()
-                    android.os.Handler(android.os.Looper.getMainLooper()).post {
-                        Toast.makeText(appCtx, "Wallpaper saved — re-open Customisation if preview lags", Toast.LENGTH_SHORT).show()
-                    }
+                val savedPath = if (copied && outFile.exists() && outFile.length() > 0L) {
+                    outFile.absolutePath
                 } else {
                     outFile.delete()
+                    ""
+                }
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    if (savedPath.isNotEmpty()) {
+                        setPath(savedPath)
+                        Toast.makeText(appCtx, "Wallpaper updated", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(appCtx, "Could not load image", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }.start()
-        }
-    }
-
-    val pendingSync = remember {
-        context.getSharedPreferences("mochy_wallpaper_sync", android.content.Context.MODE_PRIVATE)
-            .getString("latest_path", "")
-    }
-    androidx.compose.runtime.LaunchedEffect(pendingSync) {
-        if (!pendingSync.isNullOrBlank() && pendingSync != path) {
-            androidx.datastore.preferences.core.edit(com.mochyy.mochymusic.utils.dataStore(context)) { prefs ->
-                prefs[com.mochyy.mochymusic.constants.CustomWallpaperPathKey] = pendingSync
-            }
         }
     }
 
@@ -785,19 +778,17 @@ private fun WallpaperPickerSection() {
                 if (path.isNotBlank()) {
                     androidx.compose.material3.OutlinedButton(
                         onClick = {
-                            context.getSharedPreferences("mochy_wallpaper_sync", android.content.Context.MODE_PRIVATE)
-                                .edit().remove("latest_path").apply()
+                            val oldPath = path
+                            setPath("")
                             Thread {
                                 runCatching {
-                                    val f = java.io.File(path)
+                                    val f = java.io.File(oldPath)
                                     if (f.parentFile == context.applicationContext.filesDir && f.name.startsWith("custom_wallpaper_")) {
                                         f.delete()
                                     }
                                 }
                             }.start()
-                            android.os.Handler(android.os.Looper.getMainLooper()).post {
-                                Toast.makeText(context, "Wallpaper cleared", Toast.LENGTH_SHORT).show()
-                            }
+                            Toast.makeText(context, "Wallpaper cleared", Toast.LENGTH_SHORT).show()
                         },
                     ) {
                         Text("Clear", color = Color.White)
