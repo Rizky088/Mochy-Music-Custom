@@ -580,7 +580,6 @@ private fun PlayerGestureCard() {
 @Composable
 private fun WallpaperSection() {
     val context = LocalContext.current
-    val scope = androidx.compose.runtime.rememberCoroutineScope()
     val path by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "")
     val (dim, setDim) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperDimKey, defaultValue = 0.45f)
     val (blur, setBlur) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperBlurKey, defaultValue = 0f)
@@ -592,7 +591,8 @@ private fun WallpaperSection() {
         androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) {
-            scope.launch {
+            @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
+            kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                 com.mochyy.mochymusic.ui.component.CustomWallpaperStore.save(context, uri)
             }
         }
@@ -642,7 +642,8 @@ private fun WallpaperSection() {
                 if (path.isNotBlank()) {
                     androidx.compose.material3.OutlinedButton(
                         onClick = {
-                            scope.launch {
+                            @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
+                            kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                                 com.mochyy.mochymusic.ui.component.CustomWallpaperStore.clear(context)
                             }
                         },
