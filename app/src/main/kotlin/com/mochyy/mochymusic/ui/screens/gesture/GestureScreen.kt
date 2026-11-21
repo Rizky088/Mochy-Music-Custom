@@ -308,7 +308,7 @@ private fun CustomiseSectionContent(section: CustomiseSection, bleedPager: Boole
                 modifier = pagerBleed,
             ) { HomeStylePreview(style = it, coverRadius = coverRadiusPx.dp) }
         }
-        CustomiseSection.WALLPAPER -> WallpaperSection()
+        CustomiseSection.WALLPAPER -> WallpaperPickerSection()
         CustomiseSection.BLUR -> BlurSection()
         CustomiseSection.ELEMENT_BLUR -> ElementBlurSection()
         CustomiseSection.ANIMATION -> AnimationSection()
@@ -679,6 +679,158 @@ private fun WallpaperSection() {
 
 @Composable
 private fun WallpaperScopeRow(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(vertical = 6.dp),
+    ) {
+        Text(label, color = Color.White, fontSize = 14.sp)
+        androidx.compose.material3.Switch(checked = checked, onCheckedChange = onCheckedChange)
+    }
+}
+
+
+@Composable
+private fun WallpaperPickerSection() {
+    val context = LocalContext.current
+    val path by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "")
+    val (dim, setDim) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperDimKey, defaultValue = 0.45f)
+    val (blur, setBlur) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperBlurKey, defaultValue = 0f)
+    val (onHome, setOnHome) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperHomeKey, defaultValue = true)
+    val (onLibrary, setOnLibrary) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperLibraryKey, defaultValue = true)
+    val (onSearch, setOnSearch) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperSearchKey, defaultValue = false)
+
+    val picker = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            val appCtx = context.applicationContext
+            Thread {
+                val outFile = java.io.File(appCtx.filesDir, "custom_wallpaper_${System.currentTimeMillis()}.jpg")
+                val copied = runCatching {
+                    appCtx.contentResolver.openInputStream(uri)!!.use { input ->
+                        outFile.outputStream().use { output -> input.copyTo(output) }
+                    }
+                    true
+                }.getOrDefault(false)
+                if (copied && outFile.exists() && outFile.length() > 0L) {
+                    appCtx.getSharedPreferences("mochy_wallpaper_sync", android.content.Context.MODE_PRIVATE)
+                        .edit().putString("latest_path", outFile.absolutePath).apply()
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        Toast.makeText(appCtx, "Wallpaper saved — re-open Customisation if preview lags", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    outFile.delete()
+                }
+            }.start()
+        }
+    }
+
+    val pendingSync = remember {
+        context.getSharedPreferences("mochy_wallpaper_sync", android.content.Context.MODE_PRIVATE)
+            .getString("latest_path", "")
+    }
+    androidx.compose.runtime.LaunchedEffect(pendingSync) {
+        if (!pendingSync.isNullOrBlank() && pendingSync != path) {
+            androidx.datastore.preferences.core.edit(com.mochyy.mochymusic.utils.dataStore(context)) { prefs ->
+                prefs[com.mochyy.mochymusic.constants.CustomWallpaperPathKey] = pendingSync
+            }
+        }
+    }
+
+    Column {
+        Text(
+            text = stringResource(R.string.customise_wallpaper),
+            style = TextStyle(
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                letterSpacing = (-0.05).em,
+            ),
+            color = Color.White,
+        )
+        Spacer(Modifier.height(14.dp))
+        LabCard(padding = CardPadding) {
+            if (path.isNotBlank()) {
+                coil3.compose.AsyncImage(
+                    model = java.io.File(path),
+                    contentDescription = null,
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
+                        .clip(RoundedCornerShape(14.dp)),
+                )
+                Spacer(Modifier.height(12.dp))
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                androidx.compose.material3.Button(
+                    onClick = {
+                        picker.launch(
+                            androidx.activity.result.PickVisualMediaRequest(
+                                androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
+                            )
+                        )
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(if (path.isBlank()) "Pick Image" else "Change Image")
+                }
+                if (path.isNotBlank()) {
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = {
+                            context.getSharedPreferences("mochy_wallpaper_sync", android.content.Context.MODE_PRIVATE)
+                                .edit().remove("latest_path").apply()
+                            Thread {
+                                runCatching {
+                                    val f = java.io.File(path)
+                                    if (f.parentFile == context.applicationContext.filesDir && f.name.startsWith("custom_wallpaper_")) {
+                                        f.delete()
+                                    }
+                                }
+                            }.start()
+                            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                                Toast.makeText(context, "Wallpaper cleared", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                    ) {
+                        Text("Clear", color = Color.White)
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+            Text("Dim: ${(dim * 100).toInt()}%", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
+            androidx.compose.material3.Slider(
+                value = dim,
+                onValueChange = setDim,
+                valueRange = 0f..0.9f,
+            )
+
+            Spacer(Modifier.height(6.dp))
+            Text("Blur: ${blur.toInt()} dp", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
+            androidx.compose.material3.Slider(
+                value = blur,
+                onValueChange = setBlur,
+                valueRange = 0f..25f,
+            )
+
+            Spacer(Modifier.height(8.dp))
+            WallpaperScopeToggle("Show on Home", onHome, setOnHome)
+            WallpaperScopeToggle("Show on Library", onLibrary, setOnLibrary)
+            WallpaperScopeToggle("Show on Search", onSearch, setOnSearch)
+        }
+    }
+}
+
+@Composable
+private fun WallpaperScopeToggle(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
