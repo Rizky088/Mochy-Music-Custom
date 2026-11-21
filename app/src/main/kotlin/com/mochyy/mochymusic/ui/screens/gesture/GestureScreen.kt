@@ -134,6 +134,7 @@ private enum class CustomiseSection(@StringRes val titleRes: Int, val keys: List
     PLAYLIST(R.string.customise_playlist_styles, listOf("Playlist styles"), "playlist styles flow classic minimal header"),
     PLAYER(R.string.customise_player_styles, listOf("Player styles"), "player styles flagship turntable ipod poster timeline lyrics editor customize"),
     HOME(R.string.customise_home_styles, listOf("Home styles"), "home styles mochyy listen now hop in hero"),
+    WALLPAPER(R.string.customise_wallpaper, listOf("Custom wallpaper", "Wallpaper"), "wallpaper background image photo home library search dim blur"),
     BLUR(R.string.appearance_blur, listOf("Blur", "Progressive blur", "Blur quality", "Blur strength"), "blur glass frosted progressive flat quality low high strength px"),
     ELEMENT_BLUR(R.string.customise_element_blur, listOf("Element blur"), "element blur lyrics lines cover zoom titles menus page swipes"),
     ANIMATION(R.string.appearance_animation, listOf("Animation", "Animation speed"), "animation speed motion transitions off faster slower"),
@@ -307,6 +308,7 @@ private fun CustomiseSectionContent(section: CustomiseSection, bleedPager: Boole
                 modifier = pagerBleed,
             ) { HomeStylePreview(style = it, coverRadius = coverRadiusPx.dp) }
         }
+        CustomiseSection.WALLPAPER -> WallpaperSection()
         CustomiseSection.BLUR -> BlurSection()
         CustomiseSection.ELEMENT_BLUR -> ElementBlurSection()
         CustomiseSection.ANIMATION -> AnimationSection()
@@ -571,5 +573,120 @@ private fun PlayerGestureCard() {
             checked = follows,
             onCheckedChange = setFollows,
         )
+    }
+}
+
+
+@Composable
+private fun WallpaperSection() {
+    val context = LocalContext.current
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    val path by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "")
+    val (dim, setDim) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperDimKey, defaultValue = 0.45f)
+    val (blur, setBlur) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperBlurKey, defaultValue = 0f)
+    val (onHome, setOnHome) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperHomeKey, defaultValue = true)
+    val (onLibrary, setOnLibrary) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperLibraryKey, defaultValue = true)
+    val (onSearch, setOnSearch) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperSearchKey, defaultValue = false)
+
+    val picker = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            scope.launch {
+                com.mochyy.mochymusic.ui.component.CustomWallpaperStore.save(context, uri)
+            }
+        }
+    }
+
+    Column {
+        Text(
+            text = stringResource(R.string.customise_wallpaper),
+            style = TextStyle(
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                letterSpacing = (-0.05).em,
+            ),
+            color = Color.White,
+        )
+        Spacer(Modifier.height(14.dp))
+        LabCard(padding = CardPadding) {
+            if (path.isNotBlank()) {
+                coil3.compose.AsyncImage(
+                    model = java.io.File(path),
+                    contentDescription = null,
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
+                        .clip(RoundedCornerShape(14.dp)),
+                )
+                Spacer(Modifier.height(12.dp))
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                androidx.compose.material3.Button(
+                    onClick = {
+                        picker.launch(
+                            androidx.activity.result.PickVisualMediaRequest(
+                                androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
+                            )
+                        )
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(if (path.isBlank()) "Pick Image" else "Change Image")
+                }
+                if (path.isNotBlank()) {
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = {
+                            scope.launch {
+                                com.mochyy.mochymusic.ui.component.CustomWallpaperStore.clear(context)
+                            }
+                        },
+                    ) {
+                        Text("Clear", color = Color.White)
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+            Text("Dim: ${(dim * 100).toInt()}%", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
+            androidx.compose.material3.Slider(
+                value = dim,
+                onValueChange = setDim,
+                valueRange = 0f..0.9f,
+            )
+
+            Spacer(Modifier.height(6.dp))
+            Text("Blur: ${blur.toInt()} dp", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
+            androidx.compose.material3.Slider(
+                value = blur,
+                onValueChange = setBlur,
+                valueRange = 0f..25f,
+            )
+
+            Spacer(Modifier.height(8.dp))
+            WallpaperScopeRow("Show on Home", onHome, setOnHome)
+            WallpaperScopeRow("Show on Library", onLibrary, setOnLibrary)
+            WallpaperScopeRow("Show on Search", onSearch, setOnSearch)
+        }
+    }
+}
+
+@Composable
+private fun WallpaperScopeRow(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(vertical = 6.dp),
+    ) {
+        Text(label, color = Color.White, fontSize = 14.sp)
+        androidx.compose.material3.Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }

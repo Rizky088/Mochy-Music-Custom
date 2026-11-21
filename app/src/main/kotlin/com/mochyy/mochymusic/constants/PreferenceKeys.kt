@@ -1413,3 +1413,12 @@ val ModuleStoreTermsKey = intPreferencesKey("moduleStoreTerms")
 
 // experimental: the module store answers as it would a fork, to see that page without building one
 val SimulateForkKey = booleanPreferencesKey("simulateFork")
+
+
+// Custom app wallpaper (fork)
+val CustomWallpaperPathKey = stringPreferencesKey("customWallpaperPath")
+val CustomWallpaperDimKey = floatPreferencesKey("customWallpaperDim")
+val CustomWallpaperBlurKey = floatPreferencesKey("customWallpaperBlur")
+val CustomWallpaperHomeKey = booleanPreferencesKey("customWallpaperHome")
+val CustomWallpaperLibraryKey = booleanPreferencesKey("customWallpaperLibrary")
+val CustomWallpaperSearchKey = booleanPreferencesKey("customWallpaperSearch")
