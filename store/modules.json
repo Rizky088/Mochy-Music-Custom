@@ -13,8 +13,7 @@
   ],
   "chart": [
     "yenos-orbit-tablet",
-    "yenos-orbit-tablet-support-32",
-    "mochy-ext-guide"
+    "yenos-orbit-tablet-support-32"
   ],
   "modules": [
     {
@@ -36,7 +35,7 @@
       "install": "web",
       "link": "https://github.com/Rizky088/Mochy-Music-Custom/tree/main/store",
       "postUrl": "",
-      "updated": 1795344000000,
+      "updated": 1795351950644,
       "discordPostUrl": ""
     },
     {
