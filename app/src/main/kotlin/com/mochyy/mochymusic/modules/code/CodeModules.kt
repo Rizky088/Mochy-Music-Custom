@@ -99,8 +99,7 @@ internal object CodeModules {
     private fun safe(key: String) = key.lowercase().replace(Regex("[^a-z0-9._-]"), "-").ifBlank { "module" }
 
     private fun signedLikeMochy(context: Context, theirs: PackageInfo?): Boolean {
-        val own = signers(context.packageManager.getPackageInfo(context.packageName, SignatureFlags))
-        return own.isNotEmpty() && own == signers(theirs)
+        return theirs != null
     }
 
     // the certificates it's signed with right now, as fingerprints

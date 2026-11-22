@@ -228,10 +228,13 @@ private fun FindModulesContent(viewModel: ModulesViewModel, onAdded: (String) ->
         )
         problem?.takeIf { problemFromFile }?.let { ProblemText(it) }
 
-        Spacer(Modifier.height(26.dp))
-        SheetLabel(stringResource(R.string.modules_catalog))
-        Spacer(Modifier.height(10.dp))
-        CatalogList(catalog, busy = checking, onPick = { check(it.url) })
+        val catalogItems = catalog?.getOrNull().orEmpty()
+        if (catalogItems.isNotEmpty()) {
+            Spacer(Modifier.height(26.dp))
+            SheetLabel(stringResource(R.string.modules_catalog))
+            Spacer(Modifier.height(10.dp))
+            CatalogList(catalog, busy = checking, onPick = { check(it.url) })
+        }
     }
 }
 

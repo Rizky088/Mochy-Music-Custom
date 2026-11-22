@@ -715,7 +715,7 @@ private fun BoxWithConstraintsScope.PopupSheetFrame(
     ) {
         SheetBody(
             frame = frame,
-            fillHeight = centred,
+            fillHeight = false,
             minHeight = minHeight,
             dragHandle = dragHandle,
             bend = remember(bend) { { bend.value } },
@@ -762,7 +762,7 @@ private fun BoxWithConstraintsScope.sheetSizeModifier(isTablet: Boolean, floatin
     } else if (isTablet) {
         Modifier
             .widthIn(max = 460.dp)
-            .fillMaxHeight(0.84f)
+            .heightIn(max = maxHeight * MaxSheetHeightFraction)
     } else {
         // On short screens 86% reaches the status bar once a covered sheet rises to peek above
         // this one; keep the whole stack, peek strip included, below it.
