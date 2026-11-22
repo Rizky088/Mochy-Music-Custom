@@ -12,34 +12,9 @@
     "Tools"
   ],
   "chart": [
-    "yeno-orbit",
-    "yenos-orbit-tablet"
+    "yeno-orbit"
   ],
   "modules": [
-    {
-      "id": "yenos-orbit-tablet",
-      "name": "Yeno\u2019s Orbit Tablet Support",
-      "moduleId": "yeno-orbit-tablet",
-      "version": "1.4.2",
-      "author": "Yeno",
-      "description": "Tablet edition for Tablet 3:2 screens: the whole player is scaled up and the sky fills the screen. Your music in orbit. A circular cover ringed by a visualizer that glows brighter as the song plays, a progress arc with a glowing moon, a twinkling starfield, a live seek bar and controls on frosted glass. v2.0: make it yours - 6 colour themes, 4 visualizer rings, sky, seek bar, controls, title and lyrics styles, spinning cover, song change animations, background variants, plus the queue bar and audio format badge. New: galaxy, black hole, deep nebula and aurora backgrounds. Tap the artist name or the song title to open their page. Top and bottom padding sliders fit the player to any screen.",
-      "kind": "look",
-      "tags": [
-        "Looks",
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/yenos-orbit-tablet-support-32.png",
-      "banner": "",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/yenos-orbit-tablet.zip",
-      "size": 570713,
-      "updated": 1795351473362,
-      "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
-    },
     {
       "id": "yeno-orbit",
       "name": "Yeno\u2019s Orbit",
