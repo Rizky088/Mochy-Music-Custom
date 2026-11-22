@@ -6,6 +6,8 @@
 
 package com.mochyy.mochymusic.ui.screens.library
 
+import androidx.compose.foundation.border
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -113,7 +115,15 @@ private fun LocalCard(onClick: () -> Unit, modifier: Modifier = Modifier, conten
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(SearchColors.Tile)
+            .background(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainer?.copy(alpha = 0.70f)
+                    ?: SearchColors.Tile
+            )
+            .then(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.let { wp ->
+                    Modifier.border(1.dp, wp.primary.copy(alpha = 0.16f), RoundedCornerShape(20.dp))
+                } ?: Modifier
+            )
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 18.dp),
     ) {

@@ -59,7 +59,7 @@ internal fun IntegrationRow(
             .fillMaxWidth()
             .heightIn(min = 64.dp)
             .clip(CardShape)
-            .background(CardColor)
+            .background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainer ?: CardColor)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {

@@ -82,19 +82,49 @@ import kotlin.math.roundToInt
 
 /** the mock's colours, read straight off it */
 internal object DiscordColors {
-    val Card = Color(0xFF1F1F1F)
-    val ToggleCard = Color(0xFF232323)
-    val Field = Color(0xFF171717)
-    val FieldSelected = Color(0xFF2B2B2B)
-    val Profile = Color(0xFF0D0D0D)
-    val Activity = Color(0xFF1E1E1E)
-    val Cover = Color(0xFF0C0C0C)
-    val Banner = Color(0xFF3C3C3C)
+    var Card by mutableStateOf(Color(0xFF1F1F1F))
+        private set
+    var ToggleCard by mutableStateOf(Color(0xFF232323))
+        private set
+    var Field by mutableStateOf(Color(0xFF171717))
+        private set
+    var FieldSelected by mutableStateOf(Color(0xFF2B2B2B))
+        private set
+    var Profile by mutableStateOf(Color(0xFF0D0D0D))
+        private set
+    var Activity by mutableStateOf(Color(0xFF1E1E1E))
+        private set
+    var Cover by mutableStateOf(Color(0xFF0C0C0C))
+        private set
+    var Banner by mutableStateOf(Color(0xFF3C3C3C))
+        private set
     val Primary = Color.White
     val Secondary = Color.White.copy(alpha = 0.55f)
     val Hint = Color.White.copy(alpha = 0.32f)
-    val Menu = Color(0xFF1E1F23)
+    var Menu by mutableStateOf(Color(0xFF1E1F23))
+        private set
     val Blurple = Color(0xFF5865F2)
+
+    fun applyWallpaperPalette(palette: com.mochyy.mochymusic.ui.component.WallpaperPalette?) {
+        val c = palette?.surfaceContainer ?: Color(0xFF1F1F1F)
+        val tc = palette?.surfaceContainerHigh ?: Color(0xFF232323)
+        val f = palette?.surface ?: Color(0xFF171717)
+        val fs = palette?.chipSelected ?: Color(0xFF2B2B2B)
+        val p = palette?.surfaceDeep ?: Color(0xFF0D0D0D)
+        val a = palette?.surfaceContainer ?: Color(0xFF1E1E1E)
+        val cov = palette?.surfaceDeep ?: Color(0xFF0C0C0C)
+        val b = palette?.primaryContainer ?: Color(0xFF3C3C3C)
+        val m = palette?.surfaceContainerHigh ?: Color(0xFF1E1F23)
+        if (Card != c) Card = c
+        if (ToggleCard != tc) ToggleCard = tc
+        if (Field != f) Field = f
+        if (FieldSelected != fs) FieldSelected = fs
+        if (Profile != p) Profile = p
+        if (Activity != a) Activity = a
+        if (Cover != cov) Cover = cov
+        if (Banner != b) Banner = b
+        if (Menu != m) Menu = m
+    }
 }
 
 private val CardShape = RoundedCornerShape(20.dp)

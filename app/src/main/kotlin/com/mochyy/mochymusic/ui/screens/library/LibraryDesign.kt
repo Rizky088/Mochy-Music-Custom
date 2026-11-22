@@ -10,6 +10,8 @@
 
 package com.mochyy.mochymusic.ui.screens.library
 
+import androidx.compose.foundation.border
+
 import androidx.compose.ui.res.stringResource
 import com.mochyy.mochymusic.ui.component.containerTransformSource
 import androidx.compose.foundation.shape.CircleShape
@@ -326,7 +328,15 @@ fun LibraryCategoryCard(
         modifier = modifier
             .height(78.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(SearchColors.Tile)
+            .background(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainer?.copy(alpha = 0.68f)
+                    ?: SearchColors.Tile
+            )
+            .then(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.let { wp ->
+                    Modifier.border(1.dp, wp.primary.copy(alpha = 0.16f), RoundedCornerShape(16.dp))
+                } ?: Modifier
+            )
             .clickable(onClick = onClick),
     ) {
         // The covers sit flush in the corner and are allowed to run past the card's edge — the
@@ -381,7 +391,15 @@ fun LibraryWideCard(
                 coverUrl = covers.firstOrNull { it != null },
             )
             .clip(RoundedCornerShape(18.dp))
-            .background(SearchColors.Tile)
+            .background(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainer?.copy(alpha = 0.68f)
+                    ?: SearchColors.Tile
+            )
+            .then(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.let { wp ->
+                    Modifier.border(1.dp, wp.primary.copy(alpha = 0.16f), RoundedCornerShape(18.dp))
+                } ?: Modifier
+            )
             .clickable(onClick = onClick),
     ) {
         LibraryCoverStack(

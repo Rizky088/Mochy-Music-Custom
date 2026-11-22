@@ -452,4 +452,5 @@
     <string name="eight_d_preset_balanced">Balanced</string>
     <string name="eight_d_preset_extreme">Extreme</string>
     <string name="customise_wallpaper">Custom wallpaper</string>
+    <string name="backup_gdrive_desc">Store backups in a Mochy Backups folder on your Google Drive</string>
 </resources>

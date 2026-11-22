@@ -2,6 +2,23 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.integrations.backup
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
+
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.text.format.DateUtils
@@ -50,7 +67,7 @@ import kotlinx.coroutines.launch
 const val BackupRoute = "integrations_settings/backup"
 
 // onedrive stays off the page until its microsoft app is registered, the code behind it is ready
-private val ShownClouds = listOf(CloudKind.Dropbox, CloudKind.WebDav)
+private val ShownClouds = listOf(CloudKind.GoogleDrive, CloudKind.Dropbox, CloudKind.WebDav)
 
 @Composable
 fun BackupScreen(
@@ -105,9 +122,31 @@ fun BackupScreen(
         }
     }
 
+    fun openGoogleDrive() {
+        var sheet: PopupSheetHandle? = null
+        sheet = overlay.showWithHandle {
+            GoogleDriveSignInContent(
+                viewModel = viewModel,
+                onLaunch = { uri ->
+                    sheet?.dismiss()
+                    try {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    } catch (e: ActivityNotFoundException) {
+                        viewModel.cancelWaiting()
+                        Toast.makeText(context, context.getString(R.string.backup_no_browser), Toast.LENGTH_LONG).show()
+                    }
+                },
+            )
+        }
+    }
+
     fun signIn(kind: CloudKind) {
         if (kind == CloudKind.WebDav) {
             openWebDav()
+            return
+        }
+        if (kind == CloudKind.GoogleDrive) {
+            openGoogleDrive()
             return
         }
         scope.launch {
@@ -178,6 +217,7 @@ private fun CloudGroup(
                 !configured -> stringResource(R.string.backup_not_set_up)
                 else -> stringResource(
                     when (kind) {
+                        CloudKind.GoogleDrive -> R.string.backup_gdrive_desc
                         CloudKind.Dropbox -> R.string.backup_dropbox_desc
                         CloudKind.OneDrive -> R.string.backup_onedrive_desc
                         CloudKind.WebDav -> R.string.backup_webdav_desc
@@ -276,3 +316,123 @@ internal fun stepText(step: CloudBackupStep): String? = when (step) {
 }
 
 private fun percent(progress: Float): Int = (progress * 100).toInt().coerceIn(0, 100)
+
+
+@Composable
+private fun GoogleDriveSignInContent(
+    viewModel: CloudBackupViewModel,
+    onLaunch: (android.net.Uri) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    val saved = remember { viewModel.savedGoogleDriveCredentials() }
+    var clientId by remember { mutableStateOf(saved.first) }
+    var clientSecret by remember { mutableStateOf(saved.second) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var busy by remember { mutableStateOf(false) }
+    val wp = com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current
+    val fieldBg = wp?.surface ?: Color(0xFF171717)
+    val borderCol = wp?.primary?.copy(alpha = 0.24f) ?: Color.White.copy(alpha = 0.14f)
+    val btnBg = wp?.primary ?: Color.White
+    val btnFg = wp?.onPrimary ?: Color.Black
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+    ) {
+        Text(
+            text = "Connect Google Drive",
+            color = Color.White,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = "Create a free Desktop app OAuth Client in Google Cloud Console (enable Google Drive API and add your Gmail as a Test user), then paste your credentials below.",
+            color = Color.White.copy(alpha = 0.65f),
+            fontSize = 12.sp,
+            lineHeight = 16.sp,
+        )
+        Spacer(Modifier.height(14.dp))
+
+        Text("Client ID", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.height(6.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .background(fieldBg)
+                .border(1.dp, borderCol, RoundedCornerShape(14.dp))
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+        ) {
+            if (clientId.isEmpty()) {
+                Text("xxxx.apps.googleusercontent.com", color = Color.White.copy(alpha = 0.35f), fontSize = 14.sp)
+            }
+            BasicTextField(
+                value = clientId,
+                onValueChange = { clientId = it; error = null },
+                singleLine = true,
+                textStyle = TextStyle(color = Color.White, fontSize = 14.sp),
+                cursorBrush = SolidColor(Color.White),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        Spacer(Modifier.height(12.dp))
+        Text("Client Secret", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.height(6.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .background(fieldBg)
+                .border(1.dp, borderCol, RoundedCornerShape(14.dp))
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+        ) {
+            if (clientSecret.isEmpty()) {
+                Text("GOCSPX-...", color = Color.White.copy(alpha = 0.35f), fontSize = 14.sp)
+            }
+            BasicTextField(
+                value = clientSecret,
+                onValueChange = { clientSecret = it; error = null },
+                singleLine = true,
+                textStyle = TextStyle(color = Color.White, fontSize = 14.sp),
+                cursorBrush = SolidColor(Color.White),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        if (error != null) {
+            Spacer(Modifier.height(8.dp))
+            Text(error!!, color = StorageDanger, fontSize = 12.sp)
+        }
+
+        Spacer(Modifier.height(16.dp))
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .clip(CircleShape)
+                .background(if (!busy && clientId.isNotBlank()) btnBg else btnBg.copy(alpha = 0.35f))
+                .clickable(enabled = !busy && clientId.isNotBlank()) {
+                    busy = true
+                    scope.launch {
+                        runCatching { viewModel.startGoogleDriveSignIn(clientId, clientSecret) }
+                            .onSuccess { onLaunch(it) }
+                            .onFailure {
+                                busy = false
+                                error = it.message ?: "Could not start Google sign-in"
+                            }
+                    }
+                },
+        ) {
+            Text(
+                text = if (busy) "Opening browser..." else "Sign in with Google",
+                color = btnFg,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
+}

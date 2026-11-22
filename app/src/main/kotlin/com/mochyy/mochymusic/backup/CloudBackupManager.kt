@@ -210,6 +210,7 @@ class CloudBackupManager @Inject constructor(
     }
 
     private fun cloudFor(account: CloudAccount): BackupCloud = when (account.kind) {
+        CloudKind.GoogleDrive -> GoogleDriveCloud(GoogleDriveSession(accounts))
         CloudKind.Dropbox -> DropboxCloud(OAuthSession(OAuthApp.Dropbox, accounts))
         CloudKind.OneDrive -> OneDriveCloud(OAuthSession(OAuthApp.OneDrive, accounts))
         CloudKind.WebDav -> WebDavCloud(account)
@@ -218,6 +219,7 @@ class CloudBackupManager @Inject constructor(
     // a browser login being replaced is told to forget its token, so it doesn't linger on dropbox's side
     private suspend fun forgetOldLogin() {
         val old = accounts.current() ?: return
+        if (old.kind == CloudKind.GoogleDrive) { GoogleDriveCloud.revoke(old.accessToken); return }
         OAuthApp.of(old.kind)?.revoke(old.accessToken)
     }
 

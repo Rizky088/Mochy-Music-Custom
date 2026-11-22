@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.component
 
+import androidx.compose.foundation.border
+
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -563,7 +565,15 @@ fun HomeHopInCard(
         modifier = modifier
             .height(HopInCardHeight)
             .clip(shape)
-            .background(HopInCardBg)
+            .background(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainer?.copy(alpha = 0.72f)
+                    ?: HopInCardBg
+            )
+            .then(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.let { wp ->
+                    Modifier.border(1.dp, wp.primary.copy(alpha = 0.16f), RoundedCornerShape(radius))
+                } ?: Modifier
+            )
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick,

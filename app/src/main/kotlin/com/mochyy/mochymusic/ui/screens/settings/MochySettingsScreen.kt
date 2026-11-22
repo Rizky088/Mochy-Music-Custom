@@ -270,13 +270,24 @@ private val SettingsIndex = listOf(
     SettingsEntry("Force playback", "Experimental", "experimental_settings", "fallback skip error stream failed youtube"),
 )
 
-internal val BubbleColor = Color(0xFF1C1C1E)
-private val SelectedBubbleColor = Color(0xFF3A3A3E)
+internal var BubbleColor by mutableStateOf(Color(0xFF1C1C1E))
+    private set
+private var SelectedBubbleColor by mutableStateOf(Color(0xFF3A3A3E))
 
 // the header holds the mochy mark with the big "Settings" under it, taller than search's title-only header
 private val SettingsTitleBlockHeight = 88.dp
 private val SettingsMarkSize = 32.dp
-internal val IconBgColor = Color(0xFF333338)
+internal var IconBgColor by mutableStateOf(Color(0xFF333338))
+    private set
+
+internal fun applySettingsPalette(palette: com.mochyy.mochymusic.ui.component.WallpaperPalette?) {
+    val b = palette?.surfaceContainer ?: Color(0xFF1C1C1E)
+    val sb = palette?.chipSelected ?: Color(0xFF3A3A3E)
+    val ib = palette?.surfaceContainerHigh ?: Color(0xFF333338)
+    if (BubbleColor != b) BubbleColor = b
+    if (SelectedBubbleColor != sb) SelectedBubbleColor = sb
+    if (IconBgColor != ib) IconBgColor = ib
+}
 
 @Composable
 fun MochySettingsScreen(navController: NavController, pane: SettingsPane? = null) {
@@ -342,7 +353,7 @@ fun MochySettingsScreen(navController: NavController, pane: SettingsPane? = null
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black),
     ) {
         Box(
             modifier = Modifier

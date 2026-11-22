@@ -6,6 +6,7 @@ import java.io.File
 
 /** the clouds a backup can go to, by the name saved with the account */
 enum class CloudKind(val label: String) {
+    GoogleDrive("Google Drive"),
     Dropbox("Dropbox"),
     OneDrive("OneDrive"),
     WebDav("WebDAV"),

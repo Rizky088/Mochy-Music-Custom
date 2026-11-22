@@ -44,6 +44,9 @@ fun MochyTheme(
     val wallpaperPalette = com.mochyy.mochymusic.ui.component.rememberWallpaperPalette()
     androidx.compose.runtime.SideEffect {
         com.mochyy.mochymusic.ui.screens.search.SearchColors.applyWallpaperPalette(wallpaperPalette)
+        com.mochyy.mochymusic.ui.screens.audiolab.LabColors.applyWallpaperPalette(wallpaperPalette)
+        com.mochyy.mochymusic.ui.screens.settings.integrations.discord.DiscordColors.applyWallpaperPalette(wallpaperPalette)
+        com.mochyy.mochymusic.ui.screens.settings.applySettingsPalette(wallpaperPalette)
     }
 
     val baseColorScheme = remember(darkTheme, wallpaperPalette) {

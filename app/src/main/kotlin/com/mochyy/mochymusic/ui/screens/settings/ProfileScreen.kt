@@ -448,11 +448,12 @@ fun ProfileScreen(navController: NavController) {
     val bottomBarInset = LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateBottomPadding()
 
     // the Mochy page, and over it the profile page when the card has been tapped
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    val profileSurfaceDeep = com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black
+    Box(modifier = Modifier.fillMaxSize().background(profileSurfaceDeep)) {
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(profileSurfaceDeep)
                 .onGloballyPositioned { rootOnScreen = it.positionOnScreen() }
                 .pointerInput(Unit) {
                     // a new touch is "in the header" only if the header itself says so (it sees it next)
@@ -464,6 +465,7 @@ fun ProfileScreen(navController: NavController) {
                 // zooms towards you and fades as the profile page opens out of the card
                 .zoomsAwayFor(profile),
         ) {
+            val profileHeaderBg = com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surface ?: HeaderGrey
             val viewportH = constraints.maxHeight.toFloat()
             val inset = with(density) { HomeContentInset.toPx() }
             // on its side the header is the left pane, the card as big as fits between the logo and the bottom bar
@@ -576,7 +578,7 @@ fun ProfileScreen(navController: NavController) {
                                 }
                             }
                             .then(if (landscape) Modifier.clipEndRounded(cornerPx) else Modifier.clipBottomRounded { cornerPx * (1f - expand) })
-                            .drawBehind { drawRect(lerp(HeaderGrey, StoryDark, expand)) }
+                            .drawBehind { drawRect(lerp(profileHeaderBg, profileSurfaceDeep, expand)) }
                             .giantText(giant, time, measurer, centerY = { windowHeight / 2f - rootOnScreen.y })
                             .recapDots(color = { lerp(HeaderDots, StoryDots, expand) }),
                     ) {
@@ -831,7 +833,7 @@ fun ProfileScreen(navController: NavController) {
                     ProgressiveGlassBackground(
                         state = glassState,
                         maxBlurRadius = { 55f * collapseProgress },
-                        foundationColor = Color.Black.copy(alpha = 0.55f * collapseProgress),
+                        foundationColor = profileSurfaceDeep.copy(alpha = 0.55f * collapseProgress),
                         direction = BlurDirection.BottomToTop,
                         steps = 3,
                         modifier = Modifier
@@ -845,10 +847,10 @@ fun ProfileScreen(navController: NavController) {
                             .background(
                                 if (progressiveBar) {
                                     Brush.verticalGradient(
-                                        listOf(Color.Black, Color.Black.copy(alpha = 0.85f * collapseProgress), Color.Transparent),
+                                        listOf(profileSurfaceDeep, profileSurfaceDeep.copy(alpha = 0.85f * collapseProgress), Color.Transparent),
                                     )
                                 } else {
-                                    androidx.compose.ui.graphics.SolidColor(Color.Black.copy(alpha = com.mochyy.mochymusic.ui.component.FlatBarScrimAlpha))
+                                    androidx.compose.ui.graphics.SolidColor(profileSurfaceDeep.copy(alpha = com.mochyy.mochymusic.ui.component.FlatBarScrimAlpha))
                                 },
                             ),
                     )
@@ -1030,7 +1032,7 @@ private fun ListeningTimeCard(totalMs: Long, onViewStats: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(PageCard)
+            .background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainer ?: PageCard)
             .clickable(onClick = onViewStats)
             .padding(CardPadding),
     ) {
@@ -1056,7 +1058,7 @@ private fun ListeningTimeCard(totalMs: Long, onViewStats: () -> Unit) {
             }
         }
         Spacer(Modifier.height(14.dp))
-        Box(Modifier.fillMaxWidth().height(1.dp).background(Color(0xFF474747)))
+        Box(Modifier.fillMaxWidth().height(1.dp).background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.divider ?: Color(0xFF474747)))
         Spacer(Modifier.height(12.dp))
         Text(
             stringResource(R.string.profile_view_stats),
@@ -1097,7 +1099,7 @@ private fun VersionCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(22.dp))
-                .background(PageCard)
+                .background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainer ?: PageCard)
                 .clickable(onClick = onCardClick)
                 .padding(CardPadding),
         ) {
@@ -1150,7 +1152,7 @@ private fun VersionCapsule(update: Boolean, onAbout: () -> Unit) {
                 scaleY = pop.value
             }
             .clip(CircleShape)
-            .background(Color(0xFF4D4D4D))
+            .background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.chipSelected ?: Color(0xFF4D4D4D))
             .clickable(onClick = onAbout)
             .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
@@ -1203,7 +1205,7 @@ private fun DeveloperCard(onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(PageCard)
+            .background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainer ?: PageCard)
             .clickable(interactionSource = interaction, indication = RemoteFocus, onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
@@ -1238,7 +1240,7 @@ private fun DiscordCard(onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(PageCard)
+            .background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainer ?: PageCard)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
@@ -1271,7 +1273,7 @@ private fun OpenSettingsRow(onClick: () -> Unit) {
             .fillMaxWidth()
             .height(64.dp)
             .clip(RoundedCornerShape(22.dp))
-            .background(PageCard)
+            .background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainer ?: PageCard)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp),
     ) {

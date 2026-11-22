@@ -108,7 +108,7 @@ fun SubSettingsScaffold(
     val scrollState = rememberScrollState()
     val glassState = remember { GlassState() }
 
-    val headerFoundationColor = Color.Black
+    val headerFoundationColor = LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black
 
     // Latch-and-settle collapse, same as Library/Search: once the threshold is crossed the morph
     // always finishes smoothly, even after the user's finger lifts mid-scroll.
@@ -145,7 +145,7 @@ fun SubSettingsScaffold(
         snapshotFlow { collapse.value < 0.5f }.collect { opened -> if (opened) searchOverlayVisible = false }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize().background(headerFoundationColor)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -191,13 +191,13 @@ fun SubSettingsScaffold(
                     .drawWithCache {
                         val gradient = if (progressive) {
                             Brush.verticalGradient(
-                                0f to Color.Black.copy(alpha = 0.90f),
-                                0.20f to Color.Black.copy(alpha = 0.50f),
-                                0.45f to Color.Black.copy(alpha = 0.18f),
+                                0f to headerFoundationColor.copy(alpha = 0.90f),
+                                0.20f to headerFoundationColor.copy(alpha = 0.50f),
+                                0.45f to headerFoundationColor.copy(alpha = 0.18f),
                                 0.75f to Color.Transparent,
                             )
                         } else {
-                            SolidColor(Color.Black.copy(alpha = FlatBarScrimAlpha))
+                            SolidColor(headerFoundationColor.copy(alpha = FlatBarScrimAlpha))
                         }
                         onDrawBehind { drawRect(brush = gradient) }
                     }
@@ -216,7 +216,7 @@ fun SubSettingsScaffold(
                     .padding(top = HeaderTopPadding)
                     .size(BackButtonSize)
                     .clip(CircleShape)
-                    .background(Color(0xFF2C2C2E))
+                    .background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: Color(0xFF2C2C2E))
                     .clickable(onClick = onBack),
                 contentAlignment = Alignment.Center
             ) {
@@ -315,7 +315,7 @@ fun SubSettingsScaffold(
                         shape = RoundedCornerShape(lerpDp(26.dp, BackButtonSize / 2, collapse.value))
                         clip = true
                     }
-                    .background(Color(0xFF2C2C2E))
+                    .background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: Color(0xFF2C2C2E))
             ) {
                 if (!iconTappable && !searchOverlayVisible) {
                     Box(
@@ -387,7 +387,7 @@ fun SubSettingsSearchBar(
             .fillMaxWidth()
             .height(52.dp)
             .clip(androidx.compose.foundation.shape.RoundedCornerShape(26.dp))
-            .background(Color(0xFF1C1C1E))
+            .background(LocalWallpaperPalette.current?.surfaceContainer ?: Color(0xFF1C1C1E))
             .padding(horizontal = 20.dp),
         contentAlignment = Alignment.CenterStart
     ) {

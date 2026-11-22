@@ -70,9 +70,14 @@ class CloudBackupViewModel @Inject constructor(
         }
     }
 
-    fun isConfigured(kind: CloudKind): Boolean = kind == CloudKind.WebDav || signIn.isConfigured(kind)
+    fun isConfigured(kind: CloudKind): Boolean = kind == CloudKind.WebDav || kind == CloudKind.GoogleDrive || signIn.isConfigured(kind)
 
     suspend fun loginUri(kind: CloudKind): Uri = signIn.loginUri(kind)
+
+    fun savedGoogleDriveCredentials(): Pair<String, String> = signIn.savedGoogleDriveCredentials()
+
+    suspend fun startGoogleDriveSignIn(clientId: String, clientSecret: String): Uri =
+        signIn.startGoogleDriveSignIn(clientId, clientSecret)
 
     fun cancelWaiting() = signIn.cancelWaiting()
 

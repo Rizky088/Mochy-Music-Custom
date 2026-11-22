@@ -93,16 +93,43 @@ import kotlinx.coroutines.flow.first
 import com.mochyy.mochymusic.ui.component.RemoteFocus
 
 object LabColors {
-    val Card = Color(0xFF1C1C1E)
-    val Stage = Color(0xFF0E0E10)
-    val StageLine = Color(0xFF2E2E32)
-    val Row = Color(0xFF26262A)
-    val RowSelected = Color(0xFF34343A)
-    val Chip = Color(0xFF232327)
+    var Card by mutableStateOf(Color(0xFF1C1C1E))
+        private set
+    var Stage by mutableStateOf(Color(0xFF0E0E10))
+        private set
+    var StageLine by mutableStateOf(Color(0xFF2E2E32))
+        private set
+    var Row by mutableStateOf(Color(0xFF26262A))
+        private set
+    var RowSelected by mutableStateOf(Color(0xFF34343A))
+        private set
+    var Chip by mutableStateOf(Color(0xFF232327))
+        private set
     val Primary = Color.White
-    val Secondary = Color(0xFF9A9AA0)
+    var Secondary by mutableStateOf(Color(0xFF9A9AA0))
+        private set
     val Faint = Color(0xFF5C5C63)
-    val Ink = Color(0xFF8A8A92)
+    var Ink by mutableStateOf(Color(0xFF8A8A92))
+        private set
+
+    fun applyWallpaperPalette(palette: com.mochyy.mochymusic.ui.component.WallpaperPalette?) {
+        val c = palette?.surfaceContainer ?: Color(0xFF1C1C1E)
+        val st = palette?.surface ?: Color(0xFF0E0E10)
+        val sl = palette?.divider ?: Color(0xFF2E2E32)
+        val r = palette?.surfaceContainerHigh ?: Color(0xFF26262A)
+        val rs = palette?.chipSelected ?: Color(0xFF34343A)
+        val ch = palette?.chip ?: Color(0xFF232327)
+        val sec = palette?.onSurfaceVariant ?: Color(0xFF9A9AA0)
+        val ink = palette?.placeholder ?: Color(0xFF8A8A92)
+        if (Card != c) Card = c
+        if (Stage != st) Stage = st
+        if (StageLine != sl) StageLine = sl
+        if (Row != r) Row = r
+        if (RowSelected != rs) RowSelected = rs
+        if (Chip != ch) Chip = ch
+        if (Secondary != sec) Secondary = sec
+        if (Ink != ink) Ink = ink
+    }
 
     /** the equalizer's node colours, soft enough to sit on mochy's greys and apart enough to tell */
     val Nodes = listOf(
