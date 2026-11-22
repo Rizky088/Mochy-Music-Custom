@@ -269,7 +269,7 @@ internal fun OnbCard(
                 scaleY = s
             }
             .clip(shape)
-            .background(if (pressed) (LocalWallpaperPalette.current?.surfaceContainerHigh ?: (LocalWallpaperPalette.current?.surfaceContainer ?: Onb.Card)Pressed) else (LocalWallpaperPalette.current?.surfaceContainer ?: Onb.Card))
+            .background(if (pressed) (LocalWallpaperPalette.current?.surfaceContainerHigh ?: Onb.CardPressed) else (LocalWallpaperPalette.current?.surfaceContainer ?: Onb.Card))
             .then(
                 if (onClick != null) Modifier.clickable(interactionSource = interaction, indication = RemoteFocus, onClick = onClick)
                 else Modifier
