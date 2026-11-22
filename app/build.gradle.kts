@@ -127,8 +127,9 @@ extensions.configure<ApplicationExtension> {
         // The Discord app Mochy signs in through (Developer Portal → your app → Application ID).
         // Discord sends the login back to discord-<id>:/authorize/callback, so the manifest needs it too.
         // Without one, the Discord page says so instead of opening a login that can't come back.
-        val discordClientId = localProperties.getProperty("DISCORD_CLIENT_ID")
-            ?: System.getenv("DISCORD_CLIENT_ID") ?: ""
+        val discordClientId = localProperties.getProperty("DISCORD_CLIENT_ID")?.takeIf { it.isNotBlank() }
+            ?: System.getenv("DISCORD_CLIENT_ID")?.takeIf { it.isNotBlank() }
+            ?: "1573945573239824384"
         buildConfigField("String", "DISCORD_CLIENT_ID", "\"$discordClientId\"")
         manifestPlaceholders["discordRedirectScheme"] =
             if (discordClientId.isNotBlank()) "discord-$discordClientId" else "mochy-discord-unset"

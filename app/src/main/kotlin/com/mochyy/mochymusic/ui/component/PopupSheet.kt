@@ -546,13 +546,23 @@ private fun BoxWithConstraintsScope.PopupSheetFrame(
         !frame.locked && (frame.closing || (pulling && frame.offset > ArrowAfterPull))
     }
 
-    // the sheet's colour, stepping up to the row gray as it recedes; the fade behind its bar matches it
-    val surfaceColor: () -> Color = remember(state, frame) {
+    // the sheet's colour, stepping up to the row tint as it recedes; matches wallpaper palette when active
+    val wpPalette = LocalWallpaperPalette.current
+    val baseSheetSurface = remember(frame.surface, wpPalette) {
+        when {
+            wpPalette == null -> frame.surface ?: MenuSurface
+            frame.surface == null -> wpPalette.surface
+            frame.surface == Color(0xFF1C1C1C) -> wpPalette.surface
+            else -> frame.surface
+        }
+    }
+    val recedeSheetSurface = remember(wpPalette) { wpPalette?.surfaceContainer ?: MenuRowSurface }
+    val surfaceColor: () -> Color = remember(state, frame, baseSheetSurface, recedeSheetSurface) {
         {
             val frames = state.frames
             val index = frames.indexOf(frame)
             val recede = if (index < 0) 0f else frames.depthAbove(index).coerceAtMost(1f)
-            lerp(frame.surface ?: MenuSurface, MenuRowSurface, recede)
+            lerp(baseSheetSurface, recedeSheetSurface, recede)
         }
     }
 

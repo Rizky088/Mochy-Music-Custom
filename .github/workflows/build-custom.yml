@@ -4,6 +4,16 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'fastlane/**'
+      - 'assets/**'
+      - '.github/**/*.md'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build_arm64_release:
@@ -19,6 +29,16 @@ jobs:
 
       - name: Set Up Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-cleanup: on-success
+
+      - name: Cache native CMake/NDK build
+        uses: actions/cache@v4
+        with:
+          path: app/.cxx
+          key: cxx-arm64-${{ runner.os }}-${{ hashFiles('app/src/main/cpp/**', 'app/CMakeLists.txt') }}
+          restore-keys: |
+            cxx-arm64-${{ runner.os }}-
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -40,7 +60,7 @@ jobs:
         env:
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
           GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
-        run: ./gradlew assembleArm64FossRelease --no-configuration-cache --console=plain --warning-mode summary
+        run: ./gradlew assembleArm64FossRelease --build-cache --parallel --no-configuration-cache --console=plain --warning-mode summary
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

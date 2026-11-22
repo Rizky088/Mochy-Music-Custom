@@ -6,6 +6,8 @@
 
 package com.mochyy.mochymusic.ui.screens.library
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -219,7 +221,7 @@ private fun ManageTile(action: ManageAction, modifier: Modifier = Modifier) {
         modifier = modifier
             .heightIn(min = 92.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(MenuRowSurface)
+            .background(LocalWallpaperPalette.current?.surfaceContainer ?: MenuRowSurface)
             .clickable(role = Role.Button, onClick = action.onClick)
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceBetween,
@@ -238,7 +240,7 @@ private fun ManageRow(action: ManageAction) {
             .fillMaxWidth()
             .heightIn(min = 52.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(MenuRowSurface)
+            .background(LocalWallpaperPalette.current?.surfaceContainer ?: MenuRowSurface)
             .clickable(role = Role.Button, onClick = action.onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {

@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.setup.onboarding
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import androidx.compose.ui.unit.em
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -187,14 +189,20 @@ internal fun OnbButton(
                 alpha = if (enabled) 1f else 0.45f
             }
             .clip(CircleShape)
-            .background(if (style == OnbButtonStyle.Primary) Onb.ButtonPrimary else Onb.ButtonSecondary)
+            .background(
+                if (style == OnbButtonStyle.Primary) {
+                    LocalWallpaperPalette.current?.chipSelected ?: Onb.ButtonPrimary
+                } else {
+                    LocalWallpaperPalette.current?.surfaceContainerHigh ?: Onb.ButtonSecondary
+                }
+            )
             .clickable(interactionSource = interaction, indication = RemoteFocus, enabled = enabled, onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 14.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = text,
-            color = if (style == OnbButtonStyle.Primary) Color.White else Onb.Muted,
+            color = if (style == OnbButtonStyle.Primary) Color.White else (LocalWallpaperPalette.current?.onSurfaceVariant ?: Onb.Muted),
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
@@ -229,7 +237,7 @@ internal fun OnbTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(CircleShape)
-                    .background(Onb.Field)
+                    .background(LocalWallpaperPalette.current?.surfaceContainer ?: Onb.Field)
                     .padding(start = 20.dp, end = if (trailing != null) 8.dp else 20.dp)
                     .heightIn(min = 50.dp),
             ) {
@@ -261,7 +269,7 @@ internal fun OnbCard(
                 scaleY = s
             }
             .clip(shape)
-            .background(if (pressed) Onb.CardPressed else Onb.Card)
+            .background(if (pressed) (LocalWallpaperPalette.current?.surfaceContainerHigh ?: (LocalWallpaperPalette.current?.surfaceContainer ?: Onb.Card)Pressed) else (LocalWallpaperPalette.current?.surfaceContainer ?: Onb.Card))
             .then(
                 if (onClick != null) Modifier.clickable(interactionSource = interaction, indication = RemoteFocus, onClick = onClick)
                 else Modifier

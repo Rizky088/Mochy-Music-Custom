@@ -2,6 +2,9 @@
 
 package com.mochyy.mochymusic.ui.component
 
+import androidx.compose.ui.draw.clipToBounds
+import kotlin.math.roundToInt
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.CubicBezierEasing
@@ -145,7 +148,7 @@ fun SubSettingsScaffold(
         snapshotFlow { collapse.value < 0.5f }.collect { opened -> if (opened) searchOverlayVisible = false }
     }
 
-    Box(modifier = modifier.fillMaxSize().background(headerFoundationColor)) {
+    Box(modifier = modifier.fillMaxSize().clipToBounds().background(headerFoundationColor)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -299,14 +302,19 @@ fun SubSettingsScaffold(
             // deforming into a circle rather than a new element appearing elsewhere.
             Box(
                 modifier = Modifier
-                    .layout { measurable, _ ->
+                    .layout { measurable, constraints ->
                         val p = collapse.value
-                        val width = lerpDp(expandedBarWidth, BackButtonSize, p).roundToPx()
+                        val paneWidthPx = if (constraints.hasBoundedWidth) constraints.maxWidth.toFloat() else screenWidth.toPx()
+                        val padPx = PagePadding.toPx()
+                        val backPx = BackButtonSize.toPx()
+                        val barExpandedW = (paneWidthPx - padPx * 2f).coerceAtLeast(backPx)
+                        val barCollapsedX = (paneWidthPx - padPx - backPx).coerceAtLeast(padPx)
+                        val width = lerp(barExpandedW, backPx, p).roundToInt().coerceAtLeast(1)
                         val height = lerpDp(SearchBarHeight, BackButtonSize, p).roundToPx()
                         val placeable = measurable.measure(Constraints.fixed(width, height))
                         layout(width, height) {
                             placeable.place(
-                                lerpDp(expandedBarX, collapsedBarX, p).roundToPx(),
+                                lerp(padPx, barCollapsedX, p).roundToInt(),
                                 lerpDp(expandedBarY, collapsedBarY, p).roundToPx(),
                             )
                         }

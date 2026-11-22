@@ -994,13 +994,14 @@ fun PlaylistHeader(
     val useClassic = side == null && !compact && playlistStyle == PlaylistStyle.CLASSIC
 
     val body: @Composable () -> Unit = {
-        Column(
-            modifier = Modifier.padding(
-                start = PlaylistInset + 1.dp,
-                end = PlaylistInset,
-                bottom = 14.dp,
-            )
-        ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(
+                    start = PlaylistInset + 1.dp,
+                    end = PlaylistInset,
+                    bottom = 14.dp,
+                )
+            ) {
             if (useClassic && framedCover != null) {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -1084,6 +1085,7 @@ fun PlaylistHeader(
             Spacer(Modifier.height(4.dp))
             below()
             Spacer(Modifier.height(10.dp))
+        }
         }
     }
 

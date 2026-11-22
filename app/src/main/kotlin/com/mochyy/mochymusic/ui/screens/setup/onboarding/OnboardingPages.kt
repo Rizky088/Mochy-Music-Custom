@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.setup.onboarding
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.mochyy.mochymusic.ui.component.rememberDeviceTilt
@@ -222,15 +224,16 @@ private fun OrDivider() {
             .fillMaxWidth()
             .padding(vertical = 6.dp),
     ) {
-        Box(Modifier.weight(1f).height(1.dp).background(Onb.Card))
+        val wp = LocalWallpaperPalette.current
+        Box(Modifier.weight(1f).height(1.dp).background(wp?.divider ?: Onb.Card))
         Text(
             text = stringResource(R.string.onb_or),
-            color = Onb.Muted,
+            color = wp?.onSurfaceVariant ?: Onb.Muted,
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 14.dp),
         )
-        Box(Modifier.weight(1f).height(1.dp).background(Onb.Card))
+        Box(Modifier.weight(1f).height(1.dp).background(wp?.divider ?: Onb.Card))
     }
 }
 
