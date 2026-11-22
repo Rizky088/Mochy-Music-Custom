@@ -198,7 +198,8 @@ class ModuleFeed @Inject constructor(
     }
 
     private fun packItemOf(parentId: String, item: JSONObject?): PackItem? {
-        val id = item?.optString("id")?.takeIf { it.isNotBlank() } ?: return null
+        if (item == null || item.optBoolean("hidden", false)) return null
+        val id = item.optString("id").takeIf { it.isNotBlank() } ?: return null
         item.optString("zipUrl").takeIf { it.startsWith("https://") }?.let { zipUrls["$parentId:$id"] = it }
         return PackItem(
             id = id,
@@ -216,6 +217,7 @@ class ModuleFeed @Inject constructor(
         val list = body.optJSONArray("modules") ?: return emptyList()
         return (0 until list.length()).mapNotNull { index ->
             val item = list.optJSONObject(index) ?: return@mapNotNull null
+            if (item.optBoolean("hidden", false)) return@mapNotNull null
             val id = item.optString("id").takeIf { it.isNotBlank() } ?: return@mapNotNull null
             item.optString("zipUrl").takeIf { it.startsWith("https://") }?.let { zipUrls[id] = it }
             FeedModule(

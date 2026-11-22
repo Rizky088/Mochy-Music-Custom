@@ -7,6 +7,8 @@
 
 package com.mochyy.mochymusic.ui.screens.profile
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -155,7 +157,7 @@ internal fun UserProfilePage(
                 .onPlaced { state.target.photo = it }
                 .landedOnly(state)
                 .clip(CircleShape)
-                .background(ProfilePhotoGrey)
+                .background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: ProfilePhotoGrey)
                 .clickable(onClick = openEditor),
         ) {
             if (photo != null) {
@@ -209,7 +211,7 @@ internal fun UserProfilePage(
                 .padding(horizontal = 30.dp)
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(DividerGrey),
+                .background(LocalWallpaperPalette.current?.divider ?: DividerGrey),
         )
         Spacer(Modifier.height(24.dp))
         ListensRow(state, viewModel, onOpenStats = { navController.navigate("stats") })
@@ -274,7 +276,7 @@ private fun EditProfilePill(onClick: () -> Unit, modifier: Modifier = Modifier) 
         ),
         modifier = modifier
             .clip(CircleShape)
-            .background(PillGrey)
+            .background(LocalWallpaperPalette.current?.chip ?: PillGrey)
             .clickable(onClick = onClick)
             .padding(horizontal = 15.dp, vertical = 8.dp),
     )
@@ -313,7 +315,7 @@ private fun ListensCard(total: ListenTotal, width: Dp, onClick: () -> Unit, modi
         modifier = modifier
             .width(width)
             .clip(RoundedCornerShape(18.dp))
-            .background(ListensCardGrey)
+            .background(LocalWallpaperPalette.current?.surfaceContainer ?: ListensCardGrey)
             .clickable(onClick = onClick)
             .padding(start = 22.dp, end = 16.dp, top = 18.dp, bottom = 14.dp),
     ) {
@@ -326,7 +328,7 @@ private fun ListensCard(total: ListenTotal, width: Dp, onClick: () -> Unit, modi
             Spacer(Modifier.width(6.dp))
             Text(
                 text = total.label,
-                style = TextStyle(fontFamily = FontFamily.Monospace, fontSize = 9.5.sp, color = Color(0xFF8A8A8A)),
+                style = TextStyle(fontFamily = FontFamily.Monospace, fontSize = 9.5.sp, color = LocalWallpaperPalette.current?.onSurfaceVariant ?: Color(0xFF8A8A8A)),
                 modifier = Modifier.alignByBaseline(),
             )
         }
@@ -347,18 +349,19 @@ private fun ListensFigure(value: String, unit: String, modifier: Modifier = Modi
         value.length == 3 -> 0.9f
         else -> 1f
     }
+    val figureColor = LocalWallpaperPalette.current?.onSurfaceVariant ?: FigureGrey
     Row(verticalAlignment = Alignment.Bottom, modifier = modifier) {
         OdometerNumber(
             value = value,
             fontSize = figureSp(46f * k),
             fontWeight = FontWeight.Bold,
             fontFamily = InterFontFamily,
-            color = FigureGrey,
+            color = figureColor,
             letterSpacing = (-2).sp,
         )
         Text(
             text = unit,
-            style = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = figureSp(19f * k), letterSpacing = (-0.6).sp, color = FigureGrey),
+            style = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = figureSp(19f * k), letterSpacing = (-0.6).sp, color = figureColor),
             maxLines = 1,
             modifier = Modifier.padding(start = 4.dp, bottom = (7 * k).dp),
         )

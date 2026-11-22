@@ -174,7 +174,7 @@ def inspect_zip(src: pathlib.Path) -> tuple[dict, bytes | None, str, list[str]]:
 
 def push_changes(message: str) -> None:
     if not prompt_yes_no("Push changes to GitHub now?", default=True):
-        print("Saved locally. Run option 5 later to push.")
+        print("Saved locally. Run option 6 later to push.")
         return
     subprocess.run(["git", "-C", str(REPO_ROOT), "add", "store/"], check=True)
     status = subprocess.run(
@@ -270,6 +270,8 @@ def add_zip_module() -> None:
         "tags": tags,
         "paid": False,
         "locked": False,
+        "hidden": False,
+        "hidden": False,
         "icon": icon_url,
         "banner": banner_url,
         "previews": [],
@@ -358,7 +360,8 @@ def edit_module() -> None:
     print("\n--- Edit Module ---")
     for i, m in enumerate(mods, 1):
         dlink = m.get("discordPostUrl") or m.get("postUrl") or "(no Discord link)"
-        print(f"  {i}. {m.get('name')} [{m.get('id')}] - {dlink}")
+        vis = " [HIDDEN]" if m.get("hidden") else ""
+        print(f"  {i}. {m.get('name')} [{m.get('id')}]{vis} - {dlink}")
     raw = input("Pick number to edit: ").strip()
     if not raw.isdigit() or not (1 <= int(raw) <= len(mods)):
         return
@@ -381,6 +384,7 @@ def edit_module() -> None:
     m["banner"] = pick_optional_image("Banner", slug, BANNERS_DIR, m.get("banner", ""))
     m["updated"] = int(time.time() * 1000)
 
+    m["hidden"] = prompt_yes_no("Hide module from store?", default=bool(m.get("hidden", False)))
     in_chart = slug in cat.get("chart", [])
     want_chart = prompt_yes_no("Feature in 'Best from community'?", default=in_chart)
     chart = [cid for cid in cat.get("chart", []) if cid != slug]
@@ -400,7 +404,8 @@ def remove_module() -> None:
         return
     print("\n--- Remove Module ---")
     for i, m in enumerate(mods, 1):
-        print(f"  {i}. {m.get('name')} [{m.get('id')}]")
+        vis = " [HIDDEN]" if m.get("hidden") else ""
+        print(f"  {i}. {m.get('name')} [{m.get('id')}]{vis}")
     raw = input("Pick number to remove: ").strip()
     if not raw.isdigit() or not (1 <= int(raw) <= len(mods)):
         return
@@ -419,14 +424,54 @@ def remove_module() -> None:
     push_changes(f"Store: remove {m.get('name')}")
 
 
+def toggle_hide_module() -> None:
+    cat = load_catalog()
+    mods = cat.get("modules", [])
+    if not mods:
+        print("No modules in store.")
+        return
+    chart = set(cat.get("chart", []))
+    print("\n--- Hide / Unhide Modules ---")
+    for i, m in enumerate(mods, 1):
+        state = "HIDDEN " if m.get("hidden") else "VISIBLE"
+        feat = " ★" if m.get("id") in chart else ""
+        print(f"  {i}. [{state}] {m.get('name')} ({m.get('id')}){feat}")
+    raw = input("Enter number(s) to toggle (e.g. 1 or 1, 3) [Enter = cancel]: ").strip()
+    if not raw:
+        return
+    tokens = [tok.strip() for tok in re.split(r"[,\s]+", raw) if tok.strip()]
+    changed = []
+    seen = set()
+    for tok in tokens:
+        if not tok.isdigit():
+            continue
+        idx = int(tok) - 1
+        if 0 <= idx < len(mods) and idx not in seen:
+            seen.add(idx)
+            m = mods[idx]
+            new_hidden = not bool(m.get("hidden", False))
+            m["hidden"] = new_hidden
+            m["updated"] = int(time.time() * 1000)
+            action = "Hidden" if new_hidden else "Shown"
+            changed.append(f"{action} '{m.get('name')}'")
+    if not changed:
+        print("No valid module numbers selected.")
+        return
+    save_catalog(cat)
+    for line in changed:
+        print(f"  -> {line}")
+    push_changes("Store: " + ", ".join(changed))
+
+
 def main() -> None:
     while True:
         print("\n=== Mochy Ext Module Store Manager ===")
         print("  1. Add / Update .zip module (from Downloads)")
         print("  2. Add / Update link or web module")
-        print("  3. Edit module (set Discord post link, banner, description)")
-        print("  4. Remove module")
-        print("  5. Push pending store changes to GitHub")
+        print("  3. Edit module (tags, Discord link, banner, hide/show)")
+        print("  4. Hide / Unhide module(s)")
+        print("  5. Remove module")
+        print("  6. Push pending store changes to GitHub")
         print("  0. Exit")
         choice = input("Choose: ").strip()
         if choice == "1":
@@ -436,8 +481,10 @@ def main() -> None:
         elif choice == "3":
             edit_module()
         elif choice == "4":
-            remove_module()
+            toggle_hide_module()
         elif choice == "5":
+            remove_module()
+        elif choice == "6":
             push_changes("Store: update catalog")
         elif choice == "0":
             break

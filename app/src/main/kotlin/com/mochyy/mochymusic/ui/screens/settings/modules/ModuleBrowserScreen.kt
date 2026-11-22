@@ -2,6 +2,10 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.modules
 
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+
 import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
 
 import android.content.ActivityNotFoundException
@@ -254,6 +258,26 @@ private fun LazyListScope.storeItems(
     }
     // the chips themselves float over this gap, so they can stick under the bar once it reaches it
     item(key = ChipsKey, contentType = "chips") { Spacer(Modifier.height(StoreChipsHeight + 18.dp)) }
+    item(key = "creator-policy", contentType = "policy") {
+        val wp = LocalWallpaperPalette.current
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = StorePadding, end = StorePadding, bottom = 10.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(wp?.surfaceContainer ?: Color(0xFF171717))
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+        ) {
+            Text(
+                text = "Store Policy: Modules are shared with respect to their creators. Any module published without the owner's approval will be removed from the store upon request.",
+                color = wp?.onSurfaceVariant ?: Color.White.copy(alpha = 0.68f),
+                fontFamily = InterFontFamily,
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+    }
     if (rows.isEmpty()) {
         item(key = "nothing", contentType = "note") { BrowserNote(null, stringResource(R.string.module_browser_nothing), Modifier.padding(horizontal = StorePadding)) }
     }

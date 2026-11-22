@@ -8,6 +8,8 @@
 
 package com.mochyy.mochymusic.ui.screens.recap
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -179,6 +181,10 @@ fun StatsScreen(navController: NavController) {
         }
     }
 
+    val wp = LocalWallpaperPalette.current
+    val pageBg = wp?.surfaceDeep ?: Color.Black
+    val chipColor = wp?.chip ?: ChipBg
+
     fun openPicker() {
         val choice = PickerChoice(kind, year, month)
         var handle: PopupSheetHandle? = null
@@ -192,7 +198,7 @@ fun StatsScreen(navController: NavController) {
                                 .fillMaxWidth()
                                 .height(54.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF666666))
+                                .background(LocalWallpaperPalette.current?.chipSelected ?: Color(0xFF666666))
                                 .clickable {
                                     kind = choice.kind
                                     year = choice.year
@@ -209,7 +215,7 @@ fun StatsScreen(navController: NavController) {
             }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    Box(modifier = Modifier.fillMaxSize().background(pageBg)) {
         Box(modifier = Modifier.fillMaxSize().glassRoot(glassState, isActive = { collapse > 0f })) {
             LazyColumn(
                 state = listState,
@@ -257,7 +263,7 @@ fun StatsScreen(navController: NavController) {
                             Modifier
                                 .padding(start = PagePadding, top = 4.dp, bottom = 14.dp)
                                 .clip(CircleShape)
-                                .background(ChipBg)
+                                .background(chipColor)
                                 .clickable {
                                     val open = !allOpen
                                     CardKeys.forEach { expanded[it] = open }
@@ -334,7 +340,7 @@ fun StatsScreen(navController: NavController) {
                 ProgressiveGlassBackground(
                     state = glassState,
                     maxBlurRadius = { 50f * collapse },
-                    foundationColor = Color.Black.copy(alpha = 0.5f),
+                    foundationColor = pageBg.copy(alpha = 0.5f),
                     direction = BlurDirection.BottomToTop,
                     steps = 3,
                     modifier = Modifier.fillMaxSize(),
@@ -346,10 +352,10 @@ fun StatsScreen(navController: NavController) {
             Box(
                 Modifier.fillMaxSize().background(
                     if (progressiveBar) {
-                        Brush.verticalGradient(listOf(Color.Black, Color.Black.copy(alpha = 0.7f), Color.Transparent))
+                        Brush.verticalGradient(listOf(pageBg, pageBg.copy(alpha = 0.7f), Color.Transparent))
                     } else {
                         androidx.compose.ui.graphics.SolidColor(
-                            Color.Black.copy(alpha = com.mochyy.mochymusic.ui.component.FlatBarScrimAlpha),
+                            pageBg.copy(alpha = com.mochyy.mochymusic.ui.component.FlatBarScrimAlpha),
                         )
                     },
                 ),
@@ -417,7 +423,7 @@ fun StatsScreen(navController: NavController) {
                     Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF2A2A2A)),
+                        .background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: Color(0xFF2A2A2A)),
             )
         }
     }
@@ -445,6 +451,7 @@ private fun StatsCardBox(
     detail: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val wp = LocalWallpaperPalette.current
     val open = expandKey != null && expanded?.get(expandKey) == true
     Column(
         modifier =
@@ -452,7 +459,7 @@ private fun StatsCardBox(
                 .padding(horizontal = PagePadding, vertical = 7.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(22.dp))
-                .background(StatsCard)
+                .background(wp?.surfaceContainer ?: StatsCard)
                 .then(if (expandKey != null && expanded != null) Modifier.clickable { expanded[expandKey] = !open } else Modifier)
                 .padding(start = 20.dp, end = 16.dp, top = 18.dp, bottom = 14.dp),
     ) {
@@ -466,7 +473,7 @@ private fun StatsCardBox(
                             .align(Alignment.BottomEnd)
                             .size(26.dp)
                             .clip(RoundedCornerShape(7.dp))
-                            .background(ChipBg),
+                            .background(wp?.chip ?: ChipBg),
                     contentAlignment = Alignment.Center,
                 ) { Chevron(open = open, size = 18) }
             }
@@ -567,7 +574,7 @@ private fun TotalCard(
         }
         ComparisonLine(s)
         Spacer(Modifier.height(10.dp))
-        Box(Modifier.fillMaxWidth().height(1.dp).background(Color(0xFF3A3A3A)))
+        Box(Modifier.fillMaxWidth().height(1.dp).background(LocalWallpaperPalette.current?.divider ?: Color(0xFF3A3A3A)))
         Spacer(Modifier.height(12.dp))
         // wraps onto a second line; in one row the last fact got squeezed to a sliver under the chevron
         FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -712,7 +719,7 @@ private fun ArtistCard(
                 model = top.thumbnailUrl?.resize(240, 240),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.size(80.dp).clip(CircleShape).background(Color(0xFF2A2A2A)),
+                modifier = Modifier.size(80.dp).clip(CircleShape).background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: Color(0xFF2A2A2A)),
             )
             Spacer(Modifier.width(16.dp))
             Column {
@@ -763,7 +770,7 @@ private fun SongCard(
                 model = top.thumbnailUrl?.resize(240, 240),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.size(78.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFF2A2A2A)),
+                modifier = Modifier.size(78.dp).clip(RoundedCornerShape(12.dp)).background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: Color(0xFF2A2A2A)),
             )
             Spacer(Modifier.width(16.dp))
             Column {
@@ -883,7 +890,7 @@ private fun RepeatCard(repeat: RepeatDay) {
                 model = repeat.song.thumbnailUrl?.resize(240, 240),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF2A2A2A)),
+                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(10.dp)).background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: Color(0xFF2A2A2A)),
             )
             Spacer(Modifier.width(14.dp))
             Column {
@@ -936,7 +943,7 @@ private fun NewFindsCard(
                     model = best.thumbnailUrl?.resize(160, 160),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(44.dp).clip(RoundedCornerShape(8.dp)).background(Color(0xFF2A2A2A)),
+                    modifier = Modifier.size(44.dp).clip(RoundedCornerShape(8.dp)).background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: Color(0xFF2A2A2A)),
                 )
                 Spacer(Modifier.width(12.dp))
                 Column {
@@ -999,7 +1006,7 @@ private fun RowScope.HabitTile(
             Modifier
                 .weight(1f)
                 .clip(RoundedCornerShape(14.dp))
-                .background(Color(0xFF1A1A1A))
+                .background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: Color(0xFF1A1A1A))
                 .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
         Text(label, style = statsText(12f, FontWeight.SemiBold, StatsInkMuted, 0f))
@@ -1078,7 +1085,7 @@ private fun ColumnScope.StatsPicker(
                         .padding(vertical = 5.dp)
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(14.dp))
-                        .background(if (on) Color(0xFF4A4A4A) else Color(0xFF2A2A2A))
+                        .background(if (on) (LocalWallpaperPalette.current?.chipSelected ?: Color(0xFF4A4A4A)) else (LocalWallpaperPalette.current?.chip ?: Color(0xFF2A2A2A)))
                         .then(
                             if (on) {
                                 Modifier.border(
@@ -1092,7 +1099,7 @@ private fun ColumnScope.StatsPicker(
                         .padding(horizontal = 16.dp, vertical = 12.dp),
             ) {
                 Box(Modifier.size(28.dp).clip(CircleShape).background(Color(0xFFD9D9D9)), contentAlignment = Alignment.Center) {
-                    if (on) Box(Modifier.size(12.dp).clip(CircleShape).background(Color(0xFF2A2A2A)))
+                    if (on) Box(Modifier.size(12.dp).clip(CircleShape).background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: Color(0xFF2A2A2A)))
                 }
                 Spacer(Modifier.width(14.dp))
                 Text(label, style = statsText(18f), modifier = Modifier.weight(1f))
@@ -1104,7 +1111,7 @@ private fun ColumnScope.StatsPicker(
                 .padding(vertical = 18.dp)
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(Color(0xFF555555)),
+                .background(LocalWallpaperPalette.current?.divider ?: Color(0xFF555555)),
         )
         Text(stringResource(R.string.rc_stats_what_year), style = statsText(36f, tracking = -1.4f))
         Wheel(items = years, selected = y, label = { "$it" }, onSelected = { y = it })

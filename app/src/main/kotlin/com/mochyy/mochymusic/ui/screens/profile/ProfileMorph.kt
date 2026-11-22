@@ -11,6 +11,8 @@
 
 package com.mochyy.mochymusic.ui.screens.profile
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -334,11 +336,14 @@ private fun ProfileBackHandler(state: ProfileMorphState) {
 /** Black, then the dots a beat behind it, so the Mochy page's own dots never sit on top of these. */
 @Composable
 private fun ProfileBackdrop(state: ProfileMorphState) {
+    val wp = LocalWallpaperPalette.current
+    val backdropColor = wp?.surfaceDeep ?: Color.Black
+    val dotsColor = wp?.surfaceContainer ?: ProfileDots
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .drawBehind { drawRect(Color.Black, alpha = state.backdrop.value) }
-            .recapDots(color = { ProfileDots }, alpha = { state.backdrop.value * state.backdrop.value }),
+            .drawBehind { drawRect(backdropColor, alpha = state.backdrop.value) }
+            .recapDots(color = { dotsColor }, alpha = { state.backdrop.value * state.backdrop.value }),
     )
 }
 
@@ -393,7 +398,7 @@ private fun FlyingParts(
             modifier = Modifier
                 .size(ProfilePhotoSize)
                 .graphicsLayer { flyPhoto(state) }
-                .background(ProfilePhotoGrey),
+                .background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: ProfilePhotoGrey),
         ) {
             if (photo != null) {
                 AsyncImage(

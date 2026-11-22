@@ -1112,6 +1112,12 @@ private fun VersionCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
+                Text(
+                    "Fork by Rizky088 · based on Mochy Music",
+                    style = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 11.5.sp, color = Color(0xFF8A8A8A)),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 if (updateHeadline != null) {
                     Text(updateHeadline, style = TextStyle(fontFamily = InterFontFamily, fontSize = 12.sp, color = Color(0xFF88FF76)), maxLines = 2)
                 }

@@ -194,6 +194,12 @@ private val Licenses =
         ),
         LicenseEntry(
             tag = "GPL-3.0",
+            title = "Mochy Ext · GNU General Public License v3.0",
+            subtitle = "Community fork by Rizky088, built on top of Mochy Music",
+            url = "https://github.com/Rizky088/Mochy-Music-Custom",
+        ),
+        LicenseEntry(
+            tag = "GPL-3.0",
             title = "ViviMusic · GNU General Public License v3.0",
             subtitle = "by vivizzz007 · base project this app was forked from",
             url = "https://github.com/vivizzz007/vivi-music/blob/main/LICENSE",
@@ -463,6 +469,26 @@ private fun ColumnScope.AboutSheetContent(
                         onClick = { onOpenDevSpace(dev.devSpaceIndex) },
                     )
                 }
+            }
+
+            Spacer(Modifier.height(18.dp))
+            SectionHeader("Mochy Ext Fork")
+            Spacer(Modifier.height(8.dp))
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(MenuRowSurface)
+                        .padding(vertical = 6.dp),
+            ) {
+                PersonRow(
+                    name = "Rizky088",
+                    subtitle = "Mochy Ext · community fork built on Mochy Music",
+                    avatarUrl = githubAvatarUrl("Rizky088"),
+                    showArrow = true,
+                    onClick = { context.openUrl("https://github.com/Rizky088/Mochy-Music-Custom") },
+                )
             }
 
             Spacer(Modifier.height(18.dp))
