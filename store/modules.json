@@ -12,6 +12,7 @@
     "Tools"
   ],
   "chart": [
+    "yenos-orbit-tablet-support-32",
     "mochy-ext-guide"
   ],
   "modules": [
@@ -23,7 +24,9 @@
       "author": "Rizky088",
       "description": "This custom store loads live from **store/modules.json** in `Rizky088/Mochy-Music-Custom`.\n\nAdd any `.zip` module (hosted in `store/zips/` or GitHub Releases via `zipUrl`), direct link module (`install: link`), or module pack without rebuilding the app.",
       "kind": "other",
-      "tags": ["Tools"],
+      "tags": [
+        "Tools"
+      ],
       "paid": false,
       "locked": false,
       "icon": "",
@@ -33,6 +36,28 @@
       "link": "https://github.com/Rizky088/Mochy-Music-Custom/tree/main/store",
       "postUrl": "https://github.com/Rizky088/Mochy-Music-Custom/tree/main/store",
       "updated": 1795344000000
+    },
+    {
+      "id": "yenos-orbit-tablet-support-32",
+      "name": "Yeno\u2019s Orbit Tablet Support 3:2",
+      "moduleId": "yeno-orbit-tablet-32",
+      "version": "1.4.2",
+      "author": "Yeno",
+      "description": "Tablet edition for Tablet 3:2 screens: the whole player is scaled up and the sky fills the screen. Your music in orbit. A circular cover ringed by a visualizer that glows brighter as the song plays, a progress arc with a glowing moon, a twinkling starfield, a live seek bar and controls on frosted glass. v2.0: make it yours - 6 colour themes, 4 visualizer rings, sky, seek bar, controls, title and lyrics styles, spinning cover, song change animations, background variants, plus the queue bar and audio format badge. New: galaxy, black hole, deep nebula and aurora backgrounds. Tap the artist name or the song title to open their page. Top and bottom padding sliders fit the player to any screen.",
+      "kind": "look",
+      "tags": [
+        "Looks"
+      ],
+      "paid": false,
+      "locked": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/yenos-orbit-tablet-support-32.png",
+      "banner": "",
+      "previews": [],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/yenos-orbit-tablet-support-32.zip",
+      "size": 570713,
+      "updated": 1795350340005,
+      "postUrl": "https://github.com/Rizky088/Mochy-Music-Custom/tree/main/store"
     }
   ]
 }
