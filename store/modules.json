@@ -154,9 +154,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/miku-player.zip",
       "size": 3812832,
-      "updated": 1795356343523,
+      "updated": 1795369301256,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573592465653366834",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573592465653366834"
+      "postUrl": "https://discord.com/channels/916351383341522994/1573592465653366834",
+      "hidden": true
     },
     {
       "id": "terminal-vintage",
@@ -177,9 +178,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/terminal-vintage.zip",
       "size": 3541085,
-      "updated": 1795356358426,
+      "updated": 1795369310115,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1574047132648869968",
-      "postUrl": "https://discord.com/channels/916351383341522994/1574047132648869968"
+      "postUrl": "https://discord.com/channels/916351383341522994/1574047132648869968",
+      "hidden": true
     },
     {
       "id": "crystal-glass",
@@ -200,9 +202,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/crystal-glass.zip",
       "size": 42375,
-      "updated": 1795354537694,
+      "updated": 1795369316057,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1572060423400980641",
-      "postUrl": "https://discord.com/channels/916351383341522994/1572060423400980641"
+      "postUrl": "https://discord.com/channels/916351383341522994/1572060423400980641",
+      "hidden": true
     },
     {
       "id": "cozy-pink",
@@ -223,9 +226,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/cozy-pink.zip",
       "size": 397730,
-      "updated": 1795356379494,
+      "updated": 1795369326287,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573799711545229495",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573799711545229495"
+      "postUrl": "https://discord.com/channels/916351383341522994/1573799711545229495",
+      "hidden": true
     },
     {
       "id": "sn-haze",
@@ -246,9 +250,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/sn-haze.zip",
       "size": 177329,
-      "updated": 1795356405190,
+      "updated": 1795369332888,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573928756387774615",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573928756387774615"
+      "postUrl": "https://discord.com/channels/916351383341522994/1573928756387774615",
+      "hidden": true
     },
     {
       "id": "vinyl-wave",
@@ -315,9 +320,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/sn-float.zip",
       "size": 183158,
-      "updated": 1795356494555,
+      "updated": 1795369377545,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573280525685231746",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573280525685231746"
+      "postUrl": "https://discord.com/channels/916351383341522994/1573280525685231746",
+      "hidden": true
     },
     {
       "id": "tape-trader-chart",
@@ -338,9 +344,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/tape-trader-chart.zip",
       "size": 213820,
-      "updated": 1795356516932,
+      "updated": 1795369385209,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573293432766603395",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573293432766603395"
+      "postUrl": "https://discord.com/channels/916351383341522994/1573293432766603395",
+      "hidden": true
     },
     {
       "id": "mochy-jarvis-hud",
@@ -361,9 +368,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/mochy-jarvis-hud.zip",
       "size": 2197331,
-      "updated": 1795356534427,
+      "updated": 1795369391463,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1572945147220467833",
-      "postUrl": "https://discord.com/channels/916351383341522994/1572945147220467833"
+      "postUrl": "https://discord.com/channels/916351383341522994/1572945147220467833",
+      "hidden": true
     },
     {
       "id": "retro-deck",
@@ -384,9 +392,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/retro-deck.zip",
       "size": 826090,
-      "updated": 1795356547283,
+      "updated": 1795369397620,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573561657467084920",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573561657467084920"
+      "postUrl": "https://discord.com/channels/916351383341522994/1573561657467084920",
+      "hidden": true
     },
     {
       "id": "manga-comic-player",
@@ -407,9 +416,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/manga-comic-player.zip",
       "size": 530414,
-      "updated": 1795356562504,
+      "updated": 1795369404325,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1572910020322918420",
-      "postUrl": "https://discord.com/channels/916351383341522994/1572910020322918420"
+      "postUrl": "https://discord.com/channels/916351383341522994/1572910020322918420",
+      "hidden": true
     },
     {
       "id": "qtide-qobuz",
@@ -430,9 +440,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/qtide-qobuz.zip",
       "size": 1750648,
-      "updated": 1795363424440,
+      "updated": 1795369426242,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573847246682849390",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573847246682849390"
+      "postUrl": "https://discord.com/channels/916351383341522994/1573847246682849390",
+      "hidden": true
     },
     {
       "id": "qtide-tidal",
@@ -453,9 +464,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/qtide-tidal.zip",
       "size": 1748457,
-      "updated": 1795363439755,
+      "updated": 1795369426242,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573847246682849390",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573847246682849390"
+      "postUrl": "https://discord.com/channels/916351383341522994/1573847246682849390",
+      "hidden": true
     },
     {
       "id": "edge-player",
