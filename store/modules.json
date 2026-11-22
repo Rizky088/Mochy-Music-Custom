@@ -12,6 +12,7 @@
     "Tools"
   ],
   "chart": [
+    "vitro-glass",
     "yeno-orbit"
   ],
   "modules": [
@@ -110,6 +111,29 @@
       "updated": 1795353195767,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
       "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
+    },
+    {
+      "id": "vitro-glass",
+      "name": "VitroGlass",
+      "moduleId": "vitro-glass",
+      "version": "1.2",
+      "author": "alec",
+      "description": "Apple's liquid glass, right in your Mochy!",
+      "kind": "look",
+      "tags": [
+        "Looks"
+      ],
+      "paid": false,
+      "locked": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/vitro-glass.png",
+      "banner": "",
+      "previews": [],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/vitro-glass.zip",
+      "size": 1283138,
+      "updated": 1795353459956,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573357652115984504",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573357652115984504"
     }
   ]
 }
