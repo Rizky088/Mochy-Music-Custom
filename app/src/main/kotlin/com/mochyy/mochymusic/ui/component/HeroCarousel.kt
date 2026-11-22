@@ -826,7 +826,7 @@ private fun HeroPager(
 
     // an upright tablet: cards side by side, the next one peeking in on the right; on its side each card fills the screen and wipes like the phone's
     // a single card has nothing to peek at, so it takes the whole width
-    val peek = isWideLayout() && !isLandscapeWindow() && !isSingleItem
+    val peek = false
 
     // the hero animates nearly all the time (video, gacha drift, the switch); bounded, that only
     // ever repaints the hero instead of the whole screen and every glass surface sampling it

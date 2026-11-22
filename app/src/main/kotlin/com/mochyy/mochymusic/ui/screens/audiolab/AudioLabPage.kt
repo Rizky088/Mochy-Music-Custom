@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.audiolab
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import android.os.Build
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -112,7 +114,7 @@ fun AudioLabPage(
         modifier = modifier
             .fillMaxSize()
             // what shows round the backdrop's edges as it shrinks back
-            .background(Color.Black),
+            .background(LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black),
     ) {
         val wide = maxWidth > ContentMaxWidth + SideMargin * 2
         // on a tablet the title lines up with the sheet's content, not the screen's edge
@@ -157,7 +159,7 @@ fun AudioLabPage(
                                 // black to the bottom even when there's little on the page
                                 .heightIn(min = viewport - headerDp + SheetCorner)
                                 // drawn round, never clipped: a two-corner clip is a path, and compose drops every touch past 8192 px down a path
-                                .background(SheetColor, SheetShape),
+                                .background(LocalWallpaperPalette.current?.surfaceDeep ?: SheetColor, SheetShape),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Column(
@@ -208,7 +210,7 @@ private fun LabBackdrop(scroll: ScrollState, headerHeight: Int, content: @Compos
                     null
                 }
             }
-            .background(PageBackdrop)
+            .background(LocalWallpaperPalette.current?.surface ?: PageBackdrop)
             .dotGrid(),
         content = content,
     )

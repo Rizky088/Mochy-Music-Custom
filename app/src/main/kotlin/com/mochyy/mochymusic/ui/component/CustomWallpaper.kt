@@ -1,27 +1,54 @@
 package com.mochyy.mochymusic.ui.component
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
+import android.net.Uri
+import android.os.Build
+import android.view.Gravity
+import android.view.TextureView
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.ColorUtils
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.VideoSize
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.palette.graphics.Palette
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.materialkolor.score.Score
+import com.mochyy.mochymusic.LocalAppContentObscured
 import com.mochyy.mochymusic.constants.CustomWallpaperBlurKey
 import com.mochyy.mochymusic.constants.CustomWallpaperDimKey
 import com.mochyy.mochymusic.constants.CustomWallpaperPathKey
@@ -29,6 +56,16 @@ import com.mochyy.mochymusic.utils.rememberPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.Locale
+
+fun isVideoWallpaperPath(path: String): Boolean {
+    val lower = path.lowercase(Locale.ROOT)
+    return lower.endsWith(".mp4") ||
+        lower.endsWith(".webm") ||
+        lower.endsWith(".mkv") ||
+        lower.endsWith(".mov") ||
+        lower.endsWith(".m4v")
+}
 
 @Immutable
 data class WallpaperPalette(
@@ -106,6 +143,23 @@ private fun buildWallpaperPalette(primaryArgb: Int, secondaryArgb: Int): Wallpap
     )
 }
 
+private fun decodeWallpaperSampleBitmap(file: File): Bitmap? {
+    if (isVideoWallpaperPath(file.absolutePath)) {
+        val retriever = MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(file.absolutePath)
+            retriever.getFrameAtTime(1_000_000L, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+                ?: retriever.getFrameAtTime(0L)
+        } catch (_: Exception) {
+            null
+        } finally {
+            runCatching { retriever.release() }
+        }
+    }
+    val opts = BitmapFactory.Options().apply { inSampleSize = 4 }
+    return BitmapFactory.decodeFile(file.absolutePath, opts)
+}
+
 @Composable
 fun rememberWallpaperPalette(): WallpaperPalette? {
     val path by rememberPreference(CustomWallpaperPathKey, defaultValue = "")
@@ -115,8 +169,7 @@ fun rememberWallpaperPalette(): WallpaperPalette? {
         value = withContext(Dispatchers.IO) {
             val file = File(path)
             if (!file.exists() || file.length() <= 0L) return@withContext null
-            val opts = BitmapFactory.Options().apply { inSampleSize = 4 }
-            val bmp = BitmapFactory.decodeFile(file.absolutePath, opts) ?: return@withContext null
+            val bmp = decodeWallpaperSampleBitmap(file) ?: return@withContext null
             try {
                 val swatches = Palette.from(bmp)
                     .maximumColorCount(24)
@@ -139,6 +192,110 @@ fun rememberWallpaperPalette(): WallpaperPalette? {
     return palette
 }
 
+@OptIn(UnstableApi::class)
+@Composable
+fun LiveWallpaperVideo(
+    path: String,
+    blurDp: Float = 0f,
+    pauseWhenObscured: Boolean = true,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val lifecycle by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
+    val obscured = LocalAppContentObscured.current.value
+    val shouldPlay = lifecycle.isAtLeast(Lifecycle.State.STARTED) && (!pauseWhenObscured || !obscured)
+    val blurPx = with(LocalDensity.current) { blurDp.dp.toPx() }
+
+    val aspectRatioFrame = remember(path) {
+        AspectRatioFrameLayout(context).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                Gravity.CENTER,
+            )
+            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+            setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
+    }
+    val textureView = remember(path) {
+        TextureView(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            )
+        }
+    }
+    val container = remember(path) {
+        FrameLayout(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            )
+            clipChildren = true
+            setBackgroundColor(android.graphics.Color.TRANSPARENT)
+            aspectRatioFrame.addView(textureView)
+            addView(aspectRatioFrame)
+        }
+    }
+
+    val player = remember(path) {
+        val trackSelector = DefaultTrackSelector(context.applicationContext).apply {
+            parameters = buildUponParameters()
+                .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, true)
+                .build()
+        }
+        ExoPlayer.Builder(context.applicationContext)
+            .setTrackSelector(trackSelector)
+            .build()
+            .apply {
+                setAudioAttributes(AudioAttributes.DEFAULT, false)
+                repeatMode = Player.REPEAT_MODE_ALL
+                volume = 0f
+                setVideoTextureView(textureView)
+                addListener(object : Player.Listener {
+                    override fun onVideoSizeChanged(videoSize: VideoSize) {
+                        if (videoSize.width > 0 && videoSize.height > 0) {
+                            aspectRatioFrame.post {
+                                aspectRatioFrame.setAspectRatio(videoSize.width.toFloat() / videoSize.height.toFloat())
+                            }
+                        }
+                    }
+                })
+                setMediaItem(MediaItem.fromUri(Uri.fromFile(File(path))))
+                prepare()
+            }
+    }
+
+    LaunchedEffect(player, shouldPlay) {
+        player.playWhenReady = shouldPlay
+    }
+
+    DisposableEffect(player) {
+        onDispose {
+            runCatching {
+                player.clearVideoTextureView(textureView)
+                player.release()
+            }
+        }
+    }
+
+    AndroidView(
+        factory = { container },
+        update = { view ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                view.setRenderEffect(
+                    if (blurPx > 0.5f) {
+                        BlurEffectCache.getNative(blurPx, android.graphics.Shader.TileMode.CLAMP)
+                    } else {
+                        null
+                    }
+                )
+            }
+        },
+        modifier = modifier.fillMaxSize(),
+    )
+}
+
 @Composable
 fun CustomWallpaperLayer(
     enabled: Boolean,
@@ -156,17 +313,25 @@ fun CustomWallpaperLayer(
     val context = LocalContext.current
 
     Box(modifier = modifier.fillMaxSize()) {
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(File(path))
-                .crossfade(true)
-                .build(),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .then(if (blurDp > 0.5f) Modifier.blur(blurDp.dp) else Modifier),
-        )
+        if (isVideoWallpaperPath(path)) {
+            LiveWallpaperVideo(
+                path = path,
+                blurDp = blurDp,
+                modifier = Modifier.fillMaxSize(),
+            )
+        } else {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(File(path))
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(if (blurDp > 0.5f) Modifier.blur(blurDp.dp) else Modifier),
+            )
+        }
 
         if (paletteOverlay && palette != null) {
             Box(

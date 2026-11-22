@@ -2,6 +2,12 @@
 
 package com.mochyy.mochymusic.ui.component
 
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.CompositingStrategy
+import com.mochyy.mochymusic.utils.rememberPreference
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -83,12 +89,33 @@ internal fun SpeedDialHeroPage(
     onSummon: () -> Unit,
 ) {
     val peek = LocalHeroPeek.current
+    val heroWallpaperPath by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "")
+    val heroWallpaperOnHome by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperHomeKey, defaultValue = true)
+    val blendHeroWithWallpaper = heroWallpaperOnHome && heroWallpaperPath.isNotBlank()
     PageWipe(pageOffset = pageOffset, curve = wipeCurve, blur = transitionBlur, peek = peek) {
         // the whole card summons, not just the pill; the pill above it still takes its own taps
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .clickable(interactionSource = null, indication = null, onClick = onSummon)
+                .graphicsLayer {
+                    if (blendHeroWithWallpaper) compositingStrategy = CompositingStrategy.Offscreen
+                }
+                .drawWithContent {
+                    drawContent()
+                    if (blendHeroWithWallpaper) {
+                        drawRect(
+                            brush = Brush.verticalGradient(
+                                0.00f to Color.Black,
+                                0.58f to Color.Black,
+                                0.78f to Color.Black.copy(alpha = 0.62f),
+                                0.91f to Color.Black.copy(alpha = 0.18f),
+                                1.00f to Color.Transparent,
+                            ),
+                            blendMode = BlendMode.DstIn,
+                        )
+                    }
+                }
                 .pageMediaDrift(pageOffset, peek)
                 .coverTintBackground(item.covers.take(2), seed = "speed_dial", darkening = HeroTintDarkening)
         ) {

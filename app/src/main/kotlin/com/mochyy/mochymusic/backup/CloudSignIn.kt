@@ -2,6 +2,10 @@
 
 package com.mochyy.mochymusic.backup
 
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
+
 import okhttp3.FormBody
 import okhttp3.Request
 import java.io.BufferedReader
@@ -150,7 +154,7 @@ class CloudSignIn @Inject constructor(
         val state = Pkce.randomCode(24)
         val verifier = Pkce.randomCode(64)
         val server = withContext(Dispatchers.IO) {
-            ServerSocket(0, 4, InetAddress.getByName("127.0.0.1")).apply { soTimeout = 300_000 }
+            ServerSocket(0, 16, InetAddress.getByName("127.0.0.1")).apply { reuseAddress = true; soTimeout = 300_000 }
         }
         loopbackServer = server
         val redirectUri = "http://127.0.0.1:${server.localPort}/callback"
@@ -182,34 +186,54 @@ class CloudSignIn @Inject constructor(
         verifier: String,
     ) {
         try {
-            var callbackUri: Uri? = null
-            while (callbackUri == null) {
-                val socket = server.accept()
-                socket.use { s ->
-                    val reader = BufferedReader(InputStreamReader(s.getInputStream(), StandardCharsets.UTF_8))
-                    val requestLine = reader.readLine().orEmpty()
-                    while (true) {
-                        val line = reader.readLine()
-                        if (line.isNullOrEmpty()) break
+            val callbackDeferred = CompletableDeferred<Uri>()
+            val acceptJob = scope.launch {
+                try {
+                    while (!server.isClosed && !callbackDeferred.isCompleted) {
+                        val socket = server.accept()
+                        launch {
+                            try {
+                                socket.use { s ->
+                                    s.soTimeout = 5_000
+                                    val reader = BufferedReader(InputStreamReader(s.getInputStream(), StandardCharsets.UTF_8))
+                                    val requestLine = runCatching { reader.readLine() }.getOrNull().orEmpty()
+                                    if (requestLine.isBlank()) return@use
+                                    while (true) {
+                                        val line = runCatching { reader.readLine() }.getOrNull()
+                                        if (line.isNullOrEmpty()) break
+                                    }
+                                    val path = requestLine.split(" ").getOrNull(1).orEmpty()
+                                    val out = s.getOutputStream()
+                                    if (!path.startsWith("/callback")) {
+                                        val notFound = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+                                        out.write(notFound.toByteArray(StandardCharsets.UTF_8))
+                                        out.flush()
+                                    } else {
+                                        val uri = Uri.parse("http://127.0.0.1$path")
+                                        val html = "<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta http-equiv='refresh' content='0;url=mochy-backup://gdrive-done'><style>body{background:#111;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:24px;text-align:center}a{margin-top:16px;padding:12px 24px;border-radius:999px;background:#fff;color:#111;text-decoration:none;font-weight:600}</style></head><body><h2>Signed in to Google Drive</h2><p>Returning to Mochy...</p><a href='mochy-backup://gdrive-done'>Return to Mochy</a><script>setTimeout(function(){window.location.href='mochy-backup://gdrive-done';},120);</script></body></html>"
+                                        val bodyBytes = html.toByteArray(StandardCharsets.UTF_8)
+                                        val resp = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: ${bodyBytes.size}\r\nConnection: close\r\n\r\n"
+                                        out.write(resp.toByteArray(StandardCharsets.UTF_8))
+                                        out.write(bodyBytes)
+                                        out.flush()
+                                        callbackDeferred.complete(uri)
+                                    }
+                                }
+                            } catch (_: Exception) {
+                            }
+                        }
                     }
-                    val path = requestLine.split(" ").getOrNull(1).orEmpty()
-                    val out = s.getOutputStream()
-                    if (!path.startsWith("/callback")) {
-                        val notFound = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
-                        out.write(notFound.toByteArray(StandardCharsets.UTF_8))
-                        out.flush()
-                    } else {
-                        callbackUri = Uri.parse("http://127.0.0.1$path")
-                        val html = "<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta http-equiv='refresh' content='0;url=mochy-backup://gdrive-done'><style>body{background:#111;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:24px;text-align:center}a{margin-top:16px;padding:12px 24px;border-radius:999px;background:#fff;color:#111;text-decoration:none;font-weight:600}</style></head><body><h2>Signed in to Google Drive</h2><p>Returning to Mochy...</p><a href='mochy-backup://gdrive-done'>Return to Mochy</a></body></html>"
-                        val bodyBytes = html.toByteArray(StandardCharsets.UTF_8)
-                        val resp = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: ${bodyBytes.size}\r\nConnection: close\r\n\r\n"
-                        out.write(resp.toByteArray(StandardCharsets.UTF_8))
-                        out.write(bodyBytes)
-                        out.flush()
-                    }
+                } catch (_: Exception) {
                 }
             }
-            val cb = callbackUri ?: return
+            val cb = withTimeoutOrNull(300_000L) { callbackDeferred.await() }
+            delay(250)
+            acceptJob.cancel()
+            runCatching { server.close() }
+            if (cb == null) {
+                _login.value = CloudLogin.Failed(CloudProblem.Expired)
+                return
+            }
             if (cb.getQueryParameter("state") != expectedState) {
                 _login.value = CloudLogin.Failed(CloudProblem.Expired)
                 return

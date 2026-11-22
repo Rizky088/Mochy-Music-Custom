@@ -1107,7 +1107,7 @@ private fun VersionCard(
                 Text(stringResource(R.string.profile_version_about_app), style = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color(0xFF9A9A9A)))
                 Text(
                     // "7.1.1 build#1093" -> "7.1.1"
-                    BuildConfig.VERSION_NAME.substringBefore(' '),
+                    BuildConfig.VERSION_NAME.substringBefore(" build#").substringBefore(" ("),
                     style = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = figureSp(44f * k), letterSpacing = (-2).sp, color = Color.White),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.storage
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
@@ -105,7 +107,7 @@ internal fun StorageCardColumn(modifier: Modifier = Modifier, content: @Composab
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .background(StorageCard)
+            .background(LocalWallpaperPalette.current?.surfaceContainer ?: StorageCard)
             .padding(horizontal = 20.dp, vertical = 18.dp),
         content = content,
     )
@@ -132,7 +134,7 @@ internal fun UsageBar(parts: List<BarPart>, total: Long, modifier: Modifier = Mo
             .fillMaxWidth()
             .height(10.dp)
             .clip(CircleShape)
-            .background(StorageTrack)
+            .background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: StorageTrack)
             .drawBehind {
                 val minSliver = 3.dp.toPx()
                 var x = 0f
@@ -202,6 +204,8 @@ internal fun StepSlider(
     val currentOnChange by rememberUpdatedState(onValueChange)
     val density = LocalDensity.current
     val pillPx = with(density) { SliderHeight.toPx() }
+    val trackColor = LocalWallpaperPalette.current?.surfaceContainerHigh ?: StorageTrack
+    val gripColor = LocalWallpaperPalette.current?.surfaceDeep ?: StorageCard
 
     // where along the pill a finger is, with the grip's half-width kept clear at both ends
     fun fractionAt(x: Float, width: Int): Float = ((x - pillPx / 2f) / (width - pillPx)).coerceIn(0f, 1f)
@@ -240,7 +244,7 @@ internal fun StepSlider(
                 // never thinner than a circle, so even "no cache" leaves a round end to grab
                 val fill = pillPx + fraction * (size.width - pillPx)
                 val gripX = fill - pillPx / 2f
-                drawRoundRect(StorageTrack, Offset(0f, top), Size(size.width, height), round)
+                drawRoundRect(trackColor, Offset(0f, top), Size(size.width, height), round)
                 drawRoundRect(Color.White, Offset(0f, top), Size(fill, height), round)
                 // dots on the empty part only, so the stops read without cluttering the fill
                 for (i in steps.indices) {
@@ -250,7 +254,7 @@ internal fun StepSlider(
                 val gripWidth = 3.dp.toPx()
                 val gripHeight = height * 0.42f
                 drawRoundRect(
-                    color = StorageCard.copy(alpha = 0.6f),
+                    color = gripColor.copy(alpha = 0.6f),
                     topLeft = Offset(gripX - gripWidth / 2f, centerY - gripHeight / 2f),
                     size = Size(gripWidth, gripHeight),
                     cornerRadius = CornerRadius(gripWidth / 2f),
@@ -279,7 +283,7 @@ internal fun StorageActionButton(
             .heightIn(min = 50.dp)
             .graphicsLayer { alpha = if (enabled) 1f else 0.45f }
             .clip(CircleShape)
-            .background(StorageCard)
+            .background(LocalWallpaperPalette.current?.surfaceContainer ?: StorageCard)
             .clickable(interactionSource = interaction, indication = RemoteFocus, enabled = enabled, onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 9.dp),
     ) {

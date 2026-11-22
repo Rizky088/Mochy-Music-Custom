@@ -53,7 +53,7 @@ import com.mochyy.mochymusic.ui.theme.InterFontFamily
 import java.io.File
 
 /** the darker card a module's row and the empty slots sit on, the mock's #131313 */
-internal val ModuleRowColor = Color(0xFF131314)
+internal val ModuleRowColor: Color get() = LabColors.Card
 
 /** green on, grey off, amber when it needs something (signing in, a server that didn't answer) */
 internal val StatusOn = Color(0xFF30D158)
@@ -232,7 +232,7 @@ internal fun DashedSlot(text: String, onClick: () -> Unit, compact: Boolean = fa
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .background(ModuleRowColor)
+            .background(LabColors.Stage)
             .drawBehind {
                 val inset = 1.dp.toPx()
                 drawRoundRect(

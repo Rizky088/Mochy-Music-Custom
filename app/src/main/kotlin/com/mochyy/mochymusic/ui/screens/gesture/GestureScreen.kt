@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.gesture
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import android.widget.Toast
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
@@ -176,7 +178,7 @@ fun CustomisationScreen(navController: NavController) {
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black)
                 .verticalScroll(scroll),
         ) {
             val landscape = maxWidth > maxHeight && maxWidth >= 600.dp
@@ -592,8 +594,19 @@ private fun WallpaperPickerSection() {
     ) { uri ->
         if (uri != null) {
             val appCtx = context.applicationContext
+            val oldPath = path
             Thread {
-                val outFile = java.io.File(appCtx.filesDir, "custom_wallpaper_${System.currentTimeMillis()}.jpg")
+                val mime = runCatching { appCtx.contentResolver.getType(uri) }.getOrNull().orEmpty().lowercase(java.util.Locale.ROOT)
+                val ext = when {
+                    mime.contains("png") -> "png"
+                    mime.contains("webp") -> "webp"
+                    mime.contains("webm") -> "webm"
+                    mime.contains("matroska") || mime.contains("mkv") -> "mkv"
+                    mime.contains("quicktime") || mime.contains("mov") -> "mov"
+                    mime.startsWith("video/") -> "mp4"
+                    else -> "jpg"
+                }
+                val outFile = java.io.File(appCtx.filesDir, "custom_wallpaper_${System.currentTimeMillis()}.$ext")
                 val copied = runCatching {
                     appCtx.contentResolver.openInputStream(uri)!!.use { input ->
                         outFile.outputStream().use { output -> input.copyTo(output) }
@@ -601,6 +614,14 @@ private fun WallpaperPickerSection() {
                     true
                 }.getOrDefault(false)
                 val savedPath = if (copied && outFile.exists() && outFile.length() > 0L) {
+                    runCatching {
+                        val oldFile = java.io.File(oldPath)
+                        if (oldPath.isNotBlank() && oldFile.absolutePath != outFile.absolutePath &&
+                            oldFile.parentFile == appCtx.filesDir && oldFile.name.startsWith("custom_wallpaper_")
+                        ) {
+                            oldFile.delete()
+                        }
+                    }
                     outFile.absolutePath
                 } else {
                     outFile.delete()
@@ -609,9 +630,9 @@ private fun WallpaperPickerSection() {
                 android.os.Handler(android.os.Looper.getMainLooper()).post {
                     if (savedPath.isNotEmpty()) {
                         setPath(savedPath)
-                        Toast.makeText(appCtx, "Wallpaper updated", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(appCtx, if (mime.startsWith("video/")) "Live wallpaper updated" else "Wallpaper updated", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(appCtx, "Could not load image", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(appCtx, "Could not load media", Toast.LENGTH_SHORT).show()
                     }
                 }
             }.start()
@@ -632,15 +653,40 @@ private fun WallpaperPickerSection() {
         Spacer(Modifier.height(14.dp))
         LabCard(padding = CardPadding) {
             if (path.isNotBlank()) {
-                coil3.compose.AsyncImage(
-                    model = java.io.File(path),
-                    contentDescription = null,
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(140.dp)
                         .clip(RoundedCornerShape(14.dp)),
-                )
+                ) {
+                    if (com.mochyy.mochymusic.ui.component.isVideoWallpaperPath(path)) {
+                        com.mochyy.mochymusic.ui.component.LiveWallpaperVideo(
+                            path = path,
+                            blurDp = 0f,
+                            pauseWhenObscured = false,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                        Text(
+                            text = "LIVE",
+                            color = Color.White,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(8.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(Color.Black.copy(alpha = 0.6f))
+                                .padding(horizontal = 8.dp, vertical = 3.dp),
+                        )
+                    } else {
+                        coil3.compose.AsyncImage(
+                            model = java.io.File(path),
+                            contentDescription = null,
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                }
                 Spacer(Modifier.height(12.dp))
             }
             Row(
@@ -651,13 +697,13 @@ private fun WallpaperPickerSection() {
                     onClick = {
                         picker.launch(
                             androidx.activity.result.PickVisualMediaRequest(
-                                androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
+                                androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo
                             )
                         )
                     },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(if (path.isBlank()) "Pick Image" else "Change Image")
+                    Text(if (path.isBlank()) "Pick Image / Video" else "Change Wallpaper")
                 }
                 if (path.isNotBlank()) {
                     androidx.compose.material3.OutlinedButton(

@@ -98,15 +98,19 @@ class DiscordAuth @Inject constructor(
     }
 
     private suspend fun resolveClientId(): String {
+        if (BuildConfig.DISCORD_CLIENT_ID.isNotBlank()) return BuildConfig.DISCORD_CLIENT_ID
         val stored = context.dataStore.data.first()[DiscordCustomClientIdKey]?.trim().orEmpty()
         if (stored.isNotBlank()) {
             runtimeClientId = stored
             return stored
         }
-        return runtimeClientId.ifBlank { BuildConfig.DISCORD_CLIENT_ID }
+        return runtimeClientId
     }
 
     private suspend fun resolveRedirectUri(): String {
+        if (BuildConfig.DISCORD_CLIENT_ID.isNotBlank()) {
+            return "discord-${BuildConfig.DISCORD_CLIENT_ID}:/authorize/callback"
+        }
         val stored = context.dataStore.data.first()[DiscordCustomClientIdKey]?.trim().orEmpty()
         return if (stored.isNotBlank() || runtimeClientId.isNotBlank()) CustomRedirectUri
         else "discord-${BuildConfig.DISCORD_CLIENT_ID}:/authorize/callback"

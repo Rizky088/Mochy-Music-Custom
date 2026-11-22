@@ -77,7 +77,6 @@ fun DiscordScreen(
     val profile by viewModel.profile.collectAsState()
     val signedIn by viewModel.signedIn.collectAsState()
     val configured by viewModel.isConfigured.collectAsState()
-    val customClientId by viewModel.customClientId.collectAsState()
     val login by viewModel.login.collectAsState()
     val connection by viewModel.connection.collectAsState()
     val playing by viewModel.nowPlaying.collectAsState()
@@ -139,11 +138,6 @@ fun DiscordScreen(
                 track = track,
                 settings = settings,
                 modifier = Modifier.onGloballyPositioned { previewBottomPx = it.boundsInWindow().bottom },
-            )
-            Spacer(Modifier.height(12.dp))
-            DiscordAppIdCard(
-                clientId = customClientId,
-                onClientIdChange = viewModel::setCustomClientId,
             )
             Spacer(Modifier.height(12.dp))
             AccountButton(
@@ -364,45 +358,4 @@ private fun CustomizeSection(
         fontSize = 12.sp,
         modifier = Modifier.padding(start = 4.dp, top = 10.dp),
     )
-}
-
-
-@Composable
-private fun DiscordAppIdCard(
-    clientId: String,
-    onClientIdChange: (String) -> Unit,
-) {
-    val context = LocalContext.current
-    val redirectUri = com.mochyy.mochymusic.discord.DiscordAuth.CustomRedirectUri
-    DiscordCard {
-        DiscordCardTitle("Discord Application ID")
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = "Paste your Application ID from discord.com/developers (enable Social SDK & OAuth2 Public Client).",
-            color = DiscordColors.Secondary,
-            fontSize = 12.sp,
-            lineHeight = 16.sp,
-        )
-        Spacer(Modifier.height(10.dp))
-        DiscordTextField(
-            value = clientId,
-            onValueChange = onClientIdChange,
-            hint = "e.g. 1234567890123456789",
-        )
-        Spacer(Modifier.height(10.dp))
-        Text(
-            text = "Redirect URI (tap to copy): $redirectUri",
-            color = DiscordColors.Blurple,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                    cm.setPrimaryClip(android.content.ClipData.newPlainText("Discord Redirect URI", redirectUri))
-                    Toast.makeText(context, "Redirect URI copied", Toast.LENGTH_SHORT).show()
-                }
-                .padding(vertical = 4.dp),
-        )
-    }
 }
