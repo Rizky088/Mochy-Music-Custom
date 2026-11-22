@@ -325,10 +325,16 @@ private fun GoogleDriveSignInContent(
 ) {
     val scope = rememberCoroutineScope()
     val saved = remember { viewModel.savedGoogleDriveCredentials() }
-    var clientId by remember { mutableStateOf(saved.first) }
-    var clientSecret by remember { mutableStateOf(saved.second) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var busy by remember { mutableStateOf(false) }
+    val clientIdState = remember { mutableStateOf(saved.first) }
+    val clientSecretState = remember { mutableStateOf(saved.second) }
+    val errorState = remember { mutableStateOf<String?>(null) }
+    val busyState = remember { mutableStateOf(false) }
+
+    val clientId = clientIdState.value
+    val clientSecret = clientSecretState.value
+    val errorText = errorState.value
+    val isBusy = busyState.value
+
     val wp = com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current
     val fieldBg = wp?.surface ?: Color(0xFF171717)
     val borderCol = wp?.primary?.copy(alpha = 0.24f) ?: Color.White.copy(alpha = 0.14f)
@@ -370,7 +376,7 @@ private fun GoogleDriveSignInContent(
             }
             BasicTextField(
                 value = clientId,
-                onValueChange = { clientId = it; error = null },
+                onValueChange = { clientIdState.value = it; errorState.value = null },
                 singleLine = true,
                 textStyle = TextStyle(color = Color.White, fontSize = 14.sp),
                 cursorBrush = SolidColor(Color.White),
@@ -394,7 +400,7 @@ private fun GoogleDriveSignInContent(
             }
             BasicTextField(
                 value = clientSecret,
-                onValueChange = { clientSecret = it; error = null },
+                onValueChange = { clientSecretState.value = it; errorState.value = null },
                 singleLine = true,
                 textStyle = TextStyle(color = Color.White, fontSize = 14.sp),
                 cursorBrush = SolidColor(Color.White),
@@ -402,33 +408,34 @@ private fun GoogleDriveSignInContent(
             )
         }
 
-        if (error != null) {
+        if (errorText != null) {
             Spacer(Modifier.height(8.dp))
-            Text(error!!, color = StorageDanger, fontSize = 12.sp)
+            Text(errorText, color = StorageDanger, fontSize = 12.sp)
         }
 
         Spacer(Modifier.height(16.dp))
+        val canSubmit = !isBusy && clientId.isNotBlank()
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
                 .clip(CircleShape)
-                .background(if (!busy && clientId.isNotBlank()) btnBg else btnBg.copy(alpha = 0.35f))
-                .clickable(enabled = !busy && clientId.isNotBlank()) {
-                    busy = true
+                .background(if (canSubmit) btnBg else btnBg.copy(alpha = 0.35f))
+                .clickable(enabled = canSubmit) {
+                    busyState.value = true
                     scope.launch {
                         runCatching { viewModel.startGoogleDriveSignIn(clientId, clientSecret) }
                             .onSuccess { onLaunch(it) }
                             .onFailure {
-                                busy = false
-                                error = it.message ?: "Could not start Google sign-in"
+                                busyState.value = false
+                                errorState.value = it.message ?: "Could not start Google sign-in"
                             }
                     }
                 },
         ) {
             Text(
-                text = if (busy) "Opening browser..." else "Sign in with Google",
+                text = if (isBusy) "Opening browser..." else "Sign in with Google",
                 color = btnFg,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
