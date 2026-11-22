@@ -55,6 +55,9 @@ class CloudBackupViewModel @Inject constructor(
     private val _backups = MutableStateFlow<CloudBackupList>(CloudBackupList.Loading)
     val backups: StateFlow<CloudBackupList> = _backups.asStateFlow()
 
+    private val _cleaningOld = MutableStateFlow(false)
+    val cleaningOld: StateFlow<Boolean> = _cleaningOld.asStateFlow()
+
     init {
         // the switch, the slider and the account all decide the schedule; a drag along the slider settles first
         viewModelScope.launch {
@@ -88,6 +91,18 @@ class CloudBackupViewModel @Inject constructor(
     fun dismissLoginProblem() = signIn.dismissProblem()
 
     fun messageOf(problem: CloudProblem): String = manager.messageOf(problem)
+
+    fun messageOf(error: Throwable): String = manager.messageOf(error)
+
+    fun deleteOldBackups(onDone: (Result<Int>) -> Unit) {
+        if (step.value != CloudBackupStep.Idle || _cleaningOld.value) return
+        _cleaningOld.value = true
+        viewModelScope.launch {
+            val result = manager.deleteOldBackups()
+            _cleaningOld.value = false
+            onDone(result)
+        }
+    }
 
     /** null when the server took it, otherwise what to tell the user */
     suspend fun connectWebDav(address: String, username: String, password: String): String? =

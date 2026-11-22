@@ -6,6 +6,7 @@ on:
     branches: [ main ]
     paths-ignore:
       - 'docs/**'
+      - 'store/**'
       - 'README.md'
       - 'fastlane/**'
       - 'assets/**'

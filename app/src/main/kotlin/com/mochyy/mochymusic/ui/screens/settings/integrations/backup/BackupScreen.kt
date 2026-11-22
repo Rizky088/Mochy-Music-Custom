@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.integrations.backup
 
+import com.mochyy.mochymusic.ui.screens.library.showConfirm
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -81,6 +83,7 @@ fun BackupScreen(
     val account by viewModel.account.collectAsState()
     val login by viewModel.login.collectAsState()
     val step by viewModel.step.collectAsState()
+    val cleaningOld by viewModel.cleaningOld.collectAsState()
 
     LaunchedEffect(login) {
         (login as? CloudLogin.Failed)?.let {
@@ -198,7 +201,33 @@ fun BackupScreen(
             onDisconnect = viewModel::disconnect,
         )
         Spacer(Modifier.height(16.dp))
-        BackupsGroup(account = account, step = step, onBackUp = viewModel::backUpNow, onRestore = ::openRestore)
+        BackupsGroup(
+            account = account,
+            step = step,
+            cleaningOld = cleaningOld,
+            onBackUp = viewModel::backUpNow,
+            onRestore = ::openRestore,
+            onDeleteOld = {
+                overlay.showConfirm(
+                    title = "Delete old backups?",
+                    message = "All older backups in your cloud will be permanently deleted. Only the most recent backup will be kept.",
+                    action = "Delete old backups",
+                ) {
+                    viewModel.deleteOldBackups { result ->
+                        result.onSuccess { count ->
+                            val msg = when (count) {
+                                0 -> "No old backups to delete"
+                                1 -> "Deleted 1 old backup"
+                                else -> "Deleted $count old backups"
+                            }
+                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                        }.onFailure { err ->
+                            Toast.makeText(context, viewModel.messageOf(err), Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            },
+        )
         account?.lastProblem?.takeIf { step == CloudBackupStep.Idle }?.let { problem ->
             Text(
                 stringResource(R.string.backup_last_failed, viewModel.messageOf(problem)),
@@ -284,10 +313,12 @@ private fun CloudGroup(
 private fun BackupsGroup(
     account: CloudAccount?,
     step: CloudBackupStep,
+    cleaningOld: Boolean,
     onBackUp: () -> Unit,
     onRestore: () -> Unit,
+    onDeleteOld: () -> Unit,
 ) {
-    val resting = step == CloudBackupStep.Idle
+    val resting = step == CloudBackupStep.Idle && !cleaningOld
     val status = stepText(step) ?: when {
         account == null -> stringResource(R.string.backup_connect_first)
         account.lastBackupAt > 0 -> stringResource(
@@ -318,6 +349,15 @@ private fun BackupsGroup(
                 iconShape = CircleShape,
                 enabled = account != null && resting,
                 onClick = onRestore,
+            ),
+            SettingsItem(
+                title = { Text("Delete old backups") },
+                highlightKey = "Delete old backups",
+                descriptionText = if (cleaningOld) "Deleting old backups..." else "Keep only the most recent backup",
+                icon = painterResource(R.drawable.delete),
+                iconShape = CircleShape,
+                enabled = account != null && resting,
+                onClick = onDeleteOld,
             ),
         ),
     )

@@ -1,0 +1,38 @@
+{
+  "me": {
+    "name": "Mochy Ext Store",
+    "avatar": "",
+    "member": true,
+    "invite": ""
+  },
+  "categories": [
+    "Sources",
+    "Looks",
+    "Players",
+    "Tools"
+  ],
+  "chart": [
+    "mochy-ext-guide"
+  ],
+  "modules": [
+    {
+      "id": "mochy-ext-guide",
+      "name": "Mochy Ext Module Store",
+      "moduleId": "mochy.ext.guide",
+      "version": "1.0.0",
+      "author": "Rizky088",
+      "description": "This custom store loads live from **store/modules.json** in `Rizky088/Mochy-Music-Custom`.\n\nAdd any `.zip` module (hosted in `store/zips/` or GitHub Releases via `zipUrl`), direct link module (`install: link`), or module pack without rebuilding the app.",
+      "kind": "other",
+      "tags": ["Tools"],
+      "paid": false,
+      "locked": false,
+      "icon": "",
+      "banner": "",
+      "previews": [],
+      "install": "web",
+      "link": "https://github.com/Rizky088/Mochy-Music-Custom/tree/main/store",
+      "postUrl": "https://github.com/Rizky088/Mochy-Music-Custom/tree/main/store",
+      "updated": 1795344000000
+    }
+  ]
+}

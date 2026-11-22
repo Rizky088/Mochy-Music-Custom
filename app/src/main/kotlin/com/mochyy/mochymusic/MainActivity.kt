@@ -1215,16 +1215,23 @@ class MainActivity : ComponentActivity() {
                                             .windowInsetsPadding(WindowInsets.stableSystemBars.only(WindowInsetsSides.Horizontal))
                                             .glassRoot(glassState, isActive = { true })
                                     ) {
-                                    if (com.mochyy.mochymusic.ui.utils.isLandscapeLayout() &&
-                                        com.mochyy.mochymusic.ui.screens.search.showsSearchPane(currentRoute)
-                                    ) {
-                                        val wallpaperOnSearch by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperSearchKey, defaultValue = false)
-                                        com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(
-                                            enabled = wallpaperOnSearch,
-                                            smoothBottomFade = true,
-                                            paletteOverlay = true,
-                                        )
+                                    val globalWallpaperPath by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "")
+                                    val wallpaperOnHome by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperHomeKey, defaultValue = true)
+                                    val wallpaperOnLibrary by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperLibraryKey, defaultValue = true)
+                                    val wallpaperOnSearch by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperSearchKey, defaultValue = false)
+                                    val keepWallpaperAlive = globalWallpaperPath.isNotBlank() && (wallpaperOnHome || wallpaperOnLibrary || wallpaperOnSearch)
+                                    val showWallpaperHere = when {
+                                        currentRoute == Screens.Home.route -> wallpaperOnHome
+                                        currentRoute == "library" -> wallpaperOnLibrary
+                                        com.mochyy.mochymusic.ui.screens.search.showsSearchPane(currentRoute) -> wallpaperOnSearch
+                                        else -> false
                                     }
+                                    com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(
+                                        enabled = keepWallpaperAlive,
+                                        visible = showWallpaperHere,
+                                        smoothBottomFade = true,
+                                        paletteOverlay = true,
+                                    )
                                     Row(Modifier.fillMaxSize()) {
                                     if (settingsPane) {
                                         com.mochyy.mochymusic.ui.screens.settings.SettingsListPane(

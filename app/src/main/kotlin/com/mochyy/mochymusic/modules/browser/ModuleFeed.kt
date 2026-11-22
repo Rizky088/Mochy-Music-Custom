@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.modules.browser
 
+import java.util.concurrent.ConcurrentHashMap
+
 import android.content.Context
 import android.net.Uri
 import androidx.core.content.edit
@@ -104,58 +106,35 @@ class ModuleFeed @Inject constructor(
         OkHttpClient.Builder().connectTimeout(12, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS).build()
     }
 
-    private val _session = MutableStateFlow(prefs.getString(SessionKey, null))
+    private val zipUrls = ConcurrentHashMap<String, String>()
+    private val _session = MutableStateFlow<String?>("custom_store_public")
 
-    /** the session the feed gave back, null while signed out; the browser reloads when it changes */
+    /** public custom store doesn't require Discord sign-in; always active */
     val session: StateFlow<String?> = _session.asStateFlow()
 
     val isSetUp: Boolean get() = FeedUrl.isNotBlank()
 
-    private fun isAllowed(): Boolean = StoreSignature.isOfficial(context) && !context.dataStore.get(SimulateForkKey, false)
+    private fun isAllowed(): Boolean = !context.dataStore.get(SimulateForkKey, false)
 
-    /** the page to sign in on; the check value is kept so only the sign-in started here is taken back; null on unofficial builds */
-    fun signInUri(): Uri? {
-        if (!isSetUp || !isAllowed()) return null
-        val state = ByteArray(24).also(SecureRandom()::nextBytes).joinToString("") { "%02x".format(it) }
-        // the sign-in page opens in a browser, so the build's signature rides along in the link instead of a header
-        val (time, signature) = StoreSignature.sign(context, "GET", "/login", state) ?: return null
-        prefs.edit { putString(StateKey, state) }
-        return Uri.parse("$FeedUrl/login").buildUpon()
-            .appendQueryParameter("state", state)
-            .appendQueryParameter("t", time)
-            .appendQueryParameter("sig", signature)
-            .build()
-    }
+    fun signInUri(): Uri? = null
 
-    /** back from the browser with mochy-modules://signed-in; true when it carried a session from the sign-in started here */
-    fun finishSignIn(redirect: Uri): Boolean {
-        if (!isSetUp || !isAllowed()) {
-            prefs.edit { remove(StateKey) }
-            return false
-        }
-        if (redirect.scheme != "mochy-modules" || redirect.host != "signed-in") return false
-        val expected = prefs.getString(StateKey, null) ?: return false
-        prefs.edit { remove(StateKey) }
-        val session = redirect.getQueryParameter("session")?.takeIf { SessionPattern.matches(it) }
-        if (redirect.getQueryParameter("state") != expected || session == null) return false
-        prefs.edit { putString(SessionKey, session) }
-        _session.value = session
-        return true
-    }
+    fun finishSignIn(redirect: Uri): Boolean = false
 
     suspend fun signOut() = withContext(Dispatchers.IO) {
-        val session = _session.value
-        forgetSession()
-        if (session != null) runCatching { call(Request.Builder().url("$FeedUrl/signout").post(ByteArray(0).toRequestBody()), session)?.close() }
+        Unit
     }
 
     suspend fun load(): FeedResult = withContext(Dispatchers.IO) {
         if (!isSetUp) return@withContext FeedResult.NotSetUp
-        // a build without the official key and signature would only be turned away, so it doesn't ask; experimental can pretend to be one, to see what a fork gets
         if (!isAllowed()) return@withContext FeedResult.Unofficial
-        val session = _session.value ?: return@withContext FeedResult.SignedOut
         val response = try {
-            call(Request.Builder().url("$FeedUrl/modules"), session) ?: return@withContext FeedResult.Unofficial
+            val url = if (FeedUrl.endsWith(".json")) FeedUrl else "$FeedUrl/modules.json"
+            client.newCall(
+                Request.Builder()
+                    .url(url)
+                    .header("Cache-Control", "no-cache")
+                    .build()
+            ).execute()
         } catch (e: IOException) {
             return@withContext FeedResult.Offline
         }
@@ -163,35 +142,24 @@ class ModuleFeed @Inject constructor(
             val body = runCatching { JSONObject(it.body.string()) }.getOrNull() ?: JSONObject()
             when (it.code) {
                 200 -> modulesPage(body)
-                401 -> FeedResult.SignedOut.also { forgetSession() }
-                403 -> if (body.optString("error") == "unofficial_build") {
-                    forgetSession()
-                    FeedResult.Unofficial
-                } else {
-                    FeedResult.NotMember(personOf(body), body.optString("invite").takeIf { link -> link.startsWith("https://") })
-                }
                 503 -> FeedResult.WarmingUp
                 else -> FeedResult.Offline
             }
         }
     }
 
-    /** the module's zip, or one of a pack's by its [item] id, into the cache, ready to be checked like a zip picked from the phone; null when it couldn't be fetched */
+    /** downloads the module's zip (or pack item zip) from its catalog zipUrl or store/zips/ folder */
     suspend fun download(postId: String, item: String? = null): File? = withContext(Dispatchers.IO) {
         if (!isSetUp || !isAllowed()) return@withContext null
         if (!PostIdPattern.matches(postId) || (item != null && !ItemIdPattern.matches(item))) return@withContext null
-        val session = _session.value ?: return@withContext null
         val folder = File(context.cacheDir, "module_browser").apply { mkdirs() }
         val file = File(folder, if (item != null) "$postId-$item.zip" else "$postId.zip")
-        val url = if (item != null) "$FeedUrl/modules/$postId/zip?item=${Uri.encode(item)}" else "$FeedUrl/modules/$postId/zip"
+        val key = if (item != null) "$postId:$item" else postId
+        val base = FeedUrl.removeSuffix("/modules.json").trimEnd('/')
+        val url = zipUrls[key]
+            ?: if (item != null) "$base/zips/$postId-$item.zip" else "$base/zips/$postId.zip"
         runCatching {
-            val response = call(Request.Builder().url(url), session) ?: return@runCatching null
-            response.use { res ->
-                if (res.code == 403) {
-                    val body = runCatching { JSONObject(res.body.string()) }.getOrNull()
-                    if (body?.optString("error") == "unofficial_build") forgetSession()
-                    return@use null
-                }
+            client.newCall(Request.Builder().url(url).build()).execute().use { res ->
                 if (!res.isSuccessful) return@use null
                 file.outputStream().use { out -> res.body.byteStream().copyTo(out) }
                 file
@@ -229,8 +197,9 @@ class ModuleFeed @Inject constructor(
         )
     }
 
-    private fun packItemOf(item: JSONObject?): PackItem? {
+    private fun packItemOf(parentId: String, item: JSONObject?): PackItem? {
         val id = item?.optString("id")?.takeIf { it.isNotBlank() } ?: return null
+        item.optString("zipUrl").takeIf { it.startsWith("https://") }?.let { zipUrls["$parentId:$id"] = it }
         return PackItem(
             id = id,
             isLink = item.optString("kind") == "link",
@@ -248,6 +217,7 @@ class ModuleFeed @Inject constructor(
         return (0 until list.length()).mapNotNull { index ->
             val item = list.optJSONObject(index) ?: return@mapNotNull null
             val id = item.optString("id").takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            item.optString("zipUrl").takeIf { it.startsWith("https://") }?.let { zipUrls[id] = it }
             FeedModule(
                 id = id,
                 name = item.optString("name").ifBlank { id },
@@ -277,7 +247,7 @@ class ModuleFeed @Inject constructor(
                     "pack" -> FeedInstall.Pack
                     else -> FeedInstall.Zip
                 },
-                pack = item.optJSONArray("pack")?.let { items -> (0 until items.length()).mapNotNull { packItemOf(items.optJSONObject(it)) } }.orEmpty(),
+                pack = item.optJSONArray("pack")?.let { items -> (0 until items.length()).mapNotNull { packItemOf(id, items.optJSONObject(it)) } }.orEmpty(),
                 link = item.optString("link").takeIf { it.startsWith("https://") },
                 size = item.optLong("size", -1).takeIf { it >= 0 && !item.isNull("size") },
                 updated = item.optLong("updated", -1).takeIf { it > 0 },
@@ -288,13 +258,13 @@ class ModuleFeed @Inject constructor(
 
     companion object {
         // the worker's address (see the mochy-module-feed project); blank makes the browser say it isn't set up
-        const val FeedUrl = "https://mochy-module-feed.mochyy.workers.dev"
+        const val FeedUrl = "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store"
 
         private const val SessionKey = "session"
         private const val PrefsName = "module_browser"
         private const val StateKey = "state"
         private val SessionPattern = Regex("^[0-9a-f]{64}$")
-        private val PostIdPattern = Regex("^\\d+$")
+        private val PostIdPattern = Regex("^[A-Za-z0-9_-]{1,128}$")
         private val ItemIdPattern = Regex("^[A-Za-z0-9_-]{1,128}$")
     }
 }

@@ -588,6 +588,7 @@ private fun WallpaperPickerSection() {
     val (onHome, setOnHome) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperHomeKey, defaultValue = true)
     val (onLibrary, setOnLibrary) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperLibraryKey, defaultValue = true)
     val (onSearch, setOnSearch) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperSearchKey, defaultValue = false)
+    var processingLabel by remember { mutableStateOf<String?>(null) }
 
     val picker = androidx.activity.compose.rememberLauncherForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
@@ -595,42 +596,88 @@ private fun WallpaperPickerSection() {
         if (uri != null) {
             val appCtx = context.applicationContext
             val oldPath = path
+            val mime = runCatching { appCtx.contentResolver.getType(uri) }.getOrNull().orEmpty().lowercase(java.util.Locale.ROOT)
+            val isVideo = mime.startsWith("video/")
+            processingLabel = if (isVideo) "Optimizing video to 1080p..." else "Saving wallpaper..."
             Thread {
-                val mime = runCatching { appCtx.contentResolver.getType(uri) }.getOrNull().orEmpty().lowercase(java.util.Locale.ROOT)
                 val ext = when {
                     mime.contains("png") -> "png"
                     mime.contains("webp") -> "webp"
                     mime.contains("webm") -> "webm"
                     mime.contains("matroska") || mime.contains("mkv") -> "mkv"
                     mime.contains("quicktime") || mime.contains("mov") -> "mov"
-                    mime.startsWith("video/") -> "mp4"
+                    isVideo -> "mp4"
                     else -> "jpg"
                 }
-                val outFile = java.io.File(appCtx.filesDir, "custom_wallpaper_${System.currentTimeMillis()}.$ext")
-                val copied = runCatching {
-                    appCtx.contentResolver.openInputStream(uri)!!.use { input ->
-                        outFile.outputStream().use { output -> input.copyTo(output) }
+                val ts = System.currentTimeMillis()
+                var finalFile = java.io.File(appCtx.filesDir, "custom_wallpaper_$ts.$ext")
+                var optimized1080 = false
+                val ok = if (isVideo) {
+                    val tempRaw = java.io.File(appCtx.cacheDir, "wallpaper_raw_$ts.$ext")
+                    val copied = runCatching {
+                        appCtx.contentResolver.openInputStream(uri)!!.use { input ->
+                            tempRaw.outputStream().use { output -> input.copyTo(output) }
+                        }
+                        tempRaw.exists() && tempRaw.length() > 0L
+                    }.getOrDefault(false)
+                    if (!copied) {
+                        tempRaw.delete()
+                        false
+                    } else {
+                        val optimizedFile = java.io.File(appCtx.filesDir, "custom_wallpaper_$ts.mp4")
+                        if (com.mochyy.mochymusic.ui.component.optimizeWallpaperVideoTo1080p(appCtx, tempRaw, optimizedFile)) {
+                            tempRaw.delete()
+                            finalFile = optimizedFile
+                            optimized1080 = true
+                            true
+                        } else {
+                            val moved = runCatching {
+                                tempRaw.copyTo(finalFile, overwrite = true)
+                                tempRaw.delete()
+                                finalFile.exists() && finalFile.length() > 0L
+                            }.getOrDefault(false)
+                            if (!moved) {
+                                tempRaw.delete()
+                                finalFile.delete()
+                            }
+                            moved
+                        }
                     }
-                    true
-                }.getOrDefault(false)
-                val savedPath = if (copied && outFile.exists() && outFile.length() > 0L) {
+                } else {
+                    val copied = runCatching {
+                        appCtx.contentResolver.openInputStream(uri)!!.use { input ->
+                            finalFile.outputStream().use { output -> input.copyTo(output) }
+                        }
+                        finalFile.exists() && finalFile.length() > 0L
+                    }.getOrDefault(false)
+                    if (!copied) finalFile.delete()
+                    copied
+                }
+
+                val savedPath = if (ok) {
                     runCatching {
                         val oldFile = java.io.File(oldPath)
-                        if (oldPath.isNotBlank() && oldFile.absolutePath != outFile.absolutePath &&
+                        if (oldPath.isNotBlank() && oldFile.absolutePath != finalFile.absolutePath &&
                             oldFile.parentFile == appCtx.filesDir && oldFile.name.startsWith("custom_wallpaper_")
                         ) {
                             oldFile.delete()
                         }
                     }
-                    outFile.absolutePath
+                    finalFile.absolutePath
                 } else {
-                    outFile.delete()
                     ""
                 }
+
                 android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    processingLabel = null
                     if (savedPath.isNotEmpty()) {
                         setPath(savedPath)
-                        Toast.makeText(appCtx, if (mime.startsWith("video/")) "Live wallpaper updated" else "Wallpaper updated", Toast.LENGTH_SHORT).show()
+                        val msg = when {
+                            optimized1080 -> "Live wallpaper optimized to 1080p"
+                            isVideo -> "Live wallpaper updated"
+                            else -> "Wallpaper updated"
+                        }
+                        Toast.makeText(appCtx, msg, Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(appCtx, "Could not load media", Toast.LENGTH_SHORT).show()
                     }
@@ -663,11 +710,12 @@ private fun WallpaperPickerSection() {
                         com.mochyy.mochymusic.ui.component.LiveWallpaperVideo(
                             path = path,
                             blurDp = 0f,
+                            active = true,
                             pauseWhenObscured = false,
                             modifier = Modifier.fillMaxSize(),
                         )
                         Text(
-                            text = "LIVE",
+                            text = "LIVE · 1080P MAX",
                             color = Color.White,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
@@ -694,6 +742,7 @@ private fun WallpaperPickerSection() {
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 androidx.compose.material3.Button(
+                    enabled = processingLabel == null,
                     onClick = {
                         picker.launch(
                             androidx.activity.result.PickVisualMediaRequest(
@@ -703,10 +752,11 @@ private fun WallpaperPickerSection() {
                     },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(if (path.isBlank()) "Pick Image / Video" else "Change Wallpaper")
+                    Text(processingLabel ?: if (path.isBlank()) "Pick Image / Video" else "Change Wallpaper")
                 }
                 if (path.isNotBlank()) {
                     androidx.compose.material3.OutlinedButton(
+                        enabled = processingLabel == null,
                         onClick = {
                             val oldPath = path
                             setPath("")

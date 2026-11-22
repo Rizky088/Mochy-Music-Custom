@@ -73,6 +73,31 @@ class CloudBackupManager @Inject constructor(
         cloudFor(account).list().sortedByDescending { it.modifiedAt }
     }
 
+    /** deletes every backup in the cloud except the most recent one, returning how many were removed */
+    suspend fun deleteOldBackups(): Result<Int> {
+        if (!busy.tryLock()) return Result.failure(CloudException(CloudProblem.Busy))
+        return try {
+            val account = accounts.current() ?: throw CloudException(CloudProblem.SignedOut)
+            val cloud = cloudFor(account)
+            val sorted = cloud.list()
+                .sortedWith(compareByDescending<CloudBackupFile> { it.modifiedAt }.thenByDescending { it.name })
+            if (sorted.size <= 1) return Result.success(0)
+            var deleted = 0
+            for (old in sorted.drop(1)) {
+                cloud.delete(old)
+                deleted++
+            }
+            Result.success(deleted)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Timber.tag(Tag).w(e, "Couldn't delete old backups")
+            Result.failure(e)
+        } finally {
+            busy.unlock()
+        }
+    }
+
     /** downloads and unpacks backup; once it's true the app has to restart to swap it in */
     suspend fun restore(backup: CloudBackupFile): Boolean {
         if (!busy.tryLock()) return false
