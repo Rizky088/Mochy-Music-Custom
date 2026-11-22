@@ -32,6 +32,11 @@ def load_catalog() -> dict:
     return json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
 
 
+def get_catalog_categories(cat: dict | None = None) -> list[str]:
+    data = cat if cat is not None else load_catalog()
+    return [str(x).strip() for x in data.get("categories", []) if str(x).strip()]
+
+
 def save_catalog(cat: dict) -> None:
     CATALOG_PATH.write_text(json.dumps(cat, indent=2) + "\n", encoding="utf-8")
 
@@ -66,20 +71,45 @@ def list_recent_files(exts: tuple[str, ...], limit: int = 20) -> list[pathlib.Pa
     return sorted(found.values(), key=lambda p: p.stat().st_mtime, reverse=True)[:limit]
 
 
-def pick_category(default_tag: str = "Looks") -> tuple[str, str]:
-    options = ["Looks", "Sources", "Players", "Tools"]
-    print("\nCategory:")
-    for i, opt in enumerate(options, 1):
-        mark = " *" if opt == default_tag else ""
+def pick_tags(default_tags: list[str] | None = None, catalog_categories: list[str] | None = None) -> tuple[str, list[str]]:
+    base_options = ["Looks", "Sources", "Players", "Tools"]
+    for c in (catalog_categories or []):
+        if c and c not in base_options:
+            base_options.append(c)
+
+    defaults = [t.strip() for t in (default_tags or ["Looks"]) if t and t.strip()][:2]
+    if not defaults:
+        defaults = ["Looks"]
+
+    default_display = ", ".join(defaults)
+    print("\nCategories / Tags (pick 1 or 2):")
+    for i, opt in enumerate(base_options, 1):
+        mark = " *" if opt in defaults else ""
         print(f"  {i}. {opt}{mark}")
-    raw = input(f"Choose 1-{len(options)} [Enter = {default_tag}]: ").strip()
-    if raw.isdigit() and 1 <= int(raw) <= len(options):
-        tag = options[int(raw) - 1]
-    elif raw in options:
-        tag = raw
-    else:
-        tag = default_tag
-    return TAG_TO_KIND[tag], tag
+    raw = input(f"Enter numbers or names separated by comma/space (max 2) [Enter = {default_display}]: ").strip()
+
+    chosen: list[str] = []
+    if raw:
+        tokens = [tok.strip() for tok in re.split(r"[,\s]+", raw) if tok.strip()]
+        for tok in tokens:
+            if tok.isdigit():
+                idx = int(tok) - 1
+                if 0 <= idx < len(base_options):
+                    cand = base_options[idx]
+                else:
+                    continue
+            else:
+                matched = next((opt for opt in base_options if opt.lower() == tok.lower()), None)
+                cand = matched or tok
+            if cand not in chosen:
+                chosen.append(cand)
+            if len(chosen) >= 2:
+                break
+
+    tags = chosen if chosen else defaults[:2]
+    primary_tag = tags[0]
+    kind = TAG_TO_KIND.get(primary_tag) or TAG_TO_KIND.get(primary_tag.capitalize()) or "other"
+    return kind, tags
 
 
 def pick_optional_image(label: str, slug: str, dest_dir: pathlib.Path, current: str = "") -> str:
@@ -212,7 +242,7 @@ def add_zip_module() -> None:
     version = prompt("Version", default_version)
     author = prompt("Author", default_author)
     description = prompt("Description", default_desc)
-    kind, tag = pick_category(default_tag)
+    kind, tags = pick_tags([default_tag], get_catalog_categories())
     discord_url = prompt("Discord post link (optional, https://discord.com/channels/...)", "")
 
     ZIPS_DIR.mkdir(parents=True, exist_ok=True)
@@ -237,7 +267,7 @@ def add_zip_module() -> None:
         "author": author,
         "description": description,
         "kind": kind,
-        "tags": [tag],
+        "tags": tags,
         "paid": False,
         "locked": False,
         "icon": icon_url,
@@ -280,7 +310,7 @@ def add_link_module() -> None:
     version = prompt("Version", "1.0.0")
     author = prompt("Author", "Rizky088")
     description = prompt("Description", "")
-    kind, tag = pick_category("Sources" if install_mode == "link" else "Tools")
+    kind, tags = pick_tags(["Sources" if install_mode == "link" else "Tools"], get_catalog_categories())
     discord_url = prompt("Discord post link (optional)", "")
     icon_url = pick_optional_image("Icon", slug, ICONS_DIR, "")
     banner_url = pick_optional_image("Banner", slug, BANNERS_DIR, "")
@@ -294,7 +324,7 @@ def add_link_module() -> None:
         "author": author,
         "description": description,
         "kind": kind,
-        "tags": [tag],
+        "tags": tags,
         "paid": False,
         "locked": False,
         "icon": icon_url,
@@ -340,6 +370,10 @@ def edit_module() -> None:
         new_discord = ""
     m["discordPostUrl"] = new_discord
     m["postUrl"] = new_discord
+    cur_tags = m.get("tags") if isinstance(m.get("tags"), list) else []
+    edited_kind, edited_tags = pick_tags(cur_tags, get_catalog_categories(cat))
+    m["kind"] = edited_kind
+    m["tags"] = edited_tags
     m["name"] = prompt("Name", m.get("name", ""))
     m["version"] = prompt("Version", m.get("version", ""))
     m["description"] = prompt("Description", m.get("description", ""))
