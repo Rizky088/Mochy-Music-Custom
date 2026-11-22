@@ -12,8 +12,7 @@
     "Tools"
   ],
   "chart": [
-    "yenos-orbit-tablet",
-    "yenos-orbit-tablet-support-32"
+    "yenos-orbit-tablet"
   ],
   "modules": [
     {
