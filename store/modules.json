@@ -12,6 +12,7 @@
     "Tools"
   ],
   "chart": [
+    "yenos-orbit-tablet",
     "yenos-orbit-tablet-support-32",
     "mochy-ext-guide"
   ],
@@ -58,9 +59,9 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/yenos-orbit-tablet.zip",
       "size": 570713,
-      "updated": 1795350340005,
-      "postUrl": "",
-      "discordPostUrl": ""
+      "updated": 1795351473362,
+      "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
     }
   ]
 }
