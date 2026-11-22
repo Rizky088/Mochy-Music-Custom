@@ -12,6 +12,8 @@
     "Tools"
   ],
   "chart": [
+    "qtide-tidal",
+    "qtide-qobuz",
     "vinyl-wave",
     "miku-player",
     "yeno-orbit",
@@ -408,6 +410,52 @@
       "updated": 1795356562504,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1572910020322918420",
       "postUrl": "https://discord.com/channels/916351383341522994/1572910020322918420"
+    },
+    {
+      "id": "qtide-qobuz",
+      "name": "Qtide \u2014 Qobuz",
+      "moduleId": "qtide-qobuz",
+      "version": "1.4",
+      "author": "geisselgottes",
+      "description": "Qobuz: your own account, FLAC up to 24-bit on a Studio plan",
+      "kind": "source",
+      "tags": [
+        "Sources"
+      ],
+      "paid": false,
+      "locked": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/qtide-qobuz.png",
+      "banner": "",
+      "previews": [],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/qtide-qobuz.zip",
+      "size": 1750648,
+      "updated": 1795363424440,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573847246682849390",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573847246682849390"
+    },
+    {
+      "id": "qtide-tidal",
+      "name": "Qtide \u2014 Tidal",
+      "moduleId": "qtide-tidal",
+      "version": "1.4",
+      "author": "geisselgottes",
+      "description": "Tidal: your own account, lossless and hi-res where it has it",
+      "kind": "source",
+      "tags": [
+        "Sources"
+      ],
+      "paid": false,
+      "locked": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/qtide-tidal.png",
+      "banner": "",
+      "previews": [],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/qtide-tidal.zip",
+      "size": 1748457,
+      "updated": 1795363439755,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573847246682849390",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573847246682849390"
     }
   ]
 }
