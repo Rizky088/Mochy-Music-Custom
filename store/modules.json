@@ -65,7 +65,7 @@
     },
     {
       "id": "yeno-orbit-tablet",
-      "name": "Yeno\u2019s Orbit Tablet Support 3:2",
+      "name": "Yeno's Orbit Tablet Support",
       "moduleId": "yeno-orbit-tablet",
       "version": "1.4.2",
       "author": "Yeno",
@@ -83,9 +83,9 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/yeno-orbit-tablet.zip",
       "size": 570713,
-      "updated": 1795353073609,
-      "discordPostUrl": "curl -s \"https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/modules.json?t=$(date +%s)\" | grep -E '\"id\"|\"name\"|\"tags\"|\"discordPostUrl\"'",
-      "postUrl": "curl -s \"https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/modules.json?t=$(date +%s)\" | grep -E '\"id\"|\"name\"|\"tags\"|\"discordPostUrl\"'"
+      "updated": 1795353131833,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
     }
   ]
 }
