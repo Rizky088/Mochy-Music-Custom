@@ -46,7 +46,8 @@
       "description": "Tablet edition for Tablet 3:2 screens: the whole player is scaled up and the sky fills the screen. Your music in orbit. A circular cover ringed by a visualizer that glows brighter as the song plays, a progress arc with a glowing moon, a twinkling starfield, a live seek bar and controls on frosted glass. v2.0: make it yours - 6 colour themes, 4 visualizer rings, sky, seek bar, controls, title and lyrics styles, spinning cover, song change animations, background variants, plus the queue bar and audio format badge. New: galaxy, black hole, deep nebula and aurora backgrounds. Tap the artist name or the song title to open their page. Top and bottom padding sliders fit the player to any screen.",
       "kind": "look",
       "tags": [
-        "Looks"
+        "Looks",
+        "Player"
       ],
       "paid": false,
       "locked": false,
