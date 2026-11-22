@@ -6,6 +6,8 @@
 
 package com.mochyy.mochymusic.ui.screens.library
 
+import androidx.compose.foundation.border
+
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
@@ -154,7 +156,15 @@ private fun ImportPromoBanner(onClick: () -> Unit, onDismiss: (() -> Unit)? = nu
         modifier = Modifier
             .fillMaxWidth()
             .clip(BannerShape)
-            .background(SearchColors.Tile)
+            .background(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainer?.copy(alpha = 0.68f)
+                    ?: SearchColors.Tile
+            )
+            .then(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.let { wp ->
+                    Modifier.border(1.dp, wp.primary.copy(alpha = 0.16f), BannerShape)
+                } ?: Modifier
+            )
             .clickable(role = Role.Button, onClick = onClick),
     ) {
         Column(
@@ -182,7 +192,7 @@ private fun ImportPromoBanner(onClick: () -> Unit, onDismiss: (() -> Unit)? = nu
                     .padding(10.dp)
                     .size(28.dp)
                     .clip(CircleShape)
-                    .background(Color.Black.copy(alpha = 0.55f))
+                    .background((com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black).copy(alpha = 0.60f))
                     .clickable(role = Role.Button, onClick = onDismiss),
             ) {
                 Icon(
@@ -253,7 +263,15 @@ private fun ImportProgressBanner(progress: ImportProgress, onClick: () -> Unit) 
         modifier = Modifier
             .fillMaxWidth()
             .clip(BannerShape)
-            .background(SearchColors.Tile)
+            .background(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainer?.copy(alpha = 0.68f)
+                    ?: SearchColors.Tile
+            )
+            .then(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.let { wp ->
+                    Modifier.border(1.dp, wp.primary.copy(alpha = 0.16f), BannerShape)
+                } ?: Modifier
+            )
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 22.dp, vertical = 26.dp),
     ) {

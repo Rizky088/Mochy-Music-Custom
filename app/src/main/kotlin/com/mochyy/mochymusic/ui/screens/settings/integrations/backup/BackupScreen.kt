@@ -147,7 +147,25 @@ fun BackupScreen(
             return
         }
         if (kind == CloudKind.GoogleDrive) {
-            openGoogleDrive()
+            if (viewModel.hasBuiltInGoogleDriveCredentials()) {
+                scope.launch {
+                    runCatching { viewModel.startBuiltInGoogleDriveSignIn() }
+                        .onSuccess { uri ->
+                            try {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                            } catch (e: ActivityNotFoundException) {
+                                viewModel.cancelWaiting()
+                                Toast.makeText(context, context.getString(R.string.backup_no_browser), Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        .onFailure {
+                            viewModel.cancelWaiting()
+                            Toast.makeText(context, it.message ?: "Could not start Google sign-in", Toast.LENGTH_LONG).show()
+                        }
+                }
+            } else {
+                openGoogleDrive()
+            }
             return
         }
         scope.launch {

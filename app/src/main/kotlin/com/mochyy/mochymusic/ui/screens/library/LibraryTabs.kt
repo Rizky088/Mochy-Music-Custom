@@ -5,6 +5,8 @@
 
 package com.mochyy.mochymusic.ui.screens.library
 
+import androidx.compose.foundation.border
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -74,7 +76,16 @@ fun LibraryTabChips(
     Layout(
         modifier = modifier,
         content = {
-            LibraryTab.entries.forEach { _ -> Box(Modifier.background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.chipTrack ?: ChipTrack, RoundedCornerShape(percent = 50))) }
+            LibraryTab.entries.forEach { _ ->
+                val wp = com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current
+                Box(
+                    Modifier
+                        .background(wp?.surfaceContainer?.copy(alpha = 0.68f) ?: ChipTrack, RoundedCornerShape(percent = 50))
+                        .then(
+                            wp?.let { Modifier.border(1.dp, it.primary.copy(alpha = 0.16f), RoundedCornerShape(percent = 50)) } ?: Modifier
+                        )
+                )
+            }
             LibraryTab.entries.forEach { tab -> LibraryTabChip(tab, isSelected = tab == selected, onSelect = onSelect) }
         },
     ) { measurables, constraints ->
@@ -126,7 +137,7 @@ fun LibraryTabChips(
 @Composable
 private fun LibraryTabChip(tab: LibraryTab, isSelected: Boolean, onSelect: (LibraryTab) -> Unit) {
     val background by animateColorAsState(
-        targetValue = if (isSelected) (com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.chipSelected ?: ChipSelected) else (com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.chip ?: Chip),
+        targetValue = if (isSelected) (com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.chipSelected ?: ChipSelected) else (if (com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current != null) Color.Transparent else Chip),
         animationSpec = tween(220),
         label = "libraryTabChip",
     )

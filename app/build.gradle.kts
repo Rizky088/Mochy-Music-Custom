@@ -28,7 +28,7 @@ extensions.configure<ApplicationExtension> {
         applicationId = "com.mochyy.mochymusic"
         minSdk = 24
         targetSdk = 37
-        versionCode = 76
+        versionCode = 77
         versionName = "8.4.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -138,6 +138,10 @@ extensions.configure<ApplicationExtension> {
         val oneDriveClientId = localProperties.getProperty("ONEDRIVE_CLIENT_ID") ?: System.getenv("ONEDRIVE_CLIENT_ID") ?: ""
         buildConfigField("String", "DROPBOX_APP_KEY", "\"$dropboxAppKey\"")
         buildConfigField("String", "ONEDRIVE_CLIENT_ID", "\"$oneDriveClientId\"")
+        val gdriveClientId = localProperties.getProperty("GDRIVE_CLIENT_ID") ?: System.getenv("GDRIVE_CLIENT_ID") ?: ""
+        val gdriveClientSecret = localProperties.getProperty("GDRIVE_CLIENT_SECRET") ?: System.getenv("GDRIVE_CLIENT_SECRET") ?: ""
+        buildConfigField("String", "GDRIVE_CLIENT_ID", "\"$gdriveClientId\"")
+        buildConfigField("String", "GDRIVE_CLIENT_SECRET", "\"$gdriveClientSecret\"")
 
 //add nightly build label support
         val isNightly = project.hasProperty("nightly") && project.property("nightly") == "true"

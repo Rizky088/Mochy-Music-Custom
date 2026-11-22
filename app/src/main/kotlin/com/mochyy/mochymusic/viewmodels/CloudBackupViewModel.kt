@@ -76,6 +76,10 @@ class CloudBackupViewModel @Inject constructor(
 
     fun savedGoogleDriveCredentials(): Pair<String, String> = signIn.savedGoogleDriveCredentials()
 
+    fun hasBuiltInGoogleDriveCredentials(): Boolean = signIn.hasBuiltInGoogleDriveCredentials()
+
+    suspend fun startBuiltInGoogleDriveSignIn(): Uri = signIn.startBuiltInGoogleDriveSignIn()
+
     suspend fun startGoogleDriveSignIn(clientId: String, clientSecret: String): Uri =
         signIn.startGoogleDriveSignIn(clientId, clientSecret)
 

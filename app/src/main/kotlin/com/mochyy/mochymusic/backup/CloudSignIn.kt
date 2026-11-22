@@ -122,6 +122,15 @@ class CloudSignIn @Inject constructor(
     }
 
 
+    fun hasBuiltInGoogleDriveCredentials(): Boolean =
+        com.mochyy.mochymusic.BuildConfig.GDRIVE_CLIENT_ID.isNotBlank()
+
+    suspend fun startBuiltInGoogleDriveSignIn(): Uri =
+        startGoogleDriveSignIn(
+            com.mochyy.mochymusic.BuildConfig.GDRIVE_CLIENT_ID,
+            com.mochyy.mochymusic.BuildConfig.GDRIVE_CLIENT_SECRET,
+        )
+
     fun savedGoogleDriveCredentials(): Pair<String, String> = runCatching {
         if (!gdriveCredsFile.exists()) return "" to ""
         val j = JSONObject(gdriveCredsFile.readText())
