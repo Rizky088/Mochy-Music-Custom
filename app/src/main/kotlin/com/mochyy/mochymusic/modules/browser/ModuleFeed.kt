@@ -251,7 +251,9 @@ class ModuleFeed @Inject constructor(
                 link = item.optString("link").takeIf { it.startsWith("https://") },
                 size = item.optLong("size", -1).takeIf { it >= 0 && !item.isNull("size") },
                 updated = item.optLong("updated", -1).takeIf { it > 0 },
-                postUrl = item.optString("postUrl"),
+                postUrl = item.optString("discordPostUrl").takeIf { it.startsWith("https://") }
+                    ?: item.optString("postUrl").takeIf { it.startsWith("https://") }
+                    .orEmpty(),
             )
         }
     }

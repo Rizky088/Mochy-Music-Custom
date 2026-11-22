@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.modules
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +58,18 @@ private val FeaturedRadius = 32.dp
 private val BrowserCardShape = RoundedCornerShape(CardRadius)
 private val FeaturedShape = RoundedCornerShape(FeaturedRadius)
 
+@Composable
+internal fun browserCardColor(): Color = LocalWallpaperPalette.current?.surfaceContainer ?: BrowserCard
+
+@Composable
+internal fun browserChipOnColor(): Color = LocalWallpaperPalette.current?.chipSelected ?: BrowserChipOn
+
+@Composable
+internal fun browserBoneColor(): Color = LocalWallpaperPalette.current?.surfaceContainerHigh ?: BrowserBone
+
+@Composable
+internal fun browserPillColor(): Color = LocalWallpaperPalette.current?.surfaceContainerHigh ?: BrowserPill
+
 /** the key a module's card and its store page share, so the page grows out of whichever card was tapped */
 internal fun moduleTransitionKey(postId: String) = "module-$postId"
 private val FeaturedBannerHeight = 270.dp
@@ -71,14 +85,14 @@ enum class BrowserAction { Add, Update, Added, Locked, Open, View }
 @Composable
 internal fun AccountChip(person: FeedPerson, modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.height(44.dp).clip(RoundedCornerShape(22.dp)).background(BrowserCard).padding(horizontal = 10.dp),
+        modifier = modifier.height(44.dp).clip(RoundedCornerShape(22.dp)).background(browserCardColor()).padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val description = stringResource(R.string.module_browser_account, person.name)
         if (person.avatar != null) {
             AsyncImage(model = person.avatar, contentDescription = description, modifier = Modifier.size(30.dp).clip(CircleShape))
         } else {
-            Box(Modifier.size(30.dp).clip(CircleShape).background(BrowserBone), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(30.dp).clip(CircleShape).background(browserBoneColor()), contentAlignment = Alignment.Center) {
                 Text(person.name.take(1).uppercase(), color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
@@ -117,7 +131,7 @@ internal fun FeaturedCard(
         modifier
             .containerTransformSource(moduleTransitionKey(module.id), cornerRadius = FeaturedRadius, coverUrl = module.banner)
             .clip(FeaturedShape)
-            .background(BrowserCard)
+            .background(browserCardColor())
             .coverTintBackground(art, seed = module.id, darkening = FeaturedTint)
             .clickable { onOpen(module) },
     ) {
@@ -144,7 +158,7 @@ internal fun BrowserModuleCard(
             .fillMaxWidth()
             .containerTransformSource(moduleTransitionKey(module.id), cornerRadius = CardRadius, coverUrl = module.banner)
             .clip(BrowserCardShape)
-            .background(BrowserCard)
+            .background(browserCardColor())
             .clickable { onOpen(module) },
     ) {
         ModuleRow(module, action, fetching, onAction, iconSize = 66, getLabel = false, modifier = Modifier.padding(14.dp))
@@ -205,7 +219,7 @@ internal fun ActionPill(action: BrowserAction, fetching: Boolean, getLabel: Bool
         modifier = Modifier
             .heightIn(min = 40.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(if (action.isBright) Color.White else BrowserPill)
+            .background(if (action.isBright) Color.White else browserPillColor())
             .clickable(enabled = !fetching && action != BrowserAction.Added, onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center,
@@ -225,15 +239,15 @@ private val BrowserAction.isBright get() = this == BrowserAction.Add || this == 
 /** the grey stand-in for a card while the list is on its way */
 @Composable
 internal fun BrowserBoneCard(modifier: Modifier = Modifier) {
-    Row(modifier.fillMaxWidth().clip(BrowserCardShape).background(BrowserCard).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(66.dp).clip(RoundedCornerShape(20.dp)).background(BrowserBone))
+    Row(modifier.fillMaxWidth().clip(BrowserCardShape).background(browserCardColor()).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(66.dp).clip(RoundedCornerShape(20.dp)).background(browserBoneColor()))
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-            Box(Modifier.width(120.dp).height(18.dp).clip(RoundedCornerShape(9.dp)).background(BrowserBone))
-            Box(Modifier.width(80.dp).height(12.dp).clip(RoundedCornerShape(6.dp)).background(BrowserBone))
-            Box(Modifier.width(50.dp).height(8.dp).clip(RoundedCornerShape(4.dp)).background(BrowserBone))
+            Box(Modifier.width(120.dp).height(18.dp).clip(RoundedCornerShape(9.dp)).background(browserBoneColor()))
+            Box(Modifier.width(80.dp).height(12.dp).clip(RoundedCornerShape(6.dp)).background(browserBoneColor()))
+            Box(Modifier.width(50.dp).height(8.dp).clip(RoundedCornerShape(4.dp)).background(browserBoneColor()))
         }
-        Box(Modifier.width(70.dp).height(32.dp).clip(RoundedCornerShape(16.dp)).background(BrowserPill))
+        Box(Modifier.width(70.dp).height(32.dp).clip(RoundedCornerShape(16.dp)).background(browserPillColor()))
     }
 }
 
@@ -248,7 +262,7 @@ internal fun BrowserNote(
     secondary: String? = null,
     onSecondary: () -> Unit = {},
 ) {
-    Column(modifier.fillMaxWidth().padding(top = 26.dp).clip(RoundedCornerShape(30.dp)).background(BrowserCard).padding(22.dp)) {
+    Column(modifier.fillMaxWidth().padding(top = 26.dp).clip(RoundedCornerShape(30.dp)).background(browserCardColor()).padding(22.dp)) {
         title?.let {
             Text(it, color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = 20.sp)
             Spacer(Modifier.height(8.dp))

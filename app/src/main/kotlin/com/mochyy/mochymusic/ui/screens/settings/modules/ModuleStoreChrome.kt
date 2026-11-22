@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.modules
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -211,11 +213,12 @@ private fun Modifier.searchPlacement(list: LazyListState, stick: State<Float>, s
 // the blur and dark fade behind the bar and the stuck chips, there once the list moves; the list is only captured while it shows
 @Composable
 private fun StoreBlur(glass: GlassState, veil: State<Float>, height: Dp) {
+    val baseBg = LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black
     Box(Modifier.fillMaxWidth().height(height).graphicsLayer { alpha = veil.value }) {
         ProgressiveGlassBackground(
             state = glass,
             maxBlurRadius = { 40f * veil.value },
-            foundationColor = Color.Black.copy(alpha = 0.55f),
+            foundationColor = baseBg.copy(alpha = 0.55f),
             direction = BlurDirection.BottomToTop,
             steps = 3,
             modifier = Modifier.fillMaxSize(),
@@ -223,7 +226,7 @@ private fun StoreBlur(glass: GlassState, veil: State<Float>, height: Dp) {
         // the top darkens so the status bar and buttons stay readable over a bright banner
         Box(
             Modifier.fillMaxSize().drawWithCache {
-                val scrim = Brush.verticalGradient(0f to Color.Black.copy(alpha = 0.85f), 0.45f to Color.Black.copy(alpha = 0.35f), 1f to Color.Transparent)
+                val scrim = Brush.verticalGradient(0f to baseBg.copy(alpha = 0.85f), 0.45f to baseBg.copy(alpha = 0.35f), 1f to Color.Transparent)
                 onDrawBehind { drawRect(scrim) }
             },
         )
@@ -233,7 +236,7 @@ private fun StoreBlur(glass: GlassState, veil: State<Float>, height: Dp) {
 @Composable
 private fun BarButton(icon: Int, description: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier.size(StoreButton).clip(CircleShape).background(BrowserCard).clickable(onClick = onClick),
+        modifier = modifier.size(StoreButton).clip(CircleShape).background(browserCardColor()).clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Icon(painterResource(icon), description, tint = Color.White, modifier = Modifier.size(18.dp))
@@ -259,7 +262,7 @@ private fun StoreChip(label: String, on: Boolean, onClick: () -> Unit) {
         modifier = Modifier
             .height(StoreChipsHeight)
             .clip(RoundedCornerShape(StoreChipsHeight / 2))
-            .background(if (on) BrowserChipOn else BrowserCard)
+            .background(if (on) browserChipOnColor() else browserCardColor())
             .clickable(onClick = onClick)
             .padding(horizontal = 15.dp),
         contentAlignment = Alignment.Center,
@@ -279,7 +282,7 @@ private fun StoreSearch(open: Boolean, query: String, onQuery: (String) -> Unit,
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(StoreButton / 2))
-            .background(BrowserCard)
+            .background(browserCardColor())
             .clickable(enabled = !open, onClick = onOpen)
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,

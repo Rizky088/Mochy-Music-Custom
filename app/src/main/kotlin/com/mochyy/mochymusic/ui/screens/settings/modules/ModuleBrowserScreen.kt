@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.modules
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.widget.Toast
@@ -155,7 +157,7 @@ fun ModuleBrowserScreen(
         else -> null
     }
 
-    Box(Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.TopCenter) {
+    Box(Modifier.fillMaxSize().background(LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black), contentAlignment = Alignment.TopCenter) {
         Box(Modifier.fillMaxSize().widthIn(max = StoreMaxWidth)) {
             LazyColumn(
                 state = list,

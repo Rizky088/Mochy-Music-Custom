@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.modules
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import android.graphics.Shader
 import android.os.Build
 import androidx.compose.ui.draw.drawWithCache
@@ -106,6 +108,10 @@ private val PageCard = Color.White.copy(alpha = 0.16f)
 private val PageInk = Color.White.copy(alpha = 0.88f)
 private val PageSoft = Color.White.copy(alpha = 0.62f)
 private val CardShape = RoundedCornerShape(26.dp)
+
+@Composable
+private fun storePageCardColor(): Color =
+    LocalWallpaperPalette.current?.surfaceContainer?.copy(alpha = 0.82f) ?: PageCard
 private val PreviewShape = RoundedCornerShape(26.dp)
 private const val StoreFootBlur = 28f
 // the same red as removing a module on its own page
@@ -137,7 +143,7 @@ fun ModuleStoreScreen(navController: NavController, post: String, viewModel: Mod
             .fillMaxSize()
             // grows out of the card that was tapped, like a playlist out of its cover
             .containerTransformTarget(moduleTransitionKey(post), sourceCornerRadius = 36.dp)
-            .background(Color.Black)
+            .background(LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black)
             .coverTintBackground(art, seed = post),
     ) {
         // on a tablet or a phone on its side the words stay in a readable column under the full-width banner
@@ -193,13 +199,15 @@ fun ModuleStoreScreen(navController: NavController, post: String, viewModel: Mod
                 Spacer(Modifier.height(24.dp))
                 StorePreviews(module, column, wide)
             }
-            Spacer(Modifier.height(22.dp))
-            Box(column) {
-                Box(
-                    Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(26.dp)).background(PageCard).clickable { context.openDevUrl(module.postUrl) },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(stringResource(R.string.module_store_open_post), color = PageInk, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+            if (module.postUrl.isNotBlank()) {
+                Spacer(Modifier.height(22.dp))
+                Box(column) {
+                    Box(
+                        Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(26.dp)).background(storePageCardColor()).clickable { context.openDevUrl(module.postUrl) },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(stringResource(R.string.module_store_open_post), color = PageInk, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    }
                 }
             }
             Spacer(Modifier.height(bottom + 40.dp))
@@ -278,7 +286,7 @@ private fun StoreHeader(module: FeedModule, action: BrowserAction, fetching: Boo
 @Composable
 private fun UpdateNotice(module: FeedModule, installed: String?, fetching: Boolean, onUpdate: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().clip(CardShape).background(PageCard).padding(start = 20.dp, end = 14.dp, top = 14.dp, bottom = 14.dp),
+        Modifier.fillMaxWidth().clip(CardShape).background(storePageCardColor()).padding(start = 20.dp, end = 14.dp, top = 14.dp, bottom = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(painterResource(R.drawable.update), null, tint = Color.White, modifier = Modifier.size(20.dp))
@@ -311,7 +319,7 @@ private fun GetButton(action: BrowserAction, fetching: Boolean, onClick: () -> U
     }
     val (fill, ink) = when (action) {
         BrowserAction.Added -> RemoveFill to RemoveInk
-        BrowserAction.Locked -> PageCard to Color.White
+        BrowserAction.Locked -> storePageCardColor() to Color.White
         else -> Color.White to Color.Black
     }
     Box(
@@ -378,7 +386,7 @@ private fun Flairs(tags: List<String>) {
         tags.take(2).forEach { tag ->
             Text(
                 tag, color = PageInk, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 9.sp, lineHeight = 11.sp, maxLines = 1,
-                modifier = Modifier.clip(CircleShape).background(PageCard).padding(horizontal = 8.dp, vertical = 2.dp),
+                modifier = Modifier.clip(CircleShape).background(storePageCardColor()).padding(horizontal = 8.dp, vertical = 2.dp),
             )
         }
     }
@@ -417,7 +425,7 @@ private fun PackRow(item: PackItem, action: BrowserAction, fetching: Boolean, on
     } else {
         remember(item) { listOfNotNull(item.version, item.size?.let { Formatter.formatShortFileSize(context, it) }).joinToString(" · ") }
     }
-    Row(Modifier.fillMaxWidth().clip(CardShape).background(PageCard).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().clip(CardShape).background(storePageCardColor()).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
         ModuleLogo(item.moduleId ?: item.id, item.name, size = 52, art = item.icon, corner = 0.28f)
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
@@ -432,7 +440,7 @@ private fun PackRow(item: PackItem, action: BrowserAction, fetching: Boolean, on
 // what the maker wrote, with discord's bold, links, emoji and the rest kept
 @Composable
 private fun AboutCard(module: FeedModule) {
-    Column(Modifier.fillMaxWidth().clip(CardShape).background(PageCard).padding(horizontal = 22.dp, vertical = 18.dp)) {
+    Column(Modifier.fillMaxWidth().clip(CardShape).background(storePageCardColor()).padding(horizontal = 22.dp, vertical = 18.dp)) {
         Text(stringResource(R.string.module_store_about), color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = 21.sp, letterSpacing = (-0.5).sp)
         Spacer(Modifier.height(6.dp))
         if (module.description.isNotBlank()) {
@@ -460,7 +468,7 @@ private fun StorePreviews(module: FeedModule, column: Modifier, wide: Boolean) {
         items(module.previews, key = { it }, contentType = { "preview" }) { picture ->
             AsyncImage(
                 model = picture, contentDescription = description, contentScale = ContentScale.Crop,
-                modifier = Modifier.width(width).height(width * 1.9f).clip(PreviewShape).background(PageCard),
+                modifier = Modifier.width(width).height(width * 1.9f).clip(PreviewShape).background(storePageCardColor()),
             )
         }
     }
