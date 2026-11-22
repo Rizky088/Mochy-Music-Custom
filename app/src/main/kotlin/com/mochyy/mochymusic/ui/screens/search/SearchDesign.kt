@@ -99,16 +99,51 @@ val SearchTitleBlockHeight = 62.dp
 val SearchTopClearance = 18.dp
 
 object SearchColors {
-    val Field = Color(0xFF141416)
-    val FieldFocused = Color(0xFF1E1E21)
-    val Tile = Color(0xFF121214)
-    val TileHigh = Color(0xFF1C1C1F)
-    val Divider = Color(0xFF232326)
-    val Primary = Color.White
-    val Secondary = Color(0xFF9A9AA0)
-    val Placeholder = Color(0xFF77777D)
+    private val DefaultField = Color(0xFF141416)
+    private val DefaultFieldFocused = Color(0xFF1E1E21)
+    private val DefaultTile = Color(0xFF121214)
+    private val DefaultTileHigh = Color(0xFF1C1C1F)
+    private val DefaultDivider = Color(0xFF232326)
+    private val DefaultSecondary = Color(0xFF9A9AA0)
+    private val DefaultPlaceholder = Color(0xFF77777D)
 
-    fun page(pureBlack: Boolean): Color = Color.Black
+    var Field by mutableStateOf(DefaultField)
+        private set
+    var FieldFocused by mutableStateOf(DefaultFieldFocused)
+        private set
+    var Tile by mutableStateOf(DefaultTile)
+        private set
+    var TileHigh by mutableStateOf(DefaultTileHigh)
+        private set
+    var Divider by mutableStateOf(DefaultDivider)
+        private set
+    val Primary = Color.White
+    var Secondary by mutableStateOf(DefaultSecondary)
+        private set
+    var Placeholder by mutableStateOf(DefaultPlaceholder)
+        private set
+    private var PageBase by mutableStateOf(Color.Black)
+
+    fun applyWallpaperPalette(palette: com.mochyy.mochymusic.ui.component.WallpaperPalette?) {
+        val f = palette?.surfaceContainer ?: DefaultField
+        val ff = palette?.surfaceContainerHigh ?: DefaultFieldFocused
+        val t = palette?.surface ?: DefaultTile
+        val th = palette?.surfaceContainerHigh ?: DefaultTileHigh
+        val d = palette?.divider ?: DefaultDivider
+        val s = palette?.onSurfaceVariant ?: DefaultSecondary
+        val p = palette?.placeholder ?: DefaultPlaceholder
+        val pb = palette?.surfaceDeep ?: Color.Black
+        if (Field != f) Field = f
+        if (FieldFocused != ff) FieldFocused = ff
+        if (Tile != t) Tile = t
+        if (TileHigh != th) TileHigh = th
+        if (Divider != d) Divider = d
+        if (Secondary != s) Secondary = s
+        if (Placeholder != p) Placeholder = p
+        if (PageBase != pb) PageBase = pb
+    }
+
+    fun page(pureBlack: Boolean): Color = PageBase
 }
 
 val SearchCollapseEasing = CubicBezierEasing(0.57f, 0.53f, 0f, 1f)
@@ -482,7 +517,16 @@ fun SearchField(
             .fillMaxWidth()
             .height(SearchFieldHeight)
             .clip(RoundedCornerShape(50))
-            .background(if (focused) SearchColors.FieldFocused else SearchColors.Field)
+            .background(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.let { wp ->
+                    if (focused) wp.surfaceContainerHigh.copy(alpha = 0.78f) else wp.surfaceContainer.copy(alpha = 0.66f)
+                } ?: if (focused) SearchColors.FieldFocused else SearchColors.Field
+            )
+            .then(
+                com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.let { wp ->
+                    Modifier.border(1.dp, wp.primary.copy(alpha = if (focused) 0.32f else 0.16f), RoundedCornerShape(50))
+                } ?: Modifier
+            )
             .then(
                 if (readOnlyClick != null) {
                     Modifier.clickable(
@@ -598,13 +642,24 @@ fun MoodTile(
 
     var titleWraps by remember(title) { mutableStateOf(false) }
 
-    val tileBrush = remember(tint) {
-        Brush.linearGradient(
-            colors = listOf(
-                blendOver(tint.copy(alpha = 0.55f), SearchColors.Tile),
-                blendOver(tint.copy(alpha = 0.16f), SearchColors.Tile),
+    val wpPalette = com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current
+    val tileBase = SearchColors.Tile
+    val tileBrush = remember(tint, tileBase, wpPalette) {
+        if (wpPalette != null) {
+            Brush.linearGradient(
+                colors = listOf(
+                    blendOver(tint.copy(alpha = 0.34f), wpPalette.surfaceContainerHigh).copy(alpha = 0.80f),
+                    blendOver(wpPalette.primary.copy(alpha = 0.14f), wpPalette.surfaceContainer).copy(alpha = 0.72f),
+                )
             )
-        )
+        } else {
+            Brush.linearGradient(
+                colors = listOf(
+                    blendOver(tint.copy(alpha = 0.55f), tileBase),
+                    blendOver(tint.copy(alpha = 0.16f), tileBase),
+                )
+            )
+        }
     }
 
     Box(

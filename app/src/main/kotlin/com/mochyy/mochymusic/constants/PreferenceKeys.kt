@@ -1422,3 +1422,5 @@ val CustomWallpaperBlurKey = floatPreferencesKey("customWallpaperBlur")
 val CustomWallpaperHomeKey = booleanPreferencesKey("customWallpaperHome")
 val CustomWallpaperLibraryKey = booleanPreferencesKey("customWallpaperLibrary")
 val CustomWallpaperSearchKey = booleanPreferencesKey("customWallpaperSearch")
+
+val DiscordCustomClientIdKey = stringPreferencesKey("discordCustomClientId")

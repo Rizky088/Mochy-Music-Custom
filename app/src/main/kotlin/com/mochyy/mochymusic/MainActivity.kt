@@ -620,7 +620,7 @@ class MainActivity : ComponentActivity() {
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
+                    .background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceDeep ?: if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
             ) {
                 val glassState = remember { GlassState() }
                 val hideAppChrome = remember { mutableStateOf(false) }
@@ -1208,12 +1208,24 @@ class MainActivity : ComponentActivity() {
                                     val settingsPane = isWideLayout() &&
                                         com.mochyy.mochymusic.ui.screens.settings.showsSettingsPane(backStack, currentRoute)
                                     // one glass capture for both panes so the bar frosts what's under it, clear of a sideways phone's side nav bar (its shown size, so hiding it moves nothing)
-                                    Row(
+                                    // shared_search_wallpaper_box
+                                    Box(
                                         Modifier
                                             .fillMaxSize()
                                             .windowInsetsPadding(WindowInsets.stableSystemBars.only(WindowInsetsSides.Horizontal))
                                             .glassRoot(glassState, isActive = { true })
                                     ) {
+                                    if (com.mochyy.mochymusic.ui.utils.isLandscapeLayout() &&
+                                        com.mochyy.mochymusic.ui.screens.search.showsSearchPane(currentRoute)
+                                    ) {
+                                        val wallpaperOnSearch by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperSearchKey, defaultValue = false)
+                                        com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(
+                                            enabled = wallpaperOnSearch,
+                                            smoothBottomFade = true,
+                                            paletteOverlay = true,
+                                        )
+                                    }
+                                    Row(Modifier.fillMaxSize()) {
                                     if (settingsPane) {
                                         com.mochyy.mochymusic.ui.screens.settings.SettingsListPane(
                                             navController = navController,
@@ -1301,6 +1313,7 @@ class MainActivity : ComponentActivity() {
                                             activity = this@MainActivity,
                                             snackbarHostState = snackbarHostState
                                         )
+                                    }
                                     }
                                     }
                                     }

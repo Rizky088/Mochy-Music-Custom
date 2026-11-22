@@ -1342,7 +1342,7 @@ fun HomeScreen(
             ) {
                 val wallpaperOnHome by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperHomeKey, defaultValue = true)
                 com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(enabled = wallpaperOnHome, smoothBottomFade = true, paletteOverlay = true)
-                val backgroundColor = Color.Black
+                val backgroundColor = com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black
                 CompositionLocalProvider(
                     com.mochyy.mochymusic.ui.component.LocalGridItemPadding provides 0.dp
                 ) {
@@ -1808,13 +1808,13 @@ fun HomeScreen(
                                 // every stop is black, so the fade is built once and only its alpha follows the scroll
                                 val fade = if (progressiveBar) {
                                     Brush.verticalGradient(
-                                        0f to Color.Black.copy(alpha = 0.9f),
-                                        0.3f to Color.Black.copy(alpha = 0.6f),
-                                        0.6f to Color.Black.copy(alpha = 0.3f),
+                                        0f to backgroundColor.copy(alpha = 0.88f),
+                                        0.3f to backgroundColor.copy(alpha = 0.56f),
+                                        0.6f to backgroundColor.copy(alpha = 0.26f),
                                         1f to Color.Transparent
                                     )
                                 } else {
-                                    androidx.compose.ui.graphics.SolidColor(Color.Black.copy(alpha = com.mochyy.mochymusic.ui.component.FlatBarScrimAlpha))
+                                    androidx.compose.ui.graphics.SolidColor(backgroundColor.copy(alpha = com.mochyy.mochymusic.ui.component.FlatBarScrimAlpha))
                                 }
                                 onDrawBehind {
                                     drawRect(brush = fade, alpha = heroScrollProgressProvider().coerceIn(0f, 1f))

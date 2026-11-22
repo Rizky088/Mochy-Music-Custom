@@ -10,12 +10,14 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.mochyy.mochymusic.BuildConfig
 import com.mochyy.mochymusic.constants.DiscordAccessTokenKey
+import com.mochyy.mochymusic.constants.DiscordCustomClientIdKey
 import com.mochyy.mochymusic.constants.DiscordLoginStateKey
 import com.mochyy.mochymusic.constants.DiscordLoginVerifierKey
 import com.mochyy.mochymusic.constants.DiscordProfileKey
 import com.mochyy.mochymusic.constants.DiscordRefreshTokenKey
 import com.mochyy.mochymusic.constants.DiscordTokenExpiresAtKey
 import com.mochyy.mochymusic.utils.Pkce
+import com.mochyy.mochymusic.utils.PreferencesCache
 import com.mochyy.mochymusic.utils.dataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
@@ -67,7 +69,48 @@ class DiscordAuth @Inject constructor(
     private val _login = MutableStateFlow<DiscordLogin>(DiscordLogin.Idle)
     val login: StateFlow<DiscordLogin> = _login.asStateFlow()
 
+    init {
+        runtimeClientId = PreferencesCache.current(context.dataStore)[DiscordCustomClientIdKey]?.trim().orEmpty()
+        scope.launch {
+            context.dataStore.data
+                .map { it[DiscordCustomClientIdKey]?.trim().orEmpty() }
+                .distinctUntilChanged()
+                .collect { runtimeClientId = it }
+        }
+    }
+
     val isConfigured: Boolean get() = ClientId.isNotBlank()
+
+    fun currentCustomClientIdSync(): String =
+        runtimeClientId.ifBlank {
+            PreferencesCache.current(context.dataStore)[DiscordCustomClientIdKey]?.trim().orEmpty()
+        }
+
+    fun setCustomClientIdSync(id: String) {
+        val cleaned = id.trim()
+        runtimeClientId = cleaned
+        scope.launch {
+            context.dataStore.edit { prefs ->
+                if (cleaned.isBlank()) prefs.remove(DiscordCustomClientIdKey)
+                else prefs[DiscordCustomClientIdKey] = cleaned
+            }
+        }
+    }
+
+    private suspend fun resolveClientId(): String {
+        val stored = context.dataStore.data.first()[DiscordCustomClientIdKey]?.trim().orEmpty()
+        if (stored.isNotBlank()) {
+            runtimeClientId = stored
+            return stored
+        }
+        return runtimeClientId.ifBlank { BuildConfig.DISCORD_CLIENT_ID }
+    }
+
+    private suspend fun resolveRedirectUri(): String {
+        val stored = context.dataStore.data.first()[DiscordCustomClientIdKey]?.trim().orEmpty()
+        return if (stored.isNotBlank() || runtimeClientId.isNotBlank()) CustomRedirectUri
+        else "discord-${BuildConfig.DISCORD_CLIENT_ID}:/authorize/callback"
+    }
 
     val signedIn: Flow<Boolean> = context.dataStore.data
         .map { it[DiscordAccessTokenKey] != null }
@@ -91,9 +134,9 @@ class DiscordAuth @Inject constructor(
         }
         _login.value = DiscordLogin.InBrowser
         return Uri.parse("https://discord.com/oauth2/authorize").buildUpon()
-            .appendQueryParameter("client_id", ClientId)
+            .appendQueryParameter("client_id", resolveClientId())
             .appendQueryParameter("response_type", "code")
-            .appendQueryParameter("redirect_uri", RedirectUri)
+            .appendQueryParameter("redirect_uri", resolveRedirectUri())
             .appendQueryParameter("scope", Scopes)
             .appendQueryParameter("state", state)
             .appendQueryParameter("code_challenge", Pkce.challengeOf(verifier))
@@ -137,10 +180,10 @@ class DiscordAuth @Inject constructor(
             val reply = DiscordHttp.postForm(
                 "/oauth2/token",
                 mapOf(
-                    "client_id" to ClientId,
+                    "client_id" to resolveClientId(),
                     "grant_type" to "authorization_code",
                     "code" to code,
-                    "redirect_uri" to RedirectUri,
+                    "redirect_uri" to resolveRedirectUri(),
                     "code_verifier" to verifier,
                 ),
             )
@@ -189,7 +232,7 @@ class DiscordAuth @Inject constructor(
             DiscordHttp.postForm(
                 "/oauth2/token",
                 mapOf(
-                    "client_id" to ClientId,
+                    "client_id" to resolveClientId(),
                     "grant_type" to "refresh_token",
                     "refresh_token" to refreshToken,
                 ),
@@ -222,7 +265,7 @@ class DiscordAuth @Inject constructor(
             runCatching {
                 DiscordHttp.postForm(
                     "/oauth2/token/revoke",
-                    mapOf("client_id" to ClientId, "token" to token, "token_type_hint" to "access_token"),
+                    mapOf("client_id" to resolveClientId(), "token" to token, "token_type_hint" to "access_token"),
                 )
             }
         }
@@ -264,8 +307,10 @@ class DiscordAuth @Inject constructor(
     companion object {
         private const val LogTag = "DiscordAuth"
 
-        val ClientId: String get() = BuildConfig.DISCORD_CLIENT_ID
-        val RedirectUri: String get() = "discord-$ClientId:/authorize/callback"
+        const val CustomRedirectUri = "mochy-discord:/authorize/callback"
+        @Volatile internal var runtimeClientId: String = ""
+        val ClientId: String get() = runtimeClientId.ifBlank { BuildConfig.DISCORD_CLIENT_ID }
+        val RedirectUri: String get() = if (runtimeClientId.isNotBlank()) CustomRedirectUri else "discord-${BuildConfig.DISCORD_CLIENT_ID}:/authorize/callback"
 
         /**
          * sdk.social_layer_presence is Discord's own bundle for apps that show what the user is

@@ -74,7 +74,7 @@ fun LibraryTabChips(
     Layout(
         modifier = modifier,
         content = {
-            LibraryTab.entries.forEach { _ -> Box(Modifier.background(ChipTrack, RoundedCornerShape(percent = 50))) }
+            LibraryTab.entries.forEach { _ -> Box(Modifier.background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.chipTrack ?: ChipTrack, RoundedCornerShape(percent = 50))) }
             LibraryTab.entries.forEach { tab -> LibraryTabChip(tab, isSelected = tab == selected, onSelect = onSelect) }
         },
     ) { measurables, constraints ->
@@ -126,7 +126,7 @@ fun LibraryTabChips(
 @Composable
 private fun LibraryTabChip(tab: LibraryTab, isSelected: Boolean, onSelect: (LibraryTab) -> Unit) {
     val background by animateColorAsState(
-        targetValue = if (isSelected) ChipSelected else Chip,
+        targetValue = if (isSelected) (com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.chipSelected ?: ChipSelected) else (com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.chip ?: Chip),
         animationSpec = tween(220),
         label = "libraryTabChip",
     )
@@ -174,7 +174,7 @@ fun LibraryManagePill(text: String, onClick: () -> Unit, modifier: Modifier = Mo
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .clip(RoundedCornerShape(percent = 50))
-                .background(Color(0xFF2E2E31))
+                .background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceContainerHigh?.copy(alpha = 0.85f) ?: Color(0xFF2E2E31))
                 .clickable(role = Role.Button, onClick = onClick)
                 .heightIn(min = 30.dp)
                 .padding(horizontal = 18.dp, vertical = 6.dp),

@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,7 +37,18 @@ class DiscordViewModel @Inject constructor(
     private val presence: DiscordPresence,
 ) : ViewModel() {
 
-    val isConfigured: Boolean get() = auth.isConfigured
+    private val _customClientId = MutableStateFlow(auth.currentCustomClientIdSync())
+    val customClientId: StateFlow<String> = _customClientId.asStateFlow()
+
+    val isConfigured: StateFlow<Boolean> = _customClientId
+        .map { it.isNotBlank() || com.mochyy.mochymusic.BuildConfig.DISCORD_CLIENT_ID.isNotBlank() }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, auth.isConfigured)
+
+    fun setCustomClientId(raw: String) {
+        val cleaned = raw.filter { it.isDigit() }
+        _customClientId.value = cleaned
+        auth.setCustomClientIdSync(cleaned)
+    }
     val login: StateFlow<DiscordLogin> = auth.login
     val connection: StateFlow<PresenceConnection> = presence.connection
     val nowPlaying: StateFlow<NowPlaying?> = presence.nowPlaying

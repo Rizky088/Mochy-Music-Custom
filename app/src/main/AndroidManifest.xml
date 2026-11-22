@@ -1050,6 +1050,14 @@
 
                 <data android:scheme="${discordRedirectScheme}" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="mochy-discord" />
+            </intent-filter>
         </activity>
 
         <!-- dropbox's and onedrive's sign-in pages send the browser back here for cloud backups -->

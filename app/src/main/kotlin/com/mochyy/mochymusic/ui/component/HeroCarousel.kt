@@ -994,8 +994,32 @@ private fun HeroMedia(
             .build()
     }
     val mediaLayer = rememberGraphicsLayer()
+    val heroWallpaperPath by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "")
+    val heroWallpaperOnHome by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperHomeKey, defaultValue = true)
+    val blendHeroWithWallpaper = heroWallpaperOnHome && heroWallpaperPath.isNotBlank()
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .graphicsLayer {
+                if (blendHeroWithWallpaper) compositingStrategy = CompositingStrategy.Offscreen
+            }
+            .drawWithContent {
+                drawContent()
+                if (blendHeroWithWallpaper) {
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            0.00f to Color.Black,
+                            0.58f to Color.Black,
+                            0.78f to Color.Black.copy(alpha = 0.62f),
+                            0.91f to Color.Black.copy(alpha = 0.18f),
+                            1.00f to Color.Transparent,
+                        ),
+                        blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
+                    )
+                }
+            }
+    ) {
         // the page's media is recorded once and drawn again, blurred, into the edge bands below.
         // they're siblings of this box, never inside it, so the layer can't end up drawing itself.
         Box(
@@ -1128,6 +1152,11 @@ private fun BoxScope.HeroBlurBand(
  */
 @Composable
 internal fun BoxScope.HeroScrims() {
+    val wallpaperPath by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "")
+    val wallpaperOnHome by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperHomeKey, defaultValue = true)
+    val wallpaperPalette = LocalWallpaperPalette.current
+    val blendWithWallpaper = wallpaperOnHome && wallpaperPath.isNotBlank()
+    val scrimBase = if (blendWithWallpaper) (wallpaperPalette?.surfaceDeep ?: Color.Black) else Color.Black
     Box(
         modifier = Modifier
             .matchParentSize()
@@ -1135,17 +1164,31 @@ internal fun BoxScope.HeroScrims() {
                 val topEnd = 0.463f
                 val bottomStart = 0.533f
                 val bottomEnd = 0.989f
-                val scrim = Brush.verticalGradient(
-                    0f to heroScrimBlack(0.86f),
-                    0.475f * topEnd to heroScrimBlack(0.59f),
-                    topEnd to heroScrimBlack(0f),
-                    bottomStart to heroScrimBlack(0f),
-                    bottomStart + 0.457f * (bottomEnd - bottomStart) to heroScrimBlack(0.59f),
-                    bottomEnd to heroScrimBlack(1f),
-                    1f to heroScrimBlack(1f),
-                    startY = 0f,
-                    endY = size.height,
-                )
+                val scrim = if (blendWithWallpaper) {
+                    Brush.verticalGradient(
+                        0.00f to scrimBase.copy(alpha = 0.42f),
+                        0.22f to scrimBase.copy(alpha = 0.16f),
+                        0.44f to Color.Transparent,
+                        0.58f to Color.Transparent,
+                        0.76f to scrimBase.copy(alpha = 0.44f),
+                        0.89f to scrimBase.copy(alpha = 0.20f),
+                        1.00f to Color.Transparent,
+                        startY = 0f,
+                        endY = size.height,
+                    )
+                } else {
+                    Brush.verticalGradient(
+                        0f to heroScrimBlack(0.86f),
+                        0.475f * topEnd to heroScrimBlack(0.59f),
+                        topEnd to heroScrimBlack(0f),
+                        bottomStart to heroScrimBlack(0f),
+                        bottomStart + 0.457f * (bottomEnd - bottomStart) to heroScrimBlack(0.59f),
+                        bottomEnd to heroScrimBlack(1f),
+                        1f to heroScrimBlack(1f),
+                        startY = 0f,
+                        endY = size.height,
+                    )
+                }
                 onDrawBehind { drawRect(scrim) }
             }
     )

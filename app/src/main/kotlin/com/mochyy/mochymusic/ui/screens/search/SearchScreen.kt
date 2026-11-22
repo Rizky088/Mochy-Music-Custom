@@ -109,14 +109,14 @@ fun SearchScreen(
 ) {
     // on its side the field and its history stay in the pane at the left (SearchSidePane), so this side shows the categories
     if (com.mochyy.mochymusic.ui.utils.isLandscapeLayout()) {
+        val wallpaperOnSearch = com.mochyy.mochymusic.utils.rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperSearchKey, defaultValue = false).value
+        val wallpaperPath = com.mochyy.mochymusic.utils.rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "").value
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SearchColors.page(pureBlack))
+                .background(if (wallpaperOnSearch && wallpaperPath.isNotBlank()) Color.Transparent else SearchColors.page(pureBlack))
         ) {
-        val wallpaperOnSearch = com.mochyy.mochymusic.utils.rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperSearchKey, defaultValue = false).value
-        com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(enabled = wallpaperOnSearch, smoothBottomFade = true, paletteOverlay = true)
-SearchBrowseContent(
+            SearchBrowseContent(
                 listState = rememberLazyListState(),
                 navController = navController,
                 columns = 3,
@@ -239,6 +239,8 @@ SearchBrowseContent(
             .fillMaxSize()
             .background(SearchColors.page(pureBlack))
     ) {
+        val wallpaperOnSearchPortrait = com.mochyy.mochymusic.utils.rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperSearchKey, defaultValue = false).value
+        com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(enabled = wallpaperOnSearchPortrait, smoothBottomFade = true, paletteOverlay = true)
 
         Box(
             modifier = Modifier

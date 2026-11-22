@@ -28,7 +28,7 @@ extensions.configure<ApplicationExtension> {
         applicationId = "com.mochyy.mochymusic"
         minSdk = 24
         targetSdk = 37
-        versionCode = 74
+        versionCode = 75
         versionName = "8.4.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

@@ -128,11 +128,19 @@ fun SearchSidePane(
         keyboard?.show()
     }
 
+    val wallpaperOnSearch by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperSearchKey, defaultValue = false)
+    val wallpaperPath by rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "")
+    val wallpaperPalette = com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current
+    val sidePaneBg = if (wallpaperOnSearch && wallpaperPath.isNotBlank() && wallpaperPalette != null) {
+        wallpaperPalette.surfaceDeep.copy(alpha = 0.50f)
+    } else {
+        SearchColors.page(pureBlack)
+    }
     Box(modifier = modifier.width(searchPaneWidth(androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp.dp)).fillMaxHeight()) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SearchColors.page(pureBlack))
+                .background(sidePaneBg)
                 .glassRoot(glassState, isActive = { collapse.value > 0.01f }),
         ) {
             SearchActiveContent(
@@ -191,7 +199,7 @@ fun SearchSidePane(
                 .align(Alignment.CenterEnd)
                 .width(0.8.dp)
                 .fillMaxHeight()
-                .background(Color.White.copy(alpha = 0.1f)),
+                .background((wallpaperPalette?.primary ?: Color.White).copy(alpha = 0.18f)),
         )
     }
 }
