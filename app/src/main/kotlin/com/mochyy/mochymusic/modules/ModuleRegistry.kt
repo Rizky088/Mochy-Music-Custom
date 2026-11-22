@@ -319,6 +319,10 @@ class ModuleRegistry @Inject constructor(
             val code: File? = null,
             // where a newer copy can be found later: the github project or the link it came from
             val source: ModuleSource? = null,
+            // true when a code module is not signed with this build's key and requires user approval
+            val untrustedCode: Boolean = false,
+            // SHA-256 certificate fingerprint shown in the approval popup
+            val codeSignerFingerprint: String? = null,
         ) : LinkCheck
         data object NotALink : LinkCheck
         data object Unreachable : LinkCheck
@@ -390,7 +394,9 @@ class ModuleRegistry @Inject constructor(
     // a zip that brings its own code: checked to be signed like mochy now, so the sheet can say so before anything is added
     private fun checkCode(uri: Uri, text: String, root: String, manifest: WebModuleManifest, code: String): LinkCheck {
         val apk = CodeModules.extract(context, uri, root + code.trimStart('/')) ?: return LinkCheck.NotAModule
-        if (!CodeModules.signedLikeMochy(context, apk)) return LinkCheck.NotSigned
+        if (!CodeModules.isValidApk(context, apk)) return LinkCheck.NotAModule
+        val trusted = CodeModules.signedLikeMochy(context, apk)
+        val fingerprint = if (trusted) null else CodeModules.signerFingerprint(context, apk)
         val adds = buildSet {
             if (manifest.playsSongs) add(ModuleFeature.AudioSource)
             if (manifest.hasLyrics) add(ModuleFeature.Lyrics)
@@ -398,7 +404,12 @@ class ModuleRegistry @Inject constructor(
             if (manifest.changesLook) add(ModuleFeature.Look)
         }
         val name = manifest.name.ifBlank { manifest.id }
-        return LinkCheck.Ready(null, text, name, adds, module(manifest.id) != null, fileNameOf(uri), uri, root, code = apk)
+        return LinkCheck.Ready(
+            null, text, name, adds, module(manifest.id) != null, fileNameOf(uri), uri, root,
+            code = apk,
+            untrustedCode = !trusted,
+            codeSignerFingerprint = fingerprint,
+        )
     }
 
     // the zip's manifest.json and the folder it sits in, at its root or in the one folder most zip tools wrap things in
@@ -442,8 +453,8 @@ class ModuleRegistry @Inject constructor(
     }.getOrNull() ?: uri.lastPathSegment.orEmpty()
 
     /** adds a checked link or zip as a module, switched off until the user turns it on; gives back its id, null when a zip's code wouldn't start. unpacks a zip's files, so not on the main thread */
-    fun install(ready: LinkCheck.Ready): String? {
-        ready.code?.let { return installCode(ready, it) }
+    fun install(ready: LinkCheck.Ready, allowUntrusted: Boolean = false): String? {
+        ready.code?.let { return installCode(ready, it, allowUntrusted) }
         val manifest = requireNotNull(WebModuleManifest.parse(ready.manifestText))
         val base = ready.base
         val newId = if (base != null) WebModuleManifest.idFor(base, manifest) else LocalModule.idFor(manifest)
@@ -477,9 +488,10 @@ class ModuleRegistry @Inject constructor(
     }
 
     // the zip's code goes in a folder of its own and starts; one already here with the same id stops and is replaced
-    private fun installCode(ready: LinkCheck.Ready, apk: File): String? {
+    private fun installCode(ready: LinkCheck.Ready, apk: File, allowUntrusted: Boolean): String? {
+        if (ready.untrustedCode && !allowUntrusted) return null
         val key = WebModuleManifest.parse(ready.manifestText)?.id?.ifBlank { null } ?: ready.name
-        val installed = CodeModules.install(context, key, apk) ?: return null
+        val installed = CodeModules.install(context, key, apk, allowUntrusted = allowUntrusted) ?: return null
         val fresh = installed.module
         val id = fresh.info.id
         synchronized(this) {
@@ -514,6 +526,7 @@ class ModuleRegistry @Inject constructor(
         val source = updates.source(id) ?: return LinkCheck.NotALink
         val check = check(source.link)
         if (check !is LinkCheck.Ready) return check
+        if (check.untrustedCode) return LinkCheck.NotSigned
         // a link the author moved to another module can't replace this one
         if (check.code == null && idOf(check) != id) return LinkCheck.NotAModule
         withContext(Dispatchers.IO) { install(check) } ?: return LinkCheck.NotAModule

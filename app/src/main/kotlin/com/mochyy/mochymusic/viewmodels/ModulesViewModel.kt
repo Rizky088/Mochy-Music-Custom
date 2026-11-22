@@ -309,9 +309,9 @@ class ModulesViewModel @Inject constructor(
     suspend fun checkZip(uri: android.net.Uri): ModuleRegistry.LinkCheck = registry.checkZip(uri)
 
     /** adds a checked module, switched off so nothing changes until the user turns it on; gives back its id, null when a zip's code wouldn't start */
-    suspend fun install(ready: ModuleRegistry.LinkCheck.Ready): String? {
+    suspend fun install(ready: ModuleRegistry.LinkCheck.Ready, allowUntrusted: Boolean = false): String? {
         // a zip's pictures and fonts are unpacked on the way in, and its code is copied and started
-        val id = withContext(Dispatchers.IO) { registry.install(ready) }
+        val id = withContext(Dispatchers.IO) { registry.install(ready, allowUntrusted) }
         modules.refresh()
         return id
     }
