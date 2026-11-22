@@ -76,7 +76,7 @@ fun DiscordScreen(
     val settings by viewModel.settings.collectAsState()
     val profile by viewModel.profile.collectAsState()
     val signedIn by viewModel.signedIn.collectAsState()
-    val configured by configured.collectAsState()
+    val configured by viewModel.isConfigured.collectAsState()
     val customClientId by viewModel.customClientId.collectAsState()
     val login by viewModel.login.collectAsState()
     val connection by viewModel.connection.collectAsState()
