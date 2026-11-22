@@ -63,6 +63,30 @@
       "updated": 1795352657834,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
       "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
+    },
+    {
+      "id": "yeno-orbit-lite",
+      "name": "Yeno\u2019s Orbit Lite",
+      "moduleId": "yeno-orbit-lite",
+      "version": "1.5.4",
+      "author": "Yeno",
+      "description": "Lite version for low-end devices, still in space. A pre-rendered milky way and starfield with a soft twinkle sit behind the player (drawn from pictures, so almost free for the GPU). The same circular cover, visualizer ring, progress moon, glass controls, colour themes, text, lyrics and padding options, but without the live nebula, galaxy and black hole shaders, shooting stars, cover rim, wave seek bar, glowing play-button and equalizer-icon shaders, and without blur in the animations. Pick No stars in the background variants for the lightest look.",
+      "kind": "look",
+      "tags": [
+        "Looks",
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/yeno-orbit-lite.png",
+      "banner": "",
+      "previews": [],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/yeno-orbit-lite.zip",
+      "size": 805081,
+      "updated": 1795352723921,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
     }
   ]
 }
