@@ -517,11 +517,11 @@
     },
     {
       "id": "afterglow-mirror",
-      "name": "AURORA MIRROR 1-2",
+      "name": "AURORA MIRROR - 1.2",
       "moduleId": "afterglow-mirror",
       "version": "3.1",
       "author": "claude",
-      "description": "THOSE WHO PREFER CLEAN PLAYER\nOriginal AURORA layout with metadata, one-line lyrics, seek bar and codec row shifted down together while preserving internal spacing",
+      "description": "FOR THOSE WHO PREFER CLEAN PLAYER\nOriginal AURORA layout with metadata, one-line lyrics, seek bar and codec row shifted down together while preserving internal spacing",
       "kind": "player",
       "tags": [
         "Players"
@@ -534,8 +534,8 @@
       "previews": [],
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/afterglow-mirror.zip",
-      "size": 1679850,
-      "updated": 1795451348082,
+      "size": 1679853,
+      "updated": 1795451543948,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1574226905736028180",
       "postUrl": "https://discord.com/channels/916351383341522994/1574226905736028180"
     }
