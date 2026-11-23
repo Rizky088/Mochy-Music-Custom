@@ -250,10 +250,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/sn-haze.zip",
       "size": 177329,
-      "updated": 1795369332888,
+      "updated": 1795411447574,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573928756387774615",
       "postUrl": "https://discord.com/channels/916351383341522994/1573928756387774615",
-      "hidden": true
+      "hidden": false
     },
     {
       "id": "vinyl-wave",
@@ -320,10 +320,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/sn-float.zip",
       "size": 183158,
-      "updated": 1795369377545,
+      "updated": 1795411447574,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573280525685231746",
       "postUrl": "https://discord.com/channels/916351383341522994/1573280525685231746",
-      "hidden": true
+      "hidden": false
     },
     {
       "id": "tape-trader-chart",
