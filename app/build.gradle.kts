@@ -1,3 +1,4 @@
+// Mochy Ext build config — forked from Mochy Music (https://github.com/realidkroo/mochy-music), GPL-3.0
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.android.build.api.dsl.ApplicationExtension
 import java.util.Properties

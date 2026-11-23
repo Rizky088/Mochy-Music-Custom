@@ -1,208 +1,52 @@
-<img width="1799" height="927" alt="Frame 420" src="https://github.com/user-attachments/assets/c5e1d307-ecc4-4c26-a88f-f4f468c8e434" />
+# Mochy Ext
 
-<div align="center">
+> **Unofficial Community Fork** — Built on top of [**Mochy Music**](https://github.com/realidkroo/mochy-music) by **realidkroo** (Roo), **Keycii** (key), and upstream contributors. Free and open source under **GPL-3.0**.
 
-  <sub>What is Mochy Music? its a sleek modern cool music player for android, open source, packed with features and doesn’t collect ur data >_< !! oh and, still in beta! so please expect some bug :)</sub>
-  <br/>
-<p align="center">
-<a href="https://trendshift.io/repositories/305501?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-305501" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/305501" alt="realidkroo%2FMochy-Music | Trendshift" width="250" height="55"/>
-</a>
+**Mochy Ext** is an extended, personal/community fork of Mochy Music (`com.mochyy.mochymusic.ext`) that installs side-by-side alongside official Mochy. It tracks upstream releases while adding wallpaper-matched theming, a self-hosted Module Store, Google Drive cloud backup, and extra crash/low-RAM protections.
 
-<br/>
-<p align="center">
-
-<a href="https://github.com/realidkroo/mochy-music/releases">
-    <img src="https://shieldcn.dev/github/downloads/realidkroo/mochy-music.svg?mode=dark&radius=999&font=geist&split=true&height=28&fontSize=13&labelColor=1e1e2e&labelTextColor=ffffff&color=313244&valueColor=ffffff&logoColor=fab387" alt="Downloads">
-</a>
-  <a href="https://github.com/realidkroo/mochy-music/stargazers">
-    <img src="https://shieldcn.dev/github/stars/realidkroo/mochy-music.svg?mode=dark&radius=999&font=geist&split=true&height=28&fontSize=13&labelColor=1e1e2e&labelTextColor=ffffff&color=313244&valueColor=ffffff&logoColor=f9e2af" alt="Stars">
+<p>
+  <a href="https://github.com/Rizky088/Mochy-Music-Custom/releases/latest">
+    <img src="https://img.shields.io/github/v/release/Rizky088/Mochy-Music-Custom?style=for-the-badge&color=89b4fa&label=Latest%20Release" alt="Latest Release" />
   </a>
-  <a href="https://github.com/realidkroo/mochy-music/network/members">
-    <img src="https://shieldcn.dev/github/forks/realidkroo/mochy-music.svg?mode=dark&radius=999&font=geist&split=true&height=28&fontSize=13&labelColor=1e1e2e&labelTextColor=ffffff&color=313244&valueColor=ffffff&logoColor=89b4fa" alt="Forks">
-      <a href="https://github.com/realidkroo/mochy-music/releases">
-    <img src="https://shieldcn.dev/badge/Android-8.0%2B-313244.svg?mode=dark&radius=999&font=geist&split=true&height=28&fontSize=13&labelColor=1e1e2e&labelTextColor=ffffff&color=313244&valueColor=ffffff&logo=android&logoColor=94e2d5" alt="Android 8.0+">
-  </a>
-  <a href="https://github.com/realidkroo/mochy-music/releases/latest">
-    <img src="https://shieldcn.dev/github/release/realidkroo/mochy-music.svg?mode=dark&radius=999&font=geist&split=true&height=28&fontSize=13&labelColor=1e1e2e&labelTextColor=ffffff&color=313244&valueColor=ffffff&logoColor=cba6f7" alt="Release">
-  </a>
-  <a href="https://www.figma.com/board/NWTElXRZ21LaaJotjuOe8D/Untitled?node-id=0-1&t=bMsq80RJXYybjXsh-1">
-    <img src="https://shieldcn.dev/badge/Roadmap-View-313244.svg?mode=dark&radius=999&font=geist&split=true&height=28&fontSize=13&labelColor=1e1e2e&labelTextColor=ffffff&color=313244&valueColor=ffffff&logoColor=b4befe" alt="Roadmap">
+  <a href="https://github.com/realidkroo/mochy-music">
+    <img src="https://img.shields.io/badge/Upstream-Mochy%20Music-cba6f7?style=for-the-badge" alt="Upstream Mochy Music" />
   </a>
   <a href="https://discord.gg/4DAafDMxZb">
-  <img src="https://shieldcn.dev/badge/Discord-Join%20Server-313244.svg?mode=dark&radius=999&font=geist&split=true&height=28&fontSize=13&labelColor=1e1e2e&labelTextColor=ffffff&color=313244&valueColor=ffffff&logo=discord&logoColor=b4befe" alt="Mochy's Bar">
-</a>
-
-</a>
+    <img src="https://img.shields.io/badge/Official%20Mochy-Discord-5865F2?style=for-the-badge" alt="Official Mochy Discord" />
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-GPL--3.0-a6e3a1?style=for-the-badge" alt="GPL-3.0 License" />
+  </a>
 </p>
-</div>
 
-
-> [!WARNING]
-> This app still on beta!, expect some bugs! reporting it will be useful too!!!
+> [!IMPORTANT]
+> **Support & Bug Reports:** Please **do not** report Mochy Ext bugs in the official Mochy Music repository or official support channels. Open an issue in [Rizky088/Mochy-Music-Custom/issues](https://github.com/Rizky088/Mochy-Music-Custom/issues) instead. If you want the official, unmodified app, download it directly from [realidkroo/mochy-music](https://github.com/realidkroo/mochy-music/releases).
 
 ---
 
-## Hhhh-how to install? :3
+## What Is Different in Mochy Ext?
 
-1. On your phone, open the [latest release](https://github.com/realidkroo/mochy-music/releases/latest).
-2. Download the `.apk` that matches your phone. If you are not sure, pick **arm64**, that is almost every phone from the last 8 years. The **universal** one works everywhere but is bigger.
-3. Open the downloaded file. Android will ask you to allow installs from your browser or file manager, say yes (you can turn it off again after).
-4. Open Mochy. You are done, no account needed to start listening.
-
-Updating works the same way: install the new apk over the old one and your library stays.
-
-> [!TIP]
-> Only download Mochy from the releases page of this repo. A random mediafire or telegram link could be a modified app, and then your logins would not be safe, pls avoid those
-
-> [!BTW]
-> We support android 7 unofficially.
+- **Side-by-Side Install:** Uses package ID `com.mochyy.mochymusic.ext`, so you can keep Official Mochy installed without conflicts.
+- **Unified Wallpaper-Matched UI:** Extracts a consistent dark palette from your wallpaper across Home, Library, Profile, Stats/Recap, Settings, Dev Space, and the Module Store, plus optional seamless 1080p live video wallpaper support.
+- **Community Module Store:** Self-hosted module catalog with multi-tag filtering, creator-approval removal policy (any module listed without its creator's permission is removed upon request), and per-module SHA-256 confirmation for untrusted code modules.
+- **Google Drive Cloud Backups:** Uses Google's Android custom-URI OAuth flow (no `127.0.0.1` loopback timeout or floating-window workaround needed) plus a one-tap **Delete old backups** button.
+- **Stability & 4 GB RAM Fixes:** Hardened backup restore (clears stale SQLite `-wal`/`-shm` journals and guards Room 43–45 migrations), safer `.zip` module importing, skippable battery optimization setup prompt + Settings recommendation, and fixed high-refresh VRR blur detection.
 
 ---
 
-## Some Prview 
+## How to Install
 
-<img width="1799" height="927" alt="Frame 289" src="https://github.com/user-attachments/assets/c4c122ed-b86c-44e4-a618-417f5287bc98" />
-<img width="1799" height="927" alt="Frame 287" src="https://github.com/user-attachments/assets/186be8ac-ff3e-4e2a-ab7e-ae80bc9da7e7" />
-<img width="1799" height="927" alt="Frame 290" src="https://github.com/user-attachments/assets/c394603c-7aa7-4d78-8688-38a6c6e42232" />
-<img width="1799" height="927" alt="Frame 288" src="https://github.com/user-attachments/assets/06f5c13a-b8f1-4ecf-85aa-b17d020db5c8" />
-<img width="1799" height="927" alt="Frame 331" src="https://github.com/user-attachments/assets/71c5ee7e-75c1-479f-8075-039bab4f7fe7" />
-<img width="1799" height="927" alt="Frame 332" src="https://github.com/user-attachments/assets/e8c2084f-68ec-4959-a881-03a3b93df292" />
-<img width="1799" height="927" alt="Frame 333" src="https://github.com/user-attachments/assets/50580702-6bc9-4204-8665-b7d6c6390f78" />
-
-
----
-# FAQ
-Q - Is it safe to log in? (read this before signing in)
-
-A - Tbh, you never have to log in to use this thing btw. Search, play, lyrics and downloads work without an account. Signing in is only for syncing your YouTube Music library, importing playlists from Spotify / Apple Music / Tidal, and Discord status
-
-**How the sign-in works**
-- Mochy opens the real login page of the service (for example accounts.google.com or open.spotify.com) inside the app. You type your password into **their** page, not into a Mochy form.
-- After you log in, the app keeps the session token or cookie that the service gives out, so you stay signed in. Your password is not what gets saved.
-- That session stays on your phone, in the app's private storage. Mochy has no account system of its own and does not run a server that collects logins.
-- The tokens are meant to be used only to talk to the service you signed in to (for example Spotify's own site to read your playlists).
-- The app is open source under GPL-3.0 so you do not have to take my word for it, you can always read exactly what it does with them :)
-
-
-Q - Pls add liquid glass
-
-A - No, and not now. maybe in form of modules created by someone in the future
-
-
-Q - Monochrome/flac stream doesnt work
-
-A - The server down, its on their side not us. use other anvailable sources, join our discord
-
-
-Q - Animation is too slow, can you speed it up?
-
-A - You can speed it up on customize page.
-
-
-Q - Official Desktop app?
-
-A - Later
-
-
-Q - App too laggy, how to fix?
-
-A - Disabling blur will helps
-
-
-Q - Can i contribute?
-
-A - Ofc
-
-
-Q - Can you add less spacing for the player
-
-A - You can customize it yourself
-
-Q - I hate this app, i dont want to use it
-A - Nobody is forcing you to use this
+1. Open the [**Releases**](https://github.com/Rizky088/Mochy-Music-Custom/releases/latest) page.
+2. Download the APK for your device:
+   - **`arm64` (Recommended):** Smaller and faster; works on almost all modern Android phones and tablets.
+   - **`universal`:** Larger APK that supports 32-bit ARM (`armeabi-v7a`), x86/x86_64 devices, and older hardware.
+3. Install the APK. Future Mochy Ext releases can be installed directly over the previous version to keep your library and settings.
 
 ---
 
-## How to build it yourself
+## License & Notice
 
-You only need this if you want to change the code. If you just want to use the app, use the install steps above.
-
-### What you need
-- A Mac, Linux or Windows computer with screen
-- [Android Studio](https://developer.android.com/studio) (latest stable). It brings JDK 21 and the Android SDK with it
-- Android SDK 36 and NDK `27.0.12077973`. Android Studio offers to download both the first time you open the project
-- About 10 gb free disk space, the first build downloads a lottt
-- A phone with USB debugging on, or an emulator.
-
-### Steps
-```bash
-git clone https://github.com/realidkroo/mochy-music.git
-cd mochy-music
-```
-
-1. Open the folder in Android Studio once and let it finish syncing. This also creates `local.properties` with your SDK path.
-2. Build and install on your connected phone:
-   ```bash
-   ./build.sh --debug -i
-   ```
-   First build takes a while, the next ones are much faster.
-3. Or build the apk only and install it by hand. The apk lands in `apk-generated/`:
-   ```bash
-   ./build.sh --debug
-   adb install -r apk-generated/*-debug.apk
-   ```
-
-Handy options (see `./build.sh --help` for all of them):
-
-| Command | What it does |
-|---|---|
-| `./build.sh --debug -i` | debug build, installs and opens it on your phone |
-| `./build.sh --release -cc` | release build for arm64 and universal |
-| `./build.sh -fd --release` | F-Droid flavor, without the self-update permission |
-| `./build.sh -k` | stops stuck Gradle builds |
-
-Use **debug** while you are playing around, it builds much much faster. A debug build installs next to the real app (`com.example.mochy.debug`), so it will not touch your normal install, but it is also a bit slower to run.
-
-### Optional keys
-Mochy builds fine without these, only the matching feature is switched off. Put them in `local.properties` (it is never committed):
-
-```properties
-LASTFM_API_KEY=...
-LASTFM_SECRET=...
-DISCORD_CLIENT_ID=...
-```
-
-Never commit your keys. Libre.fm works without any key.
-
-### If the build fails
-- `Unresolved reference` or Hilt errors that make no sense: delete the `build/` folders and `.gradle/` and build again.
-- Stuck or weird Gradle: `./build.sh -k`, then try again.
-- Wrong Java: make sure Gradle uses JDK 21 (Android Studio → Settings → Build Tools → Gradle → Gradle JDK).
-- Still stuck? Open an [issue](https://github.com/realidkroo/mochy-music/issues) with the error text.
-
-Want to send a fix? Read [CONTRIBUTING](.github/CONTRIBUTING.md) first.
-
----
-## How to build module?
-im working on it wait
-
----
-## Wants to help? bug report? report it on issues!
-
-Or read contribute.md there
-
----
-## Disclaimer
-
-Mochy is an independent, unofficial project made for personal and educational use. It is provided as is, without warranty of any kind.
-
-- Mochy is a fully open source project that is created purely for educationa and personal use. thats why, we dont sell this software, or monetize it. we do not have any intent to add commercial values in the future. thanks!
-- And were deeply respect the hardwork of artist musicians ajd contwnt creators. without them there is also no mochy: i strongly suggest that you, as user, subscribe to Apple music or youtube premium, to support the creators you listen. I do not intend to hurt creator with this app.
-- It is **not affiliated with, endorsed by, or sponsored by** YouTube, YouTube Music, Google, Spotify, Apple, Last.fm, Shazam, Discord or any other service it can connect to. All names, logos and brands belong to their respective owners.
-- Mochy does not host, store or distribute any music. Everything is fetched from third-party services when you ask for it, and those services can change or stop working at any time.
-- You are responsible for how you use the app, including the terms of service of the accounts and services you connect and the copyright laws where you live.
-- Importing from other services (Spotify, etc.) uses your own account. Don't share your login data or tokens with anyone.
-- Importing music MAY need your own account with its password. WE'RE NEVER see your password.
+Mochy Ext is licensed under the **GNU General Public License v3.0** ([LICENSE](LICENSE)), the same license as upstream Mochy Music. All modifications are open source, free, and contain no paywalls or ads. See [CREDITS.md](CREDITS.md) for full attribution.
 
 ---
 
@@ -244,17 +88,3 @@ These are the open source apis and server we get gets its lyrics, streams and da
 - **Unison Lyrics** ([repos](https://github.com/better-lyrics/unison))
 
 ---
-## Star History
-
-<a href="https://www.star-history.com/?repos=realidkroo%2Fmochy-music&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=realidkroo/mochy-music&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=realidkroo/mochy-music&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=realidkroo/mochy-music&type=date&legend=top-left" />
- </picture>
-</a>
-
-<div align="center">
-  <sub>star the repo plssss apreciate it!!!!!</sub>
-</div>
-

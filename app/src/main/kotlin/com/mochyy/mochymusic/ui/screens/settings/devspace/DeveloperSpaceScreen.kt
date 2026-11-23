@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.devspace
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -100,7 +102,8 @@ fun DeveloperSpaceScreen(navController: NavController, initialPage: Int = 0) {
     val glassState = remember { GlassState() }
     val ready = stats != null || !loading
 
-    Box(Modifier.fillMaxSize().background(Color.Black)) {
+    val pageBg = LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black
+    Box(Modifier.fillMaxSize().background(pageBg)) {
         // glassRoot wraps the content only, the glass bar is a sibling or it crashes (see docs/notes/settings.md)
         Box(
             Modifier
@@ -142,7 +145,7 @@ fun DeveloperSpaceScreen(navController: NavController, initialPage: Int = 0) {
                 ProgressiveGlassBackground(
                     state = glassState,
                     maxBlurRadius = { 50f * barP },
-                    foundationColor = Color.Black.copy(alpha = 0.5f),
+                    foundationColor = pageBg.copy(alpha = 0.5f),
                     direction = BlurDirection.BottomToTop,
                     steps = 3,
                     modifier = Modifier.fillMaxSize(),
@@ -154,9 +157,9 @@ fun DeveloperSpaceScreen(navController: NavController, initialPage: Int = 0) {
                     .fillMaxSize()
                     .background(
                         if (progressiveBar) {
-                            Brush.verticalGradient(listOf(Color.Black, Color.Black.copy(alpha = 0.7f), Color.Transparent))
+                            Brush.verticalGradient(listOf(pageBg, pageBg.copy(alpha = 0.7f), Color.Transparent))
                         } else {
-                            androidx.compose.ui.graphics.SolidColor(Color.Black.copy(alpha = com.mochyy.mochymusic.ui.component.FlatBarScrimAlpha))
+                            androidx.compose.ui.graphics.SolidColor(pageBg.copy(alpha = com.mochyy.mochymusic.ui.component.FlatBarScrimAlpha))
                         },
                     ),
             )

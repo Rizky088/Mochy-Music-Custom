@@ -1,17 +1,10 @@
-A Material 3 YouTube Music client for Android
+Mochy Ext is an unofficial, free, open-source (GPL-3.0) community fork based on Mochy Music by realidkroo (https://github.com/realidkroo/mochy-music).
 
-<br><b>Features:</b>
+What Mochy Ext changes:
+- Side-by-side install (com.mochyy.mochymusic.ext) so it does not overwrite official Mochy
+- Unified wallpaper-matched Material palette across Home, Library, Profile, Stats, Settings, and Dev Space
+- Self-hosted community Module Store with creator-approval removal policy and SHA-256 verification for untrusted code modules
+- Google Drive cloud backups via Android custom URI OAuth + backup restore crash fixes
+- Battery optimization guidance and memory improvements for 4 GB RAM devices
 
-- Play songs from YT/YT Music without ads
-- Background playback
-- Search songs, videos, albums, and playlists from YouTube Music
-- Library management
-- Cache and download songs for offline playback
-- Synchronized lyrics
-- Skip silence
-- Audio normalization
-- Dynamic theme
-- Localization
-- Android Auto support
-- Personalized quick picks
-- Material 3
+All original credits go to realidkroo, Keycii, ViviMusic, Metrolist, and upstream contributors.

@@ -272,7 +272,7 @@ private fun LazyListScope.storeItems(
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Text(
-                text = "Store Policy: Modules are shared with respect to their creators and will be removed upon request if listed without the owner's approval. Can't find the module you're looking for? Check the official Mochy Discord server.",
+                text = "Store Policy: Modules are shared with respect to their creators and will be removed upon request if listed without the owner's approval. Can't find the module you're looking for? Check the Official Mochy Discord server.",
                 color = wp?.onSurfaceVariant ?: Color.White.copy(alpha = 0.68f),
                 fontFamily = InterFontFamily,
                 fontSize = 12.sp,
@@ -280,7 +280,7 @@ private fun LazyListScope.storeItems(
                 fontWeight = FontWeight.Medium,
             )
             Text(
-                text = "Visit official Mochy Discord →",
+                text = "Visit Official Mochy Discord →",
                 color = wp?.primary ?: Color.White,
                 fontFamily = InterFontFamily,
                 fontSize = 12.sp,

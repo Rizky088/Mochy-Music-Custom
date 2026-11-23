@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.devspace
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateContentSize
@@ -88,7 +90,7 @@ internal fun DevPanel(
             modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(DevCardCorner))
-                .background(DevCard)
+                .background(LocalWallpaperPalette.current?.surfaceContainer ?: DevCard)
                 .padding(DevCardPad)
                 .animateContentSize(tween(260, easing = FastOutSlowInEasing)),
         content = content,
@@ -249,7 +251,7 @@ internal fun RepoIssuesSection(
                         style = devText(17f, tracking = -0.6f),
                         modifier = Modifier.weight(1f),
                     )
-                    Text("${shownResolved.size}", style = devText(15f, FontWeight.SemiBold, DevMuted))
+                    Text("${shownResolved.size}", style = devText(15f, FontWeight.SemiBold, LocalWallpaperPalette.current?.onSurfaceVariant ?: DevMuted))
                 }
                 Spacer(Modifier.height(12.dp))
                 IssueList(shownResolved, showAllResolved, context) { showAllResolved = true }
@@ -305,7 +307,7 @@ private fun IssueList(
                     Modifier
                         .align(Alignment.CenterHorizontally)
                         .clip(CircleShape)
-                        .background(DevPill)
+                        .background(LocalWallpaperPalette.current?.chip ?: DevPill)
                         .clickable(onClick = onShowAll)
                         .padding(horizontal = 16.dp, vertical = 8.dp),
             )
@@ -325,7 +327,7 @@ private fun IssueRow(
             Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(18.dp))
-                .background(DevRow)
+                .background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: DevRow)
                 .clickable(onClick = onClick)
                 .padding(horizontal = 14.dp, vertical = 12.dp),
     ) {
@@ -367,7 +369,7 @@ private fun SkeletonRow() {
             .height(56.dp)
             .graphicsLayer { alpha = pulse }
             .clip(RoundedCornerShape(18.dp))
-            .background(DevRow),
+            .background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: DevRow),
     )
 }
 

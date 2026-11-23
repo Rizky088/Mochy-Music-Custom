@@ -71,6 +71,52 @@ def list_recent_files(exts: tuple[str, ...], limit: int = 20) -> list[pathlib.Pa
     return sorted(found.values(), key=lambda p: p.stat().st_mtime, reverse=True)[:limit]
 
 
+def resolve_local_file(raw: str) -> pathlib.Path | None:
+    if not raw:
+        return None
+    p = pathlib.Path(raw).expanduser()
+    if p.is_file():
+        return p
+    for d in DOWNLOAD_DIRS:
+        alt = d / raw
+        if alt.is_file():
+            return alt
+    return None
+
+
+def pick_zip_file(hint_terms: list[str] | None = None) -> pathlib.Path | None:
+    zips = list_recent_files((".zip",))
+    if not zips:
+        choice = input("No .zip files found in Downloads. Paste full path to .zip: ").strip()
+        return resolve_local_file(choice)
+
+    default_idx = 1
+    if hint_terms:
+        clean_terms = [t.lower() for t in hint_terms if t and len(t) >= 3]
+        for i, z in enumerate(zips, 1):
+            zlow = z.stem.lower()
+            if any(t in zlow for t in clean_terms):
+                default_idx = i
+                break
+
+    print("\n--- Pick a .zip file ---")
+    for i, z in enumerate(zips, 1):
+        kb = z.stat().st_size // 1024
+        mark = "  <-- default" if i == default_idx else ""
+        print(f"  {i}. {z.name} ({kb} KB){mark}")
+    choice = input(f"Pick number, paste path, or Enter for #{default_idx} ('c' to cancel): ").strip()
+    if choice.lower() in {"c", "q", "cancel"}:
+        return None
+    if not choice:
+        return zips[default_idx - 1]
+    if choice.isdigit() and 1 <= int(choice) <= len(zips):
+        return zips[int(choice) - 1]
+    found = resolve_local_file(choice)
+    if not found:
+        print(f"File not found: {choice}")
+    return found
+
+
 def pick_tags(default_tags: list[str] | None = None, catalog_categories: list[str] | None = None) -> tuple[str, list[str]]:
     base_options = ["Looks", "Sources", "Players", "Tools"]
     for c in (catalog_categories or []):
@@ -118,12 +164,8 @@ def pick_optional_image(label: str, slug: str, dest_dir: pathlib.Path, current: 
         return ""
     if not raw or raw.startswith("https://"):
         return raw
-    p = pathlib.Path(raw).expanduser()
-    if not p.is_file():
-        alt = pathlib.Path("/sdcard/Download") / raw
-        if alt.is_file():
-            p = alt
-    if p.is_file():
+    p = resolve_local_file(raw)
+    if p and p.is_file():
         dest_dir.mkdir(parents=True, exist_ok=True)
         ext = p.suffix.lower() or ".png"
         out = dest_dir / f"{slug}{ext}"
@@ -144,7 +186,7 @@ def inspect_zip(src: pathlib.Path) -> tuple[dict, bytes | None, str, list[str]]:
             [n for n in names if n.lower().endswith(".json") and not n.endswith("/")],
             key=lambda n: (
                 n.count("/"),
-                0 if os.path.basename(n).lower() in {"manifest.json", "module.json", "info.json"} else 1,
+                0 if os.path.basename(n).lower() in {"look.json", "manifest.json", "module.json", "info.json"} else 1,
                 len(n),
             ),
         )
@@ -172,9 +214,24 @@ def inspect_zip(src: pathlib.Path) -> tuple[dict, bytes | None, str, list[str]]:
     return meta, icon_bytes, icon_ext, names
 
 
-def push_changes(message: str) -> None:
-    if not prompt_yes_no("Push changes to GitHub now?", default=True):
-        print("Saved locally. Run option 6 later to push.")
+def find_existing_module(mods: list[dict], slug: str = "", module_id: str = "", name: str = "") -> dict | None:
+    cand_ids = {x.strip().lower() for x in (slug, module_id) if x and x.strip()}
+    cand_name = name.strip().lower()
+    for m in mods:
+        mid = str(m.get("moduleId") or "").strip().lower()
+        sid = str(m.get("id") or "").strip().lower()
+        if cand_ids and (mid in cand_ids or sid in cand_ids):
+            return m
+    if cand_name:
+        for m in mods:
+            if str(m.get("name") or "").strip().lower() == cand_name:
+                return m
+    return None
+
+
+def push_changes(message: str, auto_confirm: bool = False) -> None:
+    if not auto_confirm and not prompt_yes_no("Push changes to GitHub now?", default=True):
+        print("Saved locally. Run option 7 (or `mochy-store push`) later to push.")
         return
     subprocess.run(["git", "-C", str(REPO_ROOT), "add", "store/"], check=True)
     status = subprocess.run(
@@ -192,25 +249,199 @@ def push_changes(message: str) -> None:
     print("\nPushed! Your Module Store updates in ~1-2 minutes (no APK rebuild needed).")
 
 
-def add_zip_module() -> None:
-    zips = list_recent_files((".zip",))
-    print("\n--- Pick a .zip file ---")
-    for i, z in enumerate(zips, 1):
-        kb = z.stat().st_size // 1024
-        print(f"  {i}. {z.name} ({kb} KB)")
-    choice = input("Pick number or paste full path to .zip: ").strip()
-    if not choice:
+def apply_zip_update(cat: dict, m: dict, src: pathlib.Path) -> None:
+    slug = m["id"]
+    meta, icon_bytes, icon_ext, _ = inspect_zip(src)
+    new_module_id = str(meta.get("id") or meta.get("moduleId") or "").strip()
+    new_version = str(meta.get("version") or "").strip()
+    new_desc = str(meta.get("description") or "").strip()
+
+    old_ver = str(m.get("version") or "")
+    old_mid = str(m.get("moduleId") or "")
+    old_size_kb = int(m.get("size") or 0) // 1024
+    new_size = src.stat().st_size
+
+    print(f"\nUpdating '{m.get('name')}' ({slug}) from {src.name}:")
+    print(f"  Version  : {old_ver or '?'} -> {new_version or old_ver or '?'}")
+    if new_module_id and new_module_id != old_mid:
+        print(f"  moduleId : {old_mid} -> {new_module_id}")
+    print(f"  Size     : {old_size_kb} KB -> {new_size // 1024} KB")
+
+    version = prompt("Version", new_version or old_ver or "1.0.0")
+
+    ZIPS_DIR.mkdir(parents=True, exist_ok=True)
+    dest_zip = ZIPS_DIR / f"{slug}.zip"
+    shutil.copy2(src, dest_zip)
+
+    m["version"] = version
+    if new_module_id:
+        m["moduleId"] = new_module_id
+    m["install"] = "zip"
+    m["zipUrl"] = f"{RAW_BASE}/zips/{slug}.zip"
+    m["size"] = dest_zip.stat().st_size
+    m["updated"] = int(time.time() * 1000)
+
+    if new_desc and new_desc != str(m.get("description") or "").strip():
+        if prompt_yes_no("Description changed in zip. Update store description too?", default=True):
+            m["description"] = new_desc
+
+    if icon_bytes:
+        if not m.get("icon") or prompt_yes_no("Zip includes an icon. Refresh store icon too?", default=False):
+            ICONS_DIR.mkdir(parents=True, exist_ok=True)
+            (ICONS_DIR / f"{slug}{icon_ext}").write_bytes(icon_bytes)
+            m["icon"] = f"{RAW_BASE}/icons/{slug}{icon_ext}"
+            print(f"  + Updated icon -> {m['icon']}")
+
+    save_catalog(cat)
+    print(f"\nUpdated '{m['name']}' to v{version} (tags, Discord link, banner & visibility preserved).")
+    push_changes(f"Store: update {m['name']} to v{version}")
+
+
+def quick_update_module(arg: str = "") -> None:
+    cat = load_catalog()
+    mods = cat.get("modules", [])
+    if not mods:
+        print("No modules in store yet.")
         return
-    if choice.isdigit() and 1 <= int(choice) <= len(zips):
-        src = zips[int(choice) - 1]
+
+    # Direct zip argument: `mochy-store update MyModule.zip`
+    zip_from_arg = resolve_local_file(arg) if arg and arg.lower().endswith(".zip") else None
+    if zip_from_arg:
+        meta, _, _, _ = inspect_zip(zip_from_arg)
+        matched = find_existing_module(
+            mods,
+            slug=slugify(str(meta.get("id") or meta.get("moduleId") or zip_from_arg.stem)),
+            module_id=str(meta.get("id") or meta.get("moduleId") or ""),
+            name=str(meta.get("name") or meta.get("title") or ""),
+        )
+        if matched and prompt_yes_no(f"Auto-matched '{matched.get('name')}' ({matched.get('id')}). Update it?", default=True):
+            apply_zip_update(cat, matched, zip_from_arg)
+            return
+
+    filtered = mods
+    if arg and not zip_from_arg:
+        q = arg.lower()
+        matches = [m for m in mods if q in str(m.get("name", "")).lower() or q in str(m.get("id", "")).lower() or q in str(m.get("moduleId", "")).lower()]
+        if len(matches) == 1:
+            m = matches[0]
+            print(f"\nMatched: {m.get('name')} v{m.get('version', '?')} [{m.get('install', 'zip')}]")
+            if m.get("install") == "zip":
+                src = pick_zip_file([m.get("id", ""), m.get("name", ""), m.get("moduleId", "")])
+                if src:
+                    apply_zip_update(cat, m, src)
+            else:
+                _quick_update_link(cat, m)
+            return
+        if matches:
+            filtered = matches
+
+    print("\n--- Quick Update Existing Module ---")
+    for i, m in enumerate(filtered, 1):
+        vis = " [HIDDEN]" if m.get("hidden") else ""
+        kind = m.get("install", "zip")
+        ver = m.get("version") or "?"
+        print(f"  {i}. [{kind}] {m.get('name')} (v{ver}){vis}")
+    print("  a. Auto-detect module from a .zip in Downloads")
+
+    raw = input("Pick number, type name filter, or 'a' [Enter = cancel]: ").strip()
+    if not raw:
+        return
+
+    if raw.lower() == "a":
+        src = zip_from_arg or pick_zip_file()
+        if not src:
+            return
+        meta, _, _, _ = inspect_zip(src)
+        matched = find_existing_module(
+            mods,
+            slug=slugify(str(meta.get("id") or meta.get("moduleId") or src.stem)),
+            module_id=str(meta.get("id") or meta.get("moduleId") or ""),
+            name=str(meta.get("name") or meta.get("title") or ""),
+        )
+        if not matched:
+            print("Could not auto-match that zip to an existing store entry. Pick the module to update:")
+            for i, m in enumerate(mods, 1):
+                print(f"  {i}. {m.get('name')} [{m.get('id')}]")
+            pick = input("Pick number [Enter = cancel]: ").strip()
+            if not pick.isdigit() or not (1 <= int(pick) <= len(mods)):
+                return
+            matched = mods[int(pick) - 1]
+        apply_zip_update(cat, matched, src)
+        return
+
+    if raw.isdigit() and 1 <= int(raw) <= len(filtered):
+        m = filtered[int(raw) - 1]
     else:
-        src = pathlib.Path(choice).expanduser()
-        if not src.is_file():
-            alt = pathlib.Path("/sdcard/Download") / choice
-            if alt.is_file():
-                src = alt
-    if not src.is_file():
-        print(f"File not found: {src}")
+        q = raw.lower()
+        hits = [m for m in filtered if q in str(m.get("name", "")).lower() or q in str(m.get("id", "")).lower()]
+        if not hits:
+            print(f"No module matching '{raw}'.")
+            return
+        m = hits[0]
+
+    if m.get("install") == "zip":
+        src = zip_from_arg or pick_zip_file([m.get("id", ""), m.get("name", ""), m.get("moduleId", "")])
+        if not src:
+            return
+        apply_zip_update(cat, m, src)
+    else:
+        _quick_update_link(cat, m)
+
+
+def _quick_update_link(cat: dict, m: dict) -> None:
+    print(f"\nUpdating link/web module '{m.get('name')}' ({m.get('id')}):")
+    new_link = prompt("Module URL", str(m.get("link") or ""))
+    if new_link and not new_link.startswith("https://"):
+        print("URL must start with https://")
+        return
+    m["link"] = new_link
+    m["version"] = prompt("Version", str(m.get("version") or "1.0.0"))
+    m["description"] = prompt("Description", str(m.get("description") or ""))
+    m["updated"] = int(time.time() * 1000)
+    save_catalog(cat)
+    print(f"\nUpdated '{m['name']}' to v{m['version']}.")
+    push_changes(f"Store: update {m['name']} to v{m['version']}")
+
+
+def sync_zips_metadata() -> None:
+    cat = load_catalog()
+    fixed = []
+    for m in cat.get("modules", []):
+        if m.get("install") != "zip":
+            continue
+        zp = ZIPS_DIR / f"{m.get('id', '')}.zip"
+        if not zp.is_file():
+            continue
+        meta, _, _, _ = inspect_zip(zp)
+        real_id = str(meta.get("id") or meta.get("moduleId") or "").strip()
+        real_ver = str(meta.get("version") or "").strip()
+        real_size = zp.stat().st_size
+        changes = []
+        if real_id and m.get("moduleId") != real_id:
+            changes.append(f"moduleId -> {real_id}")
+            m["moduleId"] = real_id
+        if real_ver and m.get("version") != real_ver:
+            changes.append(f"version -> {real_ver}")
+            m["version"] = real_ver
+        if m.get("size") != real_size:
+            changes.append(f"size -> {real_size // 1024} KB")
+            m["size"] = real_size
+        if changes:
+            m["updated"] = int(time.time() * 1000)
+            fixed.append(f"{m.get('name')}: " + ", ".join(changes))
+    if not fixed:
+        print("All store .zip entries already match their manifest metadata.")
+        return
+    save_catalog(cat)
+    print("Synced metadata:")
+    for line in fixed:
+        print(f"  -> {line}")
+    push_changes("Store: sync zip metadata")
+
+
+def add_zip_module() -> None:
+    src = pick_zip_file()
+    if not src:
         return
 
     meta, icon_bytes, icon_ext, names = inspect_zip(src)
@@ -225,6 +456,14 @@ def add_zip_module() -> None:
     default_author = str(author_raw or "Rizky088").strip()
     default_desc = str(meta.get("description") or "").strip()
 
+    cat = load_catalog()
+    existing = find_existing_module(cat.get("modules", []), slug=default_slug, module_id=default_module_id, name=default_name)
+    if existing:
+        print(f"\nFound existing store entry '{existing.get('name')}' ({existing.get('id')}).")
+        if prompt_yes_no("Use Quick Update (keeps tags, Discord link, banner & visibility)?", default=True):
+            apply_zip_update(cat, existing, src)
+            return
+
     blob = (json.dumps(meta) + " " + " ".join(names)).lower()
     if any(k in blob for k in ("look", "skin", "theme", "tablet", "layout")):
         default_tag = "Looks"
@@ -236,28 +475,31 @@ def add_zip_module() -> None:
         default_tag = "Tools"
 
     print(f"\nDetected: {default_name} v{default_version} by {default_author} (id: {default_module_id})")
-    name = prompt("Module name", default_name)
-    slug = slugify(prompt("Store slug ID", default_slug))
+    name = prompt("Module name", existing.get("name", default_name) if existing else default_name)
+    slug = slugify(prompt("Store slug ID", existing.get("id", default_slug) if existing else default_slug))
     module_id = prompt("Internal moduleId", default_module_id)
     version = prompt("Version", default_version)
-    author = prompt("Author", default_author)
-    description = prompt("Description", default_desc)
-    kind, tags = pick_tags([default_tag], get_catalog_categories())
-    discord_url = prompt("Discord post link (optional, https://discord.com/channels/...)", "")
+    author = prompt("Author", existing.get("author", default_author) if existing else default_author)
+    description = prompt("Description", default_desc or (existing.get("description", "") if existing else ""))
+    default_tags = existing.get("tags") if (existing and isinstance(existing.get("tags"), list)) else [default_tag]
+    kind, tags = pick_tags(default_tags, get_catalog_categories(cat))
+    cur_discord = (existing.get("discordPostUrl") or existing.get("postUrl") or "") if existing else ""
+    discord_url = prompt("Discord post link (optional, https://discord.com/channels/...)", cur_discord)
 
     ZIPS_DIR.mkdir(parents=True, exist_ok=True)
     dest_zip = ZIPS_DIR / f"{slug}.zip"
     shutil.copy2(src, dest_zip)
 
-    icon_url = ""
+    icon_url = existing.get("icon", "") if existing else ""
     if icon_bytes:
         ICONS_DIR.mkdir(parents=True, exist_ok=True)
         (ICONS_DIR / f"{slug}{icon_ext}").write_bytes(icon_bytes)
         icon_url = f"{RAW_BASE}/icons/{slug}{icon_ext}"
         print(f"  + Extracted icon -> {icon_url}")
     icon_url = pick_optional_image("Icon", slug, ICONS_DIR, icon_url)
-    banner_url = pick_optional_image("Banner", slug, BANNERS_DIR, "")
-    featured = prompt_yes_no("Feature in 'Best from community'?", default=True)
+    banner_url = pick_optional_image("Banner", slug, BANNERS_DIR, existing.get("banner", "") if existing else "")
+    in_chart = slug in cat.get("chart", []) if existing else True
+    featured = prompt_yes_no("Feature in 'Best from community'?", default=in_chart)
 
     entry = {
         "id": slug,
@@ -270,11 +512,10 @@ def add_zip_module() -> None:
         "tags": tags,
         "paid": False,
         "locked": False,
-        "hidden": False,
-        "hidden": False,
+        "hidden": bool(existing.get("hidden", False)) if existing else False,
         "icon": icon_url,
         "banner": banner_url,
-        "previews": [],
+        "previews": existing.get("previews", []) if existing else [],
         "install": "zip",
         "zipUrl": f"{RAW_BASE}/zips/{slug}.zip",
         "size": dest_zip.stat().st_size,
@@ -283,7 +524,6 @@ def add_zip_module() -> None:
         "postUrl": discord_url,
     }
 
-    cat = load_catalog()
     cat["modules"] = [m for m in cat.get("modules", []) if m.get("id") != slug]
     cat["modules"].append(entry)
     chart = [cid for cid in cat.get("chart", []) if cid != slug]
@@ -329,6 +569,7 @@ def add_link_module() -> None:
         "tags": tags,
         "paid": False,
         "locked": False,
+        "hidden": False,
         "icon": icon_url,
         "banner": banner_url,
         "previews": [],
@@ -463,29 +704,65 @@ def toggle_hide_module() -> None:
     push_changes("Store: " + ", ".join(changed))
 
 
+def print_help() -> None:
+    print("Usage: mochy-store [command]")
+    print("  mochy-store                   Open interactive menu")
+    print("  mochy-store update [name|zip] Quick-update an existing module (alias: u)")
+    print("  mochy-store add               Add a new .zip module from Downloads")
+    print("  mochy-store edit              Edit module metadata")
+    print("  mochy-store hide              Hide / unhide module(s)")
+    print("  mochy-store sync              Sync all store/zips/*.zip manifest metadata")
+    print("  mochy-store push              Commit & push pending store/ changes")
+
+
 def main() -> None:
+    if len(sys.argv) > 1:
+        cmd = sys.argv[1].strip().lower()
+        arg = " ".join(sys.argv[2:]).strip()
+        if cmd in {"update", "u"}:
+            quick_update_module(arg)
+        elif cmd in {"add", "a"}:
+            add_zip_module()
+        elif cmd in {"edit", "e"}:
+            edit_module()
+        elif cmd in {"hide", "h"}:
+            toggle_hide_module()
+        elif cmd == "sync":
+            sync_zips_metadata()
+        elif cmd == "push":
+            push_changes("Store: update catalog", auto_confirm=True)
+        else:
+            print_help()
+        return
+
     while True:
         print("\n=== Mochy Ext Module Store Manager ===")
-        print("  1. Add / Update .zip module (from Downloads)")
-        print("  2. Add / Update link or web module")
-        print("  3. Edit module (tags, Discord link, banner, hide/show)")
-        print("  4. Hide / Unhide module(s)")
-        print("  5. Remove module")
-        print("  6. Push pending store changes to GitHub")
+        print("  1. Quick update existing module (.zip or link)")
+        print("  2. Add new .zip module (from Downloads)")
+        print("  3. Add new link / web module")
+        print("  4. Edit module (tags, Discord link, banner, hide/show)")
+        print("  5. Hide / Unhide module(s)")
+        print("  6. Remove module")
+        print("  7. Push pending store changes to GitHub")
+        print("  8. Sync all .zip manifest metadata")
         print("  0. Exit")
         choice = input("Choose: ").strip()
         if choice == "1":
-            add_zip_module()
+            quick_update_module()
         elif choice == "2":
-            add_link_module()
+            add_zip_module()
         elif choice == "3":
-            edit_module()
+            add_link_module()
         elif choice == "4":
-            toggle_hide_module()
+            edit_module()
         elif choice == "5":
-            remove_module()
+            toggle_hide_module()
         elif choice == "6":
+            remove_module()
+        elif choice == "7":
             push_changes("Store: update catalog")
+        elif choice == "8":
+            sync_zips_metadata()
         elif choice == "0":
             break
 

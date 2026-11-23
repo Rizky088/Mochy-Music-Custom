@@ -472,7 +472,7 @@ private fun ColumnScope.AboutSheetContent(
             }
 
             Spacer(Modifier.height(18.dp))
-            SectionHeader("Mochy Ext Fork")
+            SectionHeader(stringResource(R.string.mochy_ext_section_title))
             Spacer(Modifier.height(8.dp))
             Column(
                 modifier =
@@ -484,10 +484,18 @@ private fun ColumnScope.AboutSheetContent(
             ) {
                 PersonRow(
                     name = "Rizky088",
-                    subtitle = "Mochy Ext · community fork built on Mochy Music",
+                    subtitle = stringResource(R.string.mochy_ext_credit_subtitle),
                     avatarUrl = githubAvatarUrl("Rizky088"),
                     showArrow = true,
                     onClick = { context.openUrl("https://github.com/Rizky088/Mochy-Music-Custom") },
+                )
+                Text(
+                    text = stringResource(R.string.mochy_ext_about_summary),
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White.copy(alpha = 0.72f),
+                    modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 4.dp, bottom = 12.dp),
                 )
             }
 

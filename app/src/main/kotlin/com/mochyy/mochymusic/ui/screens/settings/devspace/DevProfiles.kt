@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.devspace
 
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
@@ -134,7 +136,7 @@ internal fun DevProfilePage(
                 Rule(Modifier.padding(top = 16.dp))
                 Text(
                     person.bio,
-                    style = devText(15f, FontWeight.SemiBold, DevLinkText, -0.4f),
+                    style = devText(15f, FontWeight.SemiBold, LocalWallpaperPalette.current?.onSurfaceVariant ?: DevLinkText, -0.4f),
                     modifier = Modifier.padding(vertical = 22.dp),
                 )
                 Rule()
@@ -174,6 +176,8 @@ internal fun DevProfilePage(
 @Composable
 private fun ProfileHeader(person: DevPerson, scrollState: ScrollState, bannerHeight: Dp) {
     val context = LocalContext.current
+    val wp = LocalWallpaperPalette.current
+    val pageBg = wp?.surfaceDeep ?: Color.Black
     // blurred once, small and off the main thread, so it costs the same on every phone
     val banner = remember(person.avatar) {
         ImageRequest.Builder(context)
@@ -191,7 +195,7 @@ private fun ProfileHeader(person: DevPerson, scrollState: ScrollState, bannerHei
                     translationY = scrollState.value * 0.45f
                     alpha = 1f - (scrollState.value / bannerHeight.toPx()).coerceIn(0f, 1f) * 0.6f
                 }
-                .background(Color(0xFF4A4A4A)),
+                .background(wp?.surfaceContainerHigh ?: Color(0xFF4A4A4A)),
         ) {
             AsyncImage(
                 model = banner,
@@ -203,7 +207,7 @@ private fun ProfileHeader(person: DevPerson, scrollState: ScrollState, bannerHei
                         drawContent()
                         drawRect(Color.Black.copy(alpha = 0.32f))
                         // melts into the black page so the avatar's lower half sits on one colour
-                        drawRect(Brush.verticalGradient(0.55f to Color.Transparent, 1f to Color.Black))
+                        drawRect(Brush.verticalGradient(0.55f to Color.Transparent, 1f to pageBg))
                     },
             )
         }
@@ -226,7 +230,7 @@ private fun ProfileHeader(person: DevPerson, scrollState: ScrollState, bannerHei
 
 @Composable
 private fun Rule(modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxWidth().height(1.dp).background(DevRule))
+    Box(modifier.fillMaxWidth().height(1.dp).background(LocalWallpaperPalette.current?.divider ?: DevRule))
 }
 
 @Composable
@@ -245,10 +249,10 @@ private fun DevLinkRow(label: String, onClick: () -> Unit) {
             .fillMaxWidth()
             .height(42.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(DevCard)
+            .background(LocalWallpaperPalette.current?.surfaceContainer ?: DevCard)
             .clickable(interactionSource = interaction, indication = RemoteFocus, onClick = onClick)
             .padding(horizontal = 18.dp),
     ) {
-        Text(label, style = devText(15f, FontWeight.SemiBold, DevLinkText, -0.4f), maxLines = 1)
+        Text(label, style = devText(15f, FontWeight.SemiBold, LocalWallpaperPalette.current?.onSurfaceVariant ?: DevLinkText, -0.4f), maxLines = 1)
     }
 }

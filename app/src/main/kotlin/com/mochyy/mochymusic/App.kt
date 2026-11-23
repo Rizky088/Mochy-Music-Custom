@@ -1,3 +1,5 @@
+// App.kt — Mochy Ext, started life as a fork of Mochy Music by realidkroo (https://github.com/realidkroo/mochy-music)
+
 // App.kt
 
 package com.mochyy.mochymusic

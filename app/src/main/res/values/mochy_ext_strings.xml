@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mochy_ext_section_title">Mochy Ext Fork</string>
+    <string name="mochy_ext_credit_subtitle">Unofficial fork built on top of Mochy Music by realidkroo</string>
+    <string name="mochy_ext_about_summary">Mochy Ext is a free, open-source community fork built on Mochy Music (GPL-3.0). It installs alongside official Mochy and adds unified wallpaper-matched theming, a self-hosted community Module Store with creator-approval removal, Google Drive cloud backups, and stability improvements for 4 GB RAM devices. Please report Mochy Ext issues on Rizky088/Mochy-Music-Custom rather than official Mochy channels.</string>
+</resources>
