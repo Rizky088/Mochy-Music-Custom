@@ -2,6 +2,15 @@
 
 package com.mochyy.mochymusic.ui.screens.settings
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+import com.mochyy.mochymusic.utils.BatteryOptimization
+
 import android.content.Context
 import android.media.AudioManager
 import android.net.ConnectivityManager
@@ -85,6 +94,7 @@ internal class RecommendationState(
     val metered: Boolean,
     val headphones: Boolean,
     val usbDac: Boolean,
+    val batteryOptimized: Boolean,
 ) {
     companion object {
         fun read(context: Context): RecommendationState {
@@ -100,6 +110,7 @@ internal class RecommendationState(
                 metered = app.getSystemService<ConnectivityManager>()?.isActiveNetworkMetered == true,
                 headphones = outputs.any { it == AudioOutputs.Kind.WIRED || it == AudioOutputs.Kind.BLUETOOTH || it == AudioOutputs.Kind.USB },
                 usbDac = AudioOutputs.Kind.USB in outputs,
+                batteryOptimized = !BatteryOptimization.isIgnoring(app),
             )
         }
     }
@@ -117,13 +128,31 @@ internal class RecommendedSetting(
     val applies: (RecommendationState) -> Boolean = { true },
     // fits what's going on right now (headphones in, on mobile data), so it goes ahead of the rest
     val timely: (RecommendationState) -> Boolean = { false },
+    val titleOverride: String? = null,
+    val subtitleOverride: String? = null,
+    val onAction: ((Context) -> Unit)? = null,
 )
+
+private const val BatteryOptRoute = "action:battery_optimization"
 
 // a style tip only shows to people who never touched that style
 private fun untouched(vararg keys: Preferences.Key<*>): (RecommendationState) -> Boolean =
     { state -> keys.all { state.prefs[it] == null } }
 
 private val RecommendedOptions = listOf(
+    // battery reliability (pinned first whenever optimization is still enabled)
+    RecommendedSetting(
+        titleRes = R.string.settings_recommended_item,
+        pageRes = R.string.settings_app_behaviour,
+        route = BatteryOptRoute,
+        icon = { painterResource(R.drawable.warning) },
+        applies = { it.batteryOptimized },
+        timely = { it.batteryOptimized },
+        titleOverride = "Turn off battery optimization",
+        subtitleOverride = "Recommended · Prevents background crashes & stops",
+        onAction = { ctx -> BatteryOptimization.request(ctx) },
+    ),
+
     // audio lab
     RecommendedSetting(
         titleRes = R.string.settings_rec_autoeq,
@@ -308,13 +337,21 @@ private val RecommendedOptions = listOf(
 // the tips that still apply, timely ones first, never two for the same page so the card stays varied
 internal fun pickRecommendations(context: Context, count: Int = 2): List<RecommendedSetting> {
     val state = RecommendationState.read(context)
-    val (timely, rest) = RecommendedOptions.filter { it.applies(state) }.partition { it.timely(state) }
-    return (timely.shuffled() + rest.shuffled()).distinctBy { it.route }.take(count)
+    val active = RecommendedOptions.filter { it.applies(state) }
+    val pinned = active.filter { it.route == BatteryOptRoute }
+    val (timely, rest) = active.filterNot { it.route == BatteryOptRoute }.partition { it.timely(state) }
+    return (pinned + timely.shuffled() + rest.shuffled()).distinctBy { it.route }.take(count)
 }
 
 @Composable
 internal fun RecommendedCard(recommendations: List<RecommendedSetting>, open: (String) -> Unit) {
-    if (recommendations.isEmpty()) return
+    val context = LocalContext.current
+    var refreshTick by remember { mutableIntStateOf(0) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { refreshTick++ }
+    val visible = remember(recommendations, refreshTick) {
+        recommendations.filter { it.route != BatteryOptRoute || !BatteryOptimization.isIgnoring(context) }
+    }
+    if (visible.isEmpty()) return
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -331,7 +368,7 @@ internal fun RecommendedCard(recommendations: List<RecommendedSetting>, open: (S
             color = Color.White.copy(alpha = 0.55f),
             modifier = Modifier.padding(start = 10.dp, top = 8.dp, bottom = 4.dp),
         )
-        recommendations.forEachIndexed { index, recommendation ->
+        visible.forEachIndexed { index, recommendation ->
             if (index > 0) {
                 Box(
                     modifier = Modifier
@@ -344,8 +381,13 @@ internal fun RecommendedCard(recommendations: List<RecommendedSetting>, open: (S
             RecommendationRow(
                 recommendation = recommendation,
                 onClick = {
-                    recommendation.highlight?.let { SettingsHighlight.pending = it }
-                    open(recommendation.route)
+                    val action = recommendation.onAction
+                    if (action != null) {
+                        action(context)
+                    } else {
+                        recommendation.highlight?.let { SettingsHighlight.pending = it }
+                        open(recommendation.route)
+                    }
                 },
             )
         }
@@ -379,7 +421,7 @@ private fun RecommendationRow(recommendation: RecommendedSetting, onClick: () ->
         Spacer(modifier = Modifier.width(12.dp))
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
-                text = stringResource(recommendation.titleRes),
+                text = recommendation.titleOverride ?: stringResource(recommendation.titleRes),
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
@@ -388,7 +430,7 @@ private fun RecommendationRow(recommendation: RecommendedSetting, onClick: () ->
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = stringResource(R.string.settings_crumb, stringResource(recommendation.pageRes)),
+                text = recommendation.subtitleOverride ?: stringResource(R.string.settings_crumb, stringResource(recommendation.pageRes)),
                 fontFamily = InterFontFamily,
                 fontSize = 13.sp,
                 color = Color.White.copy(alpha = 0.55f),

@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <!-- the floating lyrics pill, only asked for when someone turns it on -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <!-- lets android auto draw mochy's own player from the media session -->
@@ -71,6 +72,7 @@
     <application
         android:name=".App"
         android:allowBackup="true"
+        android:largeHeap="true"
         android:appCategory="audio"
         android:banner="@mipmap/tv_banner"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -1076,6 +1078,14 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="mochy-backup" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="${gdriveRedirectScheme}" />
             </intent-filter>
         </activity>
 

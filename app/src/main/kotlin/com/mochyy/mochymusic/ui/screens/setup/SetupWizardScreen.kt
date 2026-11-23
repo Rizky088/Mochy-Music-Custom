@@ -1,5 +1,11 @@
 package com.mochyy.mochymusic.ui.screens.setup
 
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+import com.mochyy.mochymusic.ui.screens.setup.onboarding.BatteryOptimizationPage
+import com.mochyy.mochymusic.utils.BatteryOptimization
+
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -84,7 +90,7 @@ import com.mochyy.mochymusic.ui.component.SheetHandleRow
 
 private enum class Step {
     Welcome, ImportAsk, ImportMode, Restoring, Providers, ProviderSetup, WhatToSync, SyncOptions,
-    Profile, Hello, BlurWarning, LastOne, Done,
+    Profile, Hello, BlurWarning, LastOne, BatteryOpt, Done,
 }
 
 /** pages that play once and move on by themselves, back never returns to them */
@@ -98,6 +104,11 @@ fun SetupWizardScreen(
     onDragRelease: () -> Unit,
 ) {
     val vm: OnboardingViewModel = hiltViewModel()
+    val context = LocalContext.current
+    var batteryIgnoring by remember { mutableStateOf(BatteryOptimization.isIgnoring(context)) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        batteryIgnoring = BatteryOptimization.isIgnoring(context)
+    }
     val scope = rememberCoroutineScope()
 
     val history = remember { mutableStateListOf(Step.Welcome) }
@@ -442,7 +453,13 @@ fun SetupWizardScreen(
                             onAutoCrossfadeChange = { on -> onCrossmixModeChange(if (on) CrossmixMode.CROSSMIX else CrossmixMode.OFF) },
                             aiArtistFilter = !disableAiFilter,
                             onAiArtistFilterChange = { on -> onDisableAiFilterChange(!on) },
-                            onNext = { go(Step.Done) },
+                            onNext = { go(if (batteryIgnoring) Step.Done else Step.BatteryOpt) },
+                        )
+
+                        Step.BatteryOpt -> BatteryOptimizationPage(
+                            ignoring = batteryIgnoring,
+                            onRequest = { BatteryOptimization.request(context) },
+                            onContinue = { go(Step.Done) },
                         )
 
                         Step.Done -> DoneStep(

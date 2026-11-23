@@ -73,6 +73,9 @@ class CloudSignIn @Inject constructor(
     /** for the login activity, which closes straight away while this carries on */
     fun handleRedirect(redirect: Uri) {
         if (redirect.host == "gdrive-done") return
+        if (redirect.scheme?.startsWith("com.googleusercontent.apps.") == true) {
+            _login.value = CloudLogin.Finishing(CloudKind.GoogleDrive)
+        }
         scope.launch { finish(redirect) }
     }
 
@@ -88,10 +91,72 @@ class CloudSignIn @Inject constructor(
     private suspend fun finish(redirect: Uri) {
         val pending = runCatching { JSONObject(pendingFile.readText()) }.getOrNull()
         pendingFile.delete()
-        val app = pending?.optString("kind")?.let { name -> OAuthApp.entries.find { it.kind.name == name } }
+        val kindName = pending?.optString("kind").orEmpty()
         val verifier = pending?.optString("verifier").orEmpty()
+        val expectedState = pending?.optString("state").orEmpty()
+        if (kindName == CloudKind.GoogleDrive.name) {
+            if (verifier.isEmpty() || redirect.getQueryParameter("state") != expectedState) {
+                _login.value = CloudLogin.Failed(CloudProblem.Expired)
+                return
+            }
+            val code = redirect.getQueryParameter("code")
+            if (code.isNullOrEmpty()) {
+                _login.value = CloudLogin.Failed(
+                    if (redirect.getQueryParameter("error") == "access_denied") CloudProblem.Denied else CloudProblem.Busy
+                )
+                return
+            }
+            val clientId = pending?.optString("clientId").orEmpty()
+            val redirectUri = pending?.optString("redirectUri").orEmpty()
+            if (clientId.isEmpty() || redirectUri.isEmpty()) {
+                _login.value = CloudLogin.Failed(CloudProblem.Expired)
+                return
+            }
+            _login.value = CloudLogin.Finishing(CloudKind.GoogleDrive)
+            try {
+                val form = FormBody.Builder()
+                    .add("client_id", clientId)
+                    .add("grant_type", "authorization_code")
+                    .add("code", code)
+                    .add("redirect_uri", redirectUri)
+                    .add("code_verifier", verifier)
+                    .build()
+                val reply = CloudHttp.text(Request.Builder().url(GoogleDriveCloud.TokenUrl).post(form).build())
+                if (reply.code == 400 || reply.code == 401) throw CloudException(CloudProblem.WrongLogin)
+                if (!reply.ok) CloudHttp.fail(reply.code)
+                val json = JSONObject(reply.body)
+                val access = json.optString("access_token").ifEmpty { throw CloudException(CloudProblem.Busy) }
+                val refresh = json.optString("refresh_token")
+                val expiresIn = json.optLong("expires_in")
+                val expiresAt = if (expiresIn > 0) System.currentTimeMillis() + expiresIn * 1000 else 0L
+                val name = GoogleDriveCloud.accountName(access)
+                accounts.current()?.let { old ->
+                    if (old.kind == CloudKind.GoogleDrive) GoogleDriveCloud.revoke(old.accessToken)
+                    else OAuthApp.of(old.kind)?.revoke(old.accessToken)
+                }
+                accounts.save(
+                    CloudAccount(
+                        kind = CloudKind.GoogleDrive,
+                        name = name,
+                        accessToken = access,
+                        refreshToken = refresh,
+                        expiresAt = expiresAt,
+                        username = clientId,
+                        password = "",
+                    )
+                )
+                _login.value = CloudLogin.Idle
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.tag(Tag).w(e, "Google Drive sign-in didn't finish")
+                _login.value = CloudLogin.Failed((e as? CloudException)?.problem ?: if (e is IOException) CloudProblem.Offline else CloudProblem.Busy)
+            }
+            return
+        }
+        val app = OAuthApp.entries.find { it.kind.name == kindName }
         // a link that doesn't belong to the login we started is ignored, not trusted
-        if (app == null || verifier.isEmpty() || redirect.getQueryParameter("state") != pending.optString("state")) {
+        if (app == null || verifier.isEmpty() || redirect.getQueryParameter("state") != expectedState) {
             _login.value = CloudLogin.Failed(CloudProblem.Expired)
             return
         }
@@ -130,10 +195,40 @@ class CloudSignIn @Inject constructor(
         com.mochyy.mochymusic.BuildConfig.GDRIVE_CLIENT_ID.isNotBlank()
 
     suspend fun startBuiltInGoogleDriveSignIn(): Uri =
-        startGoogleDriveSignIn(
-            com.mochyy.mochymusic.BuildConfig.GDRIVE_CLIENT_ID,
-            com.mochyy.mochymusic.BuildConfig.GDRIVE_CLIENT_SECRET,
-        )
+        startGoogleDriveCustomUriSignIn(com.mochyy.mochymusic.BuildConfig.GDRIVE_CLIENT_ID)
+
+    suspend fun startGoogleDriveCustomUriSignIn(clientIdRaw: String): Uri {
+        val clientId = clientIdRaw.trim()
+        require(clientId.endsWith(".apps.googleusercontent.com")) { "Invalid Google OAuth Client ID" }
+        val prefix = clientId.removeSuffix(".apps.googleusercontent.com")
+        val redirectUri = "com.googleusercontent.apps.$prefix:/oauth2redirect"
+        val state = Pkce.randomCode(24)
+        val verifier = Pkce.randomCode(64)
+        withContext(Dispatchers.IO) {
+            runCatching { loopbackServer?.close() }
+            pendingFile.writeText(
+                JSONObject()
+                    .put("kind", CloudKind.GoogleDrive.name)
+                    .put("state", state)
+                    .put("verifier", verifier)
+                    .put("clientId", clientId)
+                    .put("redirectUri", redirectUri)
+                    .toString(),
+            )
+        }
+        _login.value = CloudLogin.InBrowser(CloudKind.GoogleDrive)
+        return Uri.parse(GoogleDriveCloud.AuthorizeUrl).buildUpon()
+            .appendQueryParameter("client_id", clientId)
+            .appendQueryParameter("redirect_uri", redirectUri)
+            .appendQueryParameter("response_type", "code")
+            .appendQueryParameter("scope", GoogleDriveCloud.Scope)
+            .appendQueryParameter("access_type", "offline")
+            .appendQueryParameter("prompt", "consent select_account")
+            .appendQueryParameter("state", state)
+            .appendQueryParameter("code_challenge", Pkce.challengeOf(verifier))
+            .appendQueryParameter("code_challenge_method", "S256")
+            .build()
+    }
 
     fun savedGoogleDriveCredentials(): Pair<String, String> = runCatching {
         if (!gdriveCredsFile.exists()) return "" to ""

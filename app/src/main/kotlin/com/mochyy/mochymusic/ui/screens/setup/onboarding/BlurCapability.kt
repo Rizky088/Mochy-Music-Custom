@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.setup.onboarding
 
+import com.mochyy.mochymusic.utils.BatteryOptimization
+
 import android.app.ActivityManager
 import android.content.Context
 import android.os.Build
@@ -69,13 +71,15 @@ object BlurCapability {
         val hz = probe?.refreshHz ?: refreshRate(context)
         val timing = probe?.let { context.getString(R.string.onb_blur_slow_frames, (it.slowRatio * 100).toInt(), hz.toInt()) } ?: "${hz.toInt()} Hz"
 
-        val lowRam = (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.isLowRamDevice == true
+        val lowRam = BatteryOptimization.isLowMemoryDevice(context)
         if (lowRam) return Result(Verdict.Laggy, context.getString(R.string.onb_blur_low_memory, socLabel))
         if (knownLaggy.any { it in soc }) return Result(Verdict.Laggy, "$socLabel · $timing")
 
+        // Cap reference refresh rate at 60 Hz so 120/144 Hz VRR screens stepping down to 60 Hz are never falsely flagged as laggy
+        val baseHz = minOf(probe?.refreshHz ?: hz, 60f)
         val probeSaysLaggy = probe != null && probe.frames >= 20 && (
             probe.slowRatio > SLOW_RATIO_LIMIT ||
-                probe.averageFrameMs > (1000f / probe.refreshHz) * AVERAGE_LIMIT
+                probe.averageFrameMs > (1000f / baseHz) * AVERAGE_LIMIT
             )
         if (knownFine.any { it in soc }) {
             // only a really bad run overrides a phone known to cope
@@ -121,7 +125,7 @@ internal class FrameProbeRecorder(private val refreshHz: Float) {
             val interval = nanos - last
             frames++
             totalNanos += interval
-            if (interval > (1_000_000_000f / refreshHz) * 1.5f) slow++
+            if (interval > (1_000_000_000f / minOf(refreshHz, 60f)) * 1.5f) slow++
         }
         last = nanos
     }

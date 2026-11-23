@@ -48,12 +48,27 @@ object AppMemory {
                     runCatching { SQLiteDatabase.releaseMemory() }
                 }
             }
+            level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL -> {
+                imageCache?.clear()
+                BlurEffectCache.clear()
+                ArtistPageCache.clear()
+                LyricsUtils.releaseKuromoji()
+                YouTubeVideoSessions.releaseIdle()
+                scope.launch(Dispatchers.IO) {
+                    runCatching { SQLiteDatabase.releaseMemory() }
+                }
+            }
             level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW -> {
                 imageCache?.trimToSize(imageCache.size / 2)
+                if (BatteryOptimization.isLowMemoryDevice(context)) BlurEffectCache.clear()
                 LyricsUtils.releaseKuromoji()
                 scope.launch(Dispatchers.IO) {
                     runCatching { SQLiteDatabase.releaseMemory() }
                 }
+            }
+            level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE && BatteryOptimization.isLowMemoryDevice(context) -> {
+                imageCache?.trimToSize(imageCache.size / 2)
+                BlurEffectCache.clear()
             }
         }
         listeners.forEach { runCatching { it(level) } }

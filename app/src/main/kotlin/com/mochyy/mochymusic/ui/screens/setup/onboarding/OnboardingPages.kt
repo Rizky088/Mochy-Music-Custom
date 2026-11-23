@@ -2,6 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.setup.onboarding
 
+import androidx.compose.ui.text.style.TextAlign
+
 import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
 
 import androidx.compose.ui.res.pluralStringResource
@@ -668,5 +670,51 @@ internal fun LastOnePage(
                 onCheckedChange = onAiArtistFilterChange,
             )
         }
+    }
+}
+
+@Composable
+internal fun BatteryOptimizationPage(
+    ignoring: Boolean,
+    onRequest: () -> Unit,
+    onContinue: () -> Unit,
+) {
+    OnboardingPage(
+        badge = { PageBadge(painterResource(R.drawable.warning)) },
+        title = "Keep Mochy running smoothly",
+        subtitle = "Turning off battery optimization prevents background crashes, stopped playback, and interrupted cloud backups.",
+        footer = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OnbButton(
+                    text = if (ignoring) "Continue" else "Turn off battery optimization",
+                    onClick = if (ignoring) onContinue else onRequest,
+                )
+                if (!ignoring) {
+                    Text(
+                        text = "Not now",
+                        color = Onb.Muted,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(50))
+                            .clickable(onClick = onContinue)
+                            .padding(vertical = 10.dp),
+                    )
+                }
+            }
+        },
+    ) {
+        OnbToggleCard(
+            title = if (ignoring) "Unrestricted background activity" else "Battery optimization is active",
+            description = if (ignoring) {
+                "Android will not force-close Mochy while playing music or restoring backups."
+            } else {
+                "Recommended on all devices, especially phones with 4 GB RAM or aggressive power saving. You can change this anytime in Settings."
+            },
+            checked = ignoring,
+            onCheckedChange = { if (!ignoring) onRequest() },
+        )
     }
 }

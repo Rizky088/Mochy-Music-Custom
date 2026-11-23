@@ -31,6 +31,14 @@ extensions.configure<ApplicationExtension> {
         versionCode = 78
         versionName = "8.4.5 Ext"
 
+        val gdriveClientIdForScheme = (localProperties.getProperty("GDRIVE_CLIENT_ID") ?: System.getenv("GDRIVE_CLIENT_ID") ?: "").trim()
+        val gdriveRedirectScheme = gdriveClientIdForScheme
+            .takeIf { it.endsWith(".apps.googleusercontent.com") }
+            ?.removeSuffix(".apps.googleusercontent.com")
+            ?.let { "com.googleusercontent.apps.$it" }
+            ?: "com.googleusercontent.apps.356950487227-6rulclkt34no6l2e156pm902i71243hh"
+        manifestPlaceholders["gdriveRedirectScheme"] = gdriveRedirectScheme
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
