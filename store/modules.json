@@ -184,30 +184,6 @@
       "hidden": true
     },
     {
-      "id": "crystal-glass",
-      "name": "BitGlass",
-      "moduleId": "crystal-glass",
-      "version": "5.2",
-      "author": "cannavis",
-      "description": "Liquid glass bars + a full-bleed cover player",
-      "kind": "look",
-      "tags": [
-        "Looks"
-      ],
-      "paid": false,
-      "locked": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/crystal-glass.png",
-      "banner": "",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/crystal-glass.zip",
-      "size": 42375,
-      "updated": 1795416445582,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1572060423400980641",
-      "postUrl": "https://discord.com/channels/916351383341522994/1572060423400980641",
-      "hidden": false
-    },
-    {
       "id": "cozy-pink",
       "name": "Cozy Pink",
       "moduleId": "cozy-pink",
@@ -491,6 +467,30 @@
       "updated": 1795364916769,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1571733439726493716",
       "postUrl": "https://discord.com/channels/916351383341522994/1571733439726493716"
+    },
+    {
+      "id": "crystal-glass",
+      "name": "BitGlass",
+      "moduleId": "crystal-glass",
+      "version": "5.7",
+      "author": "cannavis",
+      "description": "Liquid glass bars + a full-bleed cover player",
+      "kind": "look",
+      "tags": [
+        "Looks"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/crystal-glass.png",
+      "banner": "",
+      "previews": [],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/crystal-glass.zip",
+      "size": 286864,
+      "updated": 1795418902051,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1572060423400980641",
+      "postUrl": "https://discord.com/channels/916351383341522994/1572060423400980641"
     }
   ]
 }
