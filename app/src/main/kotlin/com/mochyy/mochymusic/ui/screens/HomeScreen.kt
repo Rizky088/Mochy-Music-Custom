@@ -312,14 +312,17 @@ private fun HomeCompactTop(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val topInset = WindowInsets.stableSystemBars.asPaddingValues().calculateTopPadding()
+    val (hideHomeTopGlow) = rememberPreference(com.mochyy.mochymusic.constants.HideHomeTopGlowKey, defaultValue = false)
     Box {
         // outside the launch rise, so the glow never slides down off the top edge while the intro plays
-        HomeTopGlow(
-            coverUrls = glowCoverUrls,
-            depth = topInset + 150.dp,
-            visibility = glowVisibility,
-            modifier = Modifier.matchParentSize(),
-        )
+        if (!hideHomeTopGlow) {
+            HomeTopGlow(
+                coverUrls = glowCoverUrls,
+                depth = topInset + 150.dp,
+                visibility = glowVisibility,
+                modifier = Modifier.matchParentSize(),
+            )
+        }
         Column(modifier = Modifier.launchRise(order = 1)) {
             Spacer(Modifier.height(topInset + 78.dp))
             content()

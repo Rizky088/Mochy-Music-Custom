@@ -47,6 +47,28 @@ fun MochyTheme(
         com.mochyy.mochymusic.ui.screens.audiolab.LabColors.applyWallpaperPalette(wallpaperPalette)
         com.mochyy.mochymusic.ui.screens.settings.integrations.discord.DiscordColors.applyWallpaperPalette(wallpaperPalette)
         com.mochyy.mochymusic.ui.screens.settings.applySettingsPalette(wallpaperPalette)
+        com.mochyy.mochymusic.ui.player.menu.applyMenuSheetPalette(wallpaperPalette)
+    }
+
+    val (appFontMode) = com.mochyy.mochymusic.utils.rememberPreference(com.mochyy.mochymusic.constants.AppFontModeKey, defaultValue = "DEFAULT")
+    val (customFontPath) = com.mochyy.mochymusic.utils.rememberPreference(com.mochyy.mochymusic.constants.CustomFontPathKey, defaultValue = "")
+    val (customFontName) = com.mochyy.mochymusic.utils.rememberPreference(com.mochyy.mochymusic.constants.CustomFontNameKey, defaultValue = "")
+    androidx.compose.runtime.LaunchedEffect(appFontMode, customFontPath, customFontName) {
+        val parsedMode = AppFontMode.entries.firstOrNull { it.name == appFontMode } ?: AppFontMode.DEFAULT
+        val loaded = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            if (parsedMode == AppFontMode.CUSTOM && customFontPath.isNotBlank()) {
+                runCatching {
+                    val file = java.io.File(customFontPath)
+                    if (file.isFile && file.length() > 0L) {
+                        androidx.compose.ui.text.font.FontFamily(android.graphics.Typeface.createFromFile(file))
+                    } else null
+                }.getOrNull()
+            } else null
+        }
+        UserFont.customFamily = loaded
+        UserFont.customPath = if (loaded != null) customFontPath else ""
+        UserFont.customName = customFontName
+        UserFont.mode = parsedMode
     }
 
     val baseColorScheme = remember(darkTheme, wallpaperPalette) {

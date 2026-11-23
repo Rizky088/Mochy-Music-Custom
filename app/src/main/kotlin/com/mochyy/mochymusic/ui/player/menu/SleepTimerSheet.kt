@@ -66,7 +66,7 @@ import com.mochyy.mochymusic.ui.component.SheetIcon
 import kotlinx.coroutines.delay
 import com.mochyy.mochymusic.ui.component.sheetHandleRoom
 
-private val CardSurface = MenuRowSurface
+private val CardSurface: Color get() = MenuRowSurface
 private val SheetEasing = MenuEasing
 private val Muted = Color(0xFFAAAAAA)
 private val PresetMinutes = listOf(1, 5, 10, 15, 25, 30, 45, 60)

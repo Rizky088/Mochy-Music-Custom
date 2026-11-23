@@ -1424,3 +1424,10 @@ val CustomWallpaperLibraryKey = booleanPreferencesKey("customWallpaperLibrary")
 val CustomWallpaperSearchKey = booleanPreferencesKey("customWallpaperSearch")
 
 val DiscordCustomClientIdKey = stringPreferencesKey("discordCustomClientId")
+
+// Fork appearance toggles & app font
+val HideHomeTopGlowKey = booleanPreferencesKey("hideHomeTopGlow")
+val HideBottomNavScrimKey = booleanPreferencesKey("hideBottomNavScrim")
+val AppFontModeKey = stringPreferencesKey("appFontMode")
+val CustomFontPathKey = stringPreferencesKey("customFontPath")
+val CustomFontNameKey = stringPreferencesKey("customFontName")

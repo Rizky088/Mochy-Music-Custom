@@ -23,8 +23,12 @@ const val ThreadsUrl = "https://www.threads.net/@furfurrfoxx"
 // dev spaces hides the discord row while this is blank
 const val DiscordUrl = "https://discord.gg/NTmqVphbRY"
 
+const val ForkGithubOwner = "Rizky088"
+const val ForkGithubRepo = "Mochy-Music-Custom"
+const val ForkGithubRepoUrl = "https://github.com/$ForkGithubOwner/$ForkGithubRepo"
+
 private const val ReleasesApi =
-    "https://api.github.com/repos/$GithubOwner/$GithubRepo/releases?per_page=20"
+    "https://api.github.com/repos/$ForkGithubOwner/$ForkGithubRepo/releases?per_page=20"
 
 data class GithubRelease(
     val title: String,
@@ -52,6 +56,7 @@ data class FullVersion(
     val major: Int = 0,
     val minor: Int = 0,
     val patch: Int = 0,
+    val subPatch: Int = 0,
     val buildNumber: Int = 0,
     val nightly: Int = 0,
 ) : Comparable<FullVersion> {
@@ -59,12 +64,19 @@ data class FullVersion(
         if (major != other.major) return major.compareTo(other.major)
         if (minor != other.minor) return minor.compareTo(other.minor)
         if (patch != other.patch) return patch.compareTo(other.patch)
+        if (subPatch != other.subPatch) return subPatch.compareTo(other.subPatch)
         if (nightly != other.nightly) return nightly.compareTo(other.nightly)
         return buildNumber.compareTo(other.buildNumber)
     }
 
-    // what people read: 8.3.2, 8.3.2.4 for a nightly
-    val name: String get() = if (nightly > 0) "$major.$minor.$patch.$nightly" else "$major.$minor.$patch"
+    // what people read: 8.4.5, 8.4.51 for a fork patch, or 8.4.5.1 for a nightly
+    val name: String
+        get() = when {
+            subPatch > 0 && nightly > 0 -> "$major.$minor.$patch$subPatch.$nightly"
+            subPatch > 0 -> "$major.$minor.$patch$subPatch"
+            nightly > 0 -> "$major.$minor.$patch.$nightly"
+            else -> "$major.$minor.$patch"
+        }
 }
 
 private val VersionRegex = Regex("""(\d+)\.(\d+)(?:\.(\d+))?(?:\.(\d+))?""")
@@ -73,12 +85,35 @@ private val BuildNumberRegex = Regex("""(?:build#|\(#|#|\()(\d+)\)?""", RegexOpt
 fun parseFullVersion(text: String): FullVersion {
     val version = VersionRegex.find(text)?.groupValues
     val buildNumber = BuildNumberRegex.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+    val rawPatch = version?.getOrNull(3).orEmpty()
+    val rawFourth = version?.getOrNull(4)?.toIntOrNull() ?: 0
+    val isExt = text.contains("ext", ignoreCase = true)
+    val (patch, subPatch, nightly) = when {
+        // Fork compact patch like "8.4.51 Ext" / "v8.4.51-ext": patch=5, subPatch=1 so 8.4.6 > 8.4.51 > 8.4.5
+        isExt && rawPatch.length >= 2 -> Triple(
+            rawPatch.substring(0, 1).toIntOrNull() ?: 0,
+            rawPatch.substring(1).toIntOrNull() ?: 0,
+            rawFourth,
+        )
+        // 4-part fork hotfix like "v8.4.5.1-ext": treat as Release subPatch rather than Nightly
+        isExt && rawFourth > 0 -> Triple(
+            rawPatch.toIntOrNull() ?: 0,
+            rawFourth,
+            0,
+        )
+        else -> Triple(
+            rawPatch.toIntOrNull() ?: 0,
+            0,
+            rawFourth,
+        )
+    }
     return FullVersion(
         major = version?.get(1)?.toIntOrNull() ?: 0,
         minor = version?.get(2)?.toIntOrNull() ?: 0,
-        patch = version?.getOrNull(3)?.toIntOrNull() ?: 0,
+        patch = patch,
+        subPatch = subPatch,
         buildNumber = buildNumber,
-        nightly = version?.getOrNull(4)?.toIntOrNull() ?: 0,
+        nightly = nightly,
     )
 }
 
@@ -170,7 +205,7 @@ private suspend fun fetchReleases(): Result<List<ParsedRelease>> = withContext(D
                 if (fullVer.major == 0 && fullVer.minor == 0 && fullVer.patch == 0) continue
                 if (fullVer.copy(buildNumber = 0) < FirstReleaseWithThisId) continue
 
-                val displayVersion = if (fullVer.buildNumber > 0) "${fullVer.name} (${fullVer.buildNumber})" else fullVer.name
+                val displayVersion = if (fullVer.buildNumber > 0) "${fullVer.name} Ext (${fullVer.buildNumber})" else "${fullVer.name} Ext"
 
                 val assets = release.optJSONArray("assets")
                 var selectedUrl: String? = null
@@ -225,7 +260,7 @@ private suspend fun fetchReleases(): Result<List<ParsedRelease>> = withContext(D
                             tag = tag,
                             version = displayVersion,
                             body = release.optString("body").orEmpty(),
-                            htmlUrl = release.optString("html_url").orEmpty().ifBlank { "$GithubRepoUrl/releases" },
+                            htmlUrl = release.optString("html_url").orEmpty().ifBlank { "$ForkGithubRepoUrl/releases" },
                             apkUrl = apkUrl,
                             apkName = apkName,
                             apkSizeBytes = apkSize,

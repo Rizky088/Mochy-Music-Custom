@@ -613,29 +613,7 @@ private fun formatGitHubDate(githubDate: String): String = try {
 }
 
 fun isNewerVersion(latestVersion: String, currentVersion: String): Boolean {
-    val latestVersionClean = latestVersion.removePrefix("b").removePrefix("v")
-    val currentVersionClean = currentVersion.removePrefix("b").removePrefix("v")
-
-    val latestParts = latestVersionClean.split(".").map { it.toIntOrNull() ?: 0 }
-    val currentParts = currentVersionClean.split(".").map { it.toIntOrNull() ?: 0 }
-
-    for (i in 0 until maxOf(latestParts.size, currentParts.size)) {
-        val latest = latestParts.getOrElse(i) { 0 }
-        val current = currentParts.getOrElse(i) { 0 }
-        when {
-            latest > current -> return true
-            latest < current -> return false
-        }
-    }
-
-    if (latestVersionClean == currentVersionClean) {
-        val latestIsBeta = latestVersion.startsWith("b")
-        val currentIsBeta = currentVersion.startsWith("b")
-
-        if (currentIsBeta && !latestIsBeta) return true
-    }
-
-    return false
+    return parseFullVersion(latestVersion) > parseFullVersion(currentVersion)
 }
 
 suspend fun checkForUpdate(
@@ -645,7 +623,7 @@ suspend fun checkForUpdate(
 ) {
     withContext(Dispatchers.IO) {
         try {
-            val url = URL("https://api.github.com/repos/realidkroo/Mochy-Music/releases")
+            val url = URL("https://api.github.com/repos/Rizky088/Mochy-Music-Custom/releases")
             val json = url.openStream().bufferedReader().use { it.readText() }
             val releases = JSONArray(json)
 
@@ -655,7 +633,7 @@ suspend fun checkForUpdate(
             var isNightlyUpdate = false
             var nightlyRunObject: JSONObject? = null
 
-            if (betaEnabled) {
+            if (false && betaEnabled) {
                 try {
                     val nightlyUrl = URL("https://api.github.com/repos/realidkroo/Mochy-Music/actions/workflows/nightly.yml/runs?status=success&per_page=1")
                     val nightlyJson = nightlyUrl.openStream().bufferedReader().use { it.readText() }

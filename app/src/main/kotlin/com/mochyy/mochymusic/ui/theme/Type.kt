@@ -29,8 +29,23 @@ object LookFont {
     var family: FontFamily? by mutableStateOf(null)
 }
 
-// read through a state, so text set in it follows a look's font turning on or off
-val InterFontFamily: FontFamily get() = LookFont.family ?: Inter
+enum class AppFontMode { DEFAULT, SYSTEM, CUSTOM }
+
+/** user-selected app font override: Mochy default (Inter/Look), device system font, or a custom .ttf/.otf file */
+object UserFont {
+    var mode: AppFontMode by mutableStateOf(AppFontMode.DEFAULT)
+    var customFamily: FontFamily? by mutableStateOf(null)
+    var customPath: String by mutableStateOf("")
+    var customName: String by mutableStateOf("")
+}
+
+// read through a state, so text set in it follows a look's or user's font turning on or off
+val InterFontFamily: FontFamily
+    get() = when {
+        UserFont.mode == AppFontMode.SYSTEM -> FontFamily.Default
+        UserFont.mode == AppFontMode.CUSTOM && UserFont.customFamily != null -> UserFont.customFamily!!
+        else -> LookFont.family ?: Inter
+    }
 
 private val GlobalFontWeight = FontWeight.SemiBold
 private val GlobalLetterSpacing = (-0.05).em

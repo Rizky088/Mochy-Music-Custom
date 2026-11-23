@@ -2,6 +2,16 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.modules
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import com.mochyy.mochymusic.constants.DiscordProfileKey
+import com.mochyy.mochymusic.discord.DiscordProfile
+import com.mochyy.mochymusic.utils.AppIcons
+import com.mochyy.mochymusic.utils.rememberPreference
+
 import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
 
 import androidx.compose.foundation.background
@@ -84,16 +94,38 @@ enum class BrowserAction { Add, Update, Added, Locked, Open, View }
 /** the signed-in person's avatar, with a dot that's green while they're in mochy's bar */
 @Composable
 internal fun AccountChip(person: FeedPerson, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val (discordProfileJson) = rememberPreference(DiscordProfileKey, defaultValue = "")
+    val discordAvatar = remember(discordProfileJson) {
+        DiscordProfile.fromJson(discordProfileJson.takeIf { it.isNotBlank() })?.avatarUrl
+    }
+    val appIcon = remember(context) { AppIcons.current(context) }
+    val avatarUrl = discordAvatar ?: person.avatar
+
     Row(
         modifier = modifier.height(44.dp).clip(RoundedCornerShape(22.dp)).background(browserCardColor()).padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val description = stringResource(R.string.module_browser_account, person.name)
-        if (person.avatar != null) {
-            AsyncImage(model = person.avatar, contentDescription = description, modifier = Modifier.size(30.dp).clip(CircleShape))
+        if (avatarUrl != null) {
+            AsyncImage(
+                model = avatarUrl,
+                contentDescription = description,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(30.dp).clip(CircleShape),
+            )
         } else {
-            Box(Modifier.size(30.dp).clip(CircleShape).background(browserBoneColor()), contentAlignment = Alignment.Center) {
-                Text(person.name.take(1).uppercase(), color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            val iconBg = appIcon.background?.let { colorResource(it) } ?: browserBoneColor()
+            Box(Modifier.size(30.dp).clip(CircleShape).background(iconBg), contentAlignment = Alignment.Center) {
+                Image(
+                    painter = painterResource(appIcon.foreground),
+                    contentDescription = description,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize().graphicsLayer {
+                        scaleX = 1.38f
+                        scaleY = 1.38f
+                    },
+                )
             }
         }
         Box(Modifier.padding(horizontal = 10.dp).width(1.dp).height(20.dp).background(Color.White.copy(alpha = 0.35f)))

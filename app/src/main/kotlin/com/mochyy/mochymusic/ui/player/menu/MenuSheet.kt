@@ -69,8 +69,19 @@ import com.mochyy.mochymusic.ui.component.SheetHandleRow
 import com.mochyy.mochymusic.ui.component.rememberSheetGrabberBend
 import com.mochyy.mochymusic.ui.component.underSheetHandle
 
-val MenuSurface = Color(0xFF0B0B0C)
-val MenuRowSurface = Color(0xFF161619)
+private val DefaultMenuSurface = Color(0xFF0B0B0C)
+private val DefaultMenuRowSurface = Color(0xFF161619)
+
+private var menuSurfaceState by mutableStateOf(DefaultMenuSurface)
+private var menuRowSurfaceState by mutableStateOf(DefaultMenuRowSurface)
+
+val MenuSurface: Color get() = menuSurfaceState
+val MenuRowSurface: Color get() = menuRowSurfaceState
+
+fun applyMenuSheetPalette(palette: com.mochyy.mochymusic.ui.component.WallpaperPalette?) {
+    menuSurfaceState = palette?.surface ?: DefaultMenuSurface
+    menuRowSurfaceState = palette?.surfaceContainer ?: DefaultMenuRowSurface
+}
 
 internal val MenuEasing = CubicBezierEasing(0.57f, 0.53f, 0f, 1f)
 

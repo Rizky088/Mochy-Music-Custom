@@ -1057,6 +1057,7 @@ class MainActivity : ComponentActivity() {
 
                                 if (currentRoute != "wrapped" && currentRoute != "update") {
 
+                                    val (hideBottomNavScrim) = rememberPreference(com.mochyy.mochymusic.constants.HideBottomNavScrimKey, defaultValue = false)
                                     val detailAccent = LocalDetailAccentColor.current.value
                                     val navScrimTint by androidx.compose.animation.animateColorAsState(
                                         targetValue = detailAccent ?: Color.Black,
@@ -1066,7 +1067,7 @@ class MainActivity : ComponentActivity() {
 
                                     Box {
 
-                                        if (!hideAppChrome.value) {
+                                        if (!hideAppChrome.value && !hideBottomNavScrim) {
                                         Box(
                                             modifier = Modifier
                                                 .align(Alignment.BottomCenter)

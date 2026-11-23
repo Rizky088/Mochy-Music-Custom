@@ -332,6 +332,33 @@ fun PlayerActionMenu(
                     )
                 }
 
+                if (!fromLyrics) {
+                    Spacer(modifier = Modifier.height(SectionGap))
+                    MenuRow(
+                        icon = R.drawable.lyrics,
+                        title = stringResource(R.string.video_mode_lyrics_provider),
+                        onClick = { showLyricsProvider = true },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    MenuRow(
+                        icon = R.drawable.fast_forward,
+                        title = stringResource(R.string.video_mode_lyrics_offset),
+                        onClick = { showLyricsOffset = true },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    MenuRow(
+                        icon = R.drawable.translate,
+                        title = stringResource(R.string.video_mode_lyrics_translation),
+                        onClick = { showLyricsTranslation = true },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    MenuRow(
+                        icon = R.drawable.edit,
+                        title = stringResource(R.string.edit_lyrics),
+                        onClick = { showLyricsEditor = true },
+                    )
+                }
+
                 if (onFullVideo != null) {
                     Spacer(modifier = Modifier.height(SectionGap))
                     MenuRow(

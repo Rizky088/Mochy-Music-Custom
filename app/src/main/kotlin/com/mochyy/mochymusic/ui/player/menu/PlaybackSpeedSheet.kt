@@ -54,7 +54,7 @@ import kotlin.math.log2
 import com.mochyy.mochymusic.ui.component.RemoteFocus
 import com.mochyy.mochymusic.ui.component.sheetHandleRoom
 
-private val CardSurface = MenuRowSurface
+private val CardSurface: Color get() = MenuRowSurface
 
 @Composable
 fun PlaybackSpeedSheet(onDismiss: () -> Unit) {
