@@ -127,8 +127,8 @@ private fun SupportButtons(popup: PopupSheetState) {
 
 /** lets users choose between starring official Mochy Music or the Mochy Ext fork on GitHub */
 fun PopupSheetState.showStarRepoSheet() {
-    var sheet: PopupSheetHandle? = null
-    sheet = showWithHandle(
+    val popup = this
+    show(
         buttonBar = {
             val context = LocalContext.current
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -136,19 +136,19 @@ fun PopupSheetState.showStarRepoSheet() {
                     text = "Official GitHub (Mochy Music)",
                     onClick = {
                         context.openUrl(GithubRepoUrl)
-                        sheet?.dismiss()
+                        popup.dismiss()
                     },
                 )
                 DonatePillButton(
                     text = "Mochy Ext Fork GitHub",
                     onClick = {
                         context.openUrl(com.mochyy.mochymusic.core.updater.ForkGithubRepoUrl)
-                        sheet?.dismiss()
+                        popup.dismiss()
                     },
                 )
                 DonatePillButton(
                     text = "Back",
-                    onClick = { sheet?.dismiss() },
+                    onClick = popup::dismiss,
                     quiet = true,
                 )
             }
