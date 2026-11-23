@@ -23,7 +23,7 @@
     {
       "id": "yeno-orbit",
       "name": "Yeno\u2019s Orbit",
-      "moduleId": "yeno-orbit",
+      "moduleId": "yeno-orbit-lite",
       "version": "1.5.2",
       "author": "Yeno",
       "description": "Your music in orbit. A circular cover ringed by a visualizer that glows brighter as the song plays, a progress arc with a glowing moon, a twinkling starfield, a live seek bar and controls on frosted glass. v1.3: make it yours - 6 colour themes, 4 visualizer rings, sky, seek bar, controls, title and lyrics styles, spinning cover, song change animations, background variants, plus the queue bar and audio format badge. New: galaxy, black hole, deep nebula and aurora backgrounds. Tap the artist name or the song title to open their page. Top and bottom padding sliders fit the player to any screen.",
@@ -46,7 +46,7 @@
     {
       "id": "yeno-orbit-lite",
       "name": "Yeno\u2019s Orbit Lite",
-      "moduleId": "yeno-orbit-lite",
+      "moduleId": "yeno-orbit-low-end",
       "version": "1.5.4",
       "author": "Yeno",
       "description": "Lite version for low-end devices, still in space. A pre-rendered milky way and starfield with a soft twinkle sit behind the player (drawn from pictures, so almost free for the GPU). The same circular cover, visualizer ring, progress moon, glass controls, colour themes, text, lyrics and padding options, but without the live nebula, galaxy and black hole shaders, shooting stars, cover rim, wave seek bar, glowing play-button and equalizer-icon shaders, and without blur in the animations. Pick No stars in the background variants for the lightest look.",
@@ -69,7 +69,7 @@
     {
       "id": "yeno-orbit-tablet",
       "name": "Yeno's Orbit Tablet",
-      "moduleId": "yeno-orbit-tablet",
+      "moduleId": "yeno-orbit-tablet-32",
       "version": "1.4.2",
       "author": "Yeno",
       "description": "Tablet edition for Tablet 3:2 screens: the whole player is scaled up and the sky fills the screen. Your music in orbit. A circular cover ringed by a visualizer that glows brighter as the song plays, a progress arc with a glowing moon, a twinkling starfield, a live seek bar and controls on frosted glass. v2.0: make it yours - 6 colour themes, 4 visualizer rings, sky, seek bar, controls, title and lyrics styles, spinning cover, song change animations, background variants, plus the queue bar and audio format badge. New: galaxy, black hole, deep nebula and aurora backgrounds. Tap the artist name or the song title to open their page. Top and bottom padding sliders fit the player to any screen.",
@@ -92,7 +92,7 @@
     {
       "id": "yeno-orbit-tablet-lite",
       "name": "Yeno's Orbit Tablet Lite",
-      "moduleId": "yeno-orbit-tablet-lite",
+      "moduleId": "yeno-orbit-tablet-32-low-end",
       "version": "1.4.4",
       "author": "Yeno",
       "description": "Tablet edition for Tablet 3:2 screens. Lite version for low-end devices, still in space. A pre-rendered milky way and starfield with a soft twinkle sit behind the player (drawn from pictures, so almost free for the GPU). The same circular cover, visualizer ring, progress moon, glass controls, colour themes, text, lyrics and padding options, but without the live nebula, galaxy and black hole shaders, shooting stars, cover rim, wave seek bar, glowing play-button and equalizer-icon shaders, and without blur in the animations. Pick No stars in the background variants for the lightest look.",
@@ -162,7 +162,7 @@
     {
       "id": "terminal-vintage",
       "name": "Terminal Vintage",
-      "moduleId": "terminal-vintage",
+      "moduleId": "mochy-terminal-vintage",
       "version": "1.00",
       "author": "Adi",
       "description": "A modern terminal-inspired music player look for Mochy, with a clean TUI layout, customizable themes, synced lyrics, audio visualizers and queue details.",
@@ -258,7 +258,7 @@
     {
       "id": "vinyl-wave",
       "name": "Vinyl Wave Player",
-      "moduleId": "vinyl-wave",
+      "moduleId": "vinyl-wave-player-flow",
       "version": "1.9.41",
       "author": "sahara",
       "description": "Tr\u00ecnh ph\u00e1t s\u00e1ng/t\u1ed1i v\u1edbi \u1ea3nh b\u00eca bo g\u00f3c, \u0111\u0129a than xoay, thanh b\u00ean m\u1ea3nh v\u00e0 \u0111\u01b0\u1eddng seek l\u01b0\u1ee3n s\u00f3ng. Studio t\u00f9y bi\u1ebfn (h\u00e0ng m\u1ea3nh gh\u00e9p trong menu): xem tr\u01b0\u1edbc tr\u1ef1c ti\u1ebfp, 6 b\u1ed9 c\u00e0i s\u1eb5n, ki\u1ec3u n\u1ec1n T\u1ef1 \u0111\u1ed9ng/Flow/Aurora/Bokeh/Mesh, l\u1edbp ph\u1ee7 v\u00e0 m\u00e0u ph\u1ee7 n\u1ec1n, m\u00e0u t\u00ean b\u00e0i, ngh\u1ec7 s\u0129, l\u1eddi b\u00e0i h\u00e1t, m\u00e0u \u0111\u0129a than, m\u00e0u r\u00e3nh, vi\u1ec1n b\u00eca, c\u1ee1 tr\u00ecnh ph\u00e1t v\u00e0 c\u1ee1 l\u1eddi. T\u1ef1 \u0111\u1ed9ng theo b\u00eca: m\u00e0u v\u00e0 ki\u1ec3u n\u1ec1n \u0111\u1ed5i theo t\u1eebng b\u00eca nh\u1ea1c. Hi\u1ec7u \u1ee9ng theo bass, n\u1ed1t nh\u1ea1c bay, ch\u1ebf \u0111\u1ed9 t\u0129nh, \u1ea9n \u0111\u0129a than, n\u00fat tim/shuffle/repeat c\u00f3 hi\u1ec7u \u1ee9ng. | Light and dark player with a rounded cover, spinning vinyl, a slim side rail and a wavy seek line. A Studio page (the puzzle-piece row in the menu) with a live preview, 6 presets, background styles Auto/Flow/Aurora/Bokeh/Mesh, background veil and tint, colours for title, artist, lyrics, vinyl, grooves and cover border, plus player and lyric size. Auto cover makes colours and background style follow each cover. Bass-reactive effects, floating notes, calm mode, hidden vinyl and animated heart, shuffle and repeat buttons.",
@@ -376,7 +376,7 @@
     {
       "id": "retro-deck",
       "name": "Retro Cassette Deck",
-      "moduleId": "retro-deck",
+      "moduleId": "mochy-retro-cassette-deck",
       "version": "1.3.0",
       "author": "Zel",
       "description": "Retro cassette deck with transparent cassette body cutout, segmented retro bar visualizer, lyrics highlight, and equalized 5-option colour palettes across all sections.",

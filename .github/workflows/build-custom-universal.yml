@@ -1,0 +1,71 @@
+name: Build Custom Universal Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - 'store/**'
+      - 'README.md'
+      - 'fastlane/**'
+      - 'assets/**'
+      - '.github/**/*.md'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_universal_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Set Up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-cleanup: on-success
+
+      - name: Cache native CMake/NDK build
+        uses: actions/cache@v4
+        with:
+          path: app/.cxx
+          key: cxx-universal-${{ runner.os }}-${{ hashFiles('app/src/main/cpp/**', 'app/CMakeLists.txt') }}
+          restore-keys: |
+            cxx-universal-${{ runner.os }}-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Generate fallback keystore
+        run: |
+          mkdir -p ~/.android
+          keytool -genkey -v \
+            -keystore ~/.android/debug.keystore \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Mochy Custom,O=Custom,C=US"
+
+      - name: Build Universal FOSS Release APK
+        env:
+          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+        run: ./gradlew assembleUniversalFossRelease --build-cache --parallel --no-configuration-cache --console=plain --warning-mode summary
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: mochy-custom-universal-release
+          path: app/build/outputs/apk/universalFoss/release/*.apk
+          retention-days: 14

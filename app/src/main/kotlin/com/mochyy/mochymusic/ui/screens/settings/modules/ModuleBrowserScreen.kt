@@ -21,6 +21,7 @@ import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -260,21 +261,31 @@ private fun LazyListScope.storeItems(
     item(key = ChipsKey, contentType = "chips") { Spacer(Modifier.height(StoreChipsHeight + 18.dp)) }
     item(key = "creator-policy", contentType = "policy") {
         val wp = LocalWallpaperPalette.current
-        Box(
+        val policyContext = LocalContext.current
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = StorePadding, end = StorePadding, bottom = 10.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(wp?.surfaceContainer ?: Color(0xFF171717))
                 .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Text(
-                text = "Store Policy: Modules are shared with respect to their creators. Any module published without the owner's approval will be removed from the store upon request.",
+                text = "Store Policy: Modules are shared with respect to their creators and will be removed upon request if listed without the owner's approval. Can't find the module you're looking for? Check the official Mochy Discord server.",
                 color = wp?.onSurfaceVariant ?: Color.White.copy(alpha = 0.68f),
                 fontFamily = InterFontFamily,
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
                 fontWeight = FontWeight.Medium,
+            )
+            Text(
+                text = "Visit official Mochy Discord →",
+                color = wp?.primary ?: Color.White,
+                fontFamily = InterFontFamily,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.clickable { policyContext.openDevUrl(DiscordUrl) },
             )
         }
     }
