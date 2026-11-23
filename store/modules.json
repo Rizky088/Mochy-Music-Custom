@@ -202,10 +202,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/crystal-glass.zip",
       "size": 42375,
-      "updated": 1795369316057,
+      "updated": 1795416445582,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1572060423400980641",
       "postUrl": "https://discord.com/channels/916351383341522994/1572060423400980641",
-      "hidden": true
+      "hidden": false
     },
     {
       "id": "cozy-pink",
