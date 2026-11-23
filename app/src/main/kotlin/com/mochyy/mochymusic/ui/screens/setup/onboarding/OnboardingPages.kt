@@ -198,6 +198,45 @@ internal fun ProviderListPage(onPick: (AccountService) -> Unit, onBack: () -> Un
                 }
             }
             if (onPasteLink != null) {
+                OnbCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onPasteLink() },
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.provider_soundcloud),
+                            contentDescription = "SoundCloud",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(SquircleShape),
+                        )
+                        Spacer(Modifier.width(14.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "SoundCloud",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Text(
+                                text = "Public playlists and albums via link",
+                                color = Onb.Subtitle,
+                                fontSize = 12.sp,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
+                }
+            }
+            if (onPasteLink != null) {
                 OrDivider()
                 OnbCard(modifier = Modifier.fillMaxWidth(), onClick = onPasteLink, shape = RoundedCornerShape(20.dp)) {
                     Row(

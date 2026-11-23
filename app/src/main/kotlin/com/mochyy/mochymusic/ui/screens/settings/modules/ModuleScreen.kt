@@ -148,7 +148,7 @@ fun ModuleScreen(navController: NavController, id: String, viewModel: ModulesVie
                         lineHeight = 17.sp, color = Color.White.copy(alpha = 0.5f), modifier = Modifier.padding(horizontal = 6.dp),
                     )
                 }
-                Spacer(Modifier.height(bottom + 40.dp))
+                Spacer(Modifier.height(bottom + 120.dp))
             }
         }
         BackButton(onClick = { navController.navigateUp() })

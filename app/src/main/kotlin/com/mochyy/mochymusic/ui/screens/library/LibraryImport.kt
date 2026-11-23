@@ -92,6 +92,7 @@ internal val ImportedTabServices = listOf(
     ImportSource.YOUTUBE_MUSIC,
     ImportSource.APPLE_MUSIC,
     ImportSource.TIDAL,
+    ImportSource.SOUNDCLOUD,
 )
 
 /** A service's name on a half-width card, where "YouTube Music" next to its icon would be cut off. */
@@ -104,6 +105,13 @@ internal fun ImportSourceIcon(source: ImportSource, size: Dp, modifier: Modifier
     val service = source.service()
     if (service != null) {
         ProviderSquircle(service, size = size, modifier = modifier)
+    } else if (source == ImportSource.SOUNDCLOUD) {
+        androidx.compose.foundation.Image(
+            painter = painterResource(R.drawable.provider_soundcloud),
+            contentDescription = source.label,
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+            modifier = modifier.size(size).clip(SquircleShape),
+        )
     } else {
         Box(
             contentAlignment = Alignment.Center,
@@ -216,15 +224,22 @@ private fun ImportPromoBanner(onClick: () -> Unit, onDismiss: (() -> Unit)? = nu
  */
 @Composable
 private fun ProviderMarquee(modifier: Modifier = Modifier) {
+    val marqueeSources = listOf(
+        ImportSource.SPOTIFY,
+        ImportSource.APPLE_MUSIC,
+        ImportSource.TIDAL,
+        ImportSource.YOUTUBE_MUSIC,
+        ImportSource.SOUNDCLOUD,
+    )
     val tile = 56.dp
     val gap = 14.dp
-    val setWidth = (tile + gap) * BannerServices.size
+    val setWidth = (tile + gap) * marqueeSources.size
     val setPx = with(LocalDensity.current) { setWidth.toPx() }
 
     val travel = rememberInfiniteTransition(label = "providerMarquee").animateFloat(
         initialValue = 0f,
         targetValue = setPx,
-        animationSpec = infiniteRepeatable(tween(MarqueeMsPerIcon * BannerServices.size, easing = LinearEasing)),
+        animationSpec = infiniteRepeatable(tween(MarqueeMsPerIcon * marqueeSources.size, easing = LinearEasing)),
         label = "providerMarqueeTravel",
     )
 
@@ -240,8 +255,8 @@ private fun ProviderMarquee(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.spacedBy(gap),
         ) {
             repeat(sets) {
-                BannerServices.forEach { service ->
-                    ProviderSquircle(service, size = tile)
+                marqueeSources.forEach { source ->
+                    ImportSourceIcon(source, size = tile)
                 }
             }
         }

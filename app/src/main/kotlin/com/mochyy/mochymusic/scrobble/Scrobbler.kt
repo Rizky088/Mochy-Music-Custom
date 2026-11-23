@@ -105,10 +105,23 @@ class Scrobbler @Inject constructor(
         if (OfflineMode.isOn || artist.isBlank()) return
         scope.launch {
             if (context.dataStore.data.first()[LastFMUseSendLikes] != true) return@launch
+            val prefs = context.dataStore.data.first()
+            val lbUrl = prefs[com.mochyy.mochymusic.constants.ListenBrainzUrlKey]
+            val lbUser = prefs[ScrobbleSite.LISTENBRAINZ.usernameKey]
             for ((site, session) in sites(includePaused = false)) {
-                if (site == ScrobbleSite.LISTENBRAINZ) continue
                 try {
-                    site.api.love(session, artist, track, love)
+                    if (site == ScrobbleSite.LISTENBRAINZ) {
+                        ListenBrainzClient.submitLove(
+                            serverUrl = lbUrl ?: ListenBrainzClient.DefaultServerUrl,
+                            token = session,
+                            username = lbUser,
+                            artist = artist,
+                            track = track,
+                            love = love,
+                        )
+                    } else {
+                        site.api.love(session, artist, track, love)
+                    }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {

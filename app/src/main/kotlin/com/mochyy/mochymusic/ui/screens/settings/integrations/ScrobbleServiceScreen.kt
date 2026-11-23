@@ -148,7 +148,7 @@ fun ScrobbleServiceScreen(
                     onClick = { onNowPlayingChange(!nowPlaying) },
                     trailingContent = { AppSwitch(checked = nowPlaying, onCheckedChange = onNowPlayingChange) },
                 ),
-                if (site != ScrobbleSite.LISTENBRAINZ) SettingsItem(
+                SettingsItem(
                     title = { Text(sendLikesTitle) },
                     highlightKey = "Send likes",
                     searchText = sendLikesTitle,
@@ -157,7 +157,7 @@ fun ScrobbleServiceScreen(
                     iconShape = CircleShape,
                     onClick = { onSendLikesChange(!sendLikes) },
                     trailingContent = { AppSwitch(checked = sendLikes, onCheckedChange = onSendLikesChange) },
-                ) else null,
+                ),
                 if (pending > 0) {
                     val waiting = pluralStringResource(R.plurals.scrobble_plays_waiting, pending, pending)
                     SettingsItem(

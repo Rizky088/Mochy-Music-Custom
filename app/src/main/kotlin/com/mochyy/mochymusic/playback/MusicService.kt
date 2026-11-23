@@ -3199,6 +3199,16 @@ class MusicService :
     override fun onPlaybackStateChanged(
         @Player.State playbackState: Int,
     ) {
+        if (playbackState == Player.STATE_READY) {
+            val scMediaId = player.currentMediaItem?.mediaId
+            if (scMediaId != null && resolvedSourceIds[scMediaId] == com.mochyy.mochymusic.modules.soundcloud.SoundCloudModule.Id) {
+                val actualMs = player.duration
+                val expectedSec = player.currentMetadata?.duration ?: 0
+                if (actualMs in 15_000L..35_000L && (expectedSec == 0 || expectedSec > 45)) {
+                    com.mochyy.mochymusic.modules.soundcloud.SoundCloudPlaybackState.update(scMediaId, true)
+                }
+            }
+        }
         updateEightDReverb(audioLab.eightD.value)
 
         // IDLE is where a failed stream sits; anything else means it's loading or playing again

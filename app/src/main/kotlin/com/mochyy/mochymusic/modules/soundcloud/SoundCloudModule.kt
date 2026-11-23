@@ -3,9 +3,12 @@ package com.mochyy.mochymusic.modules.soundcloud
 import com.mochyy.mochymusic.module.AccountState
 import com.mochyy.mochymusic.module.CatalogTrack
 import com.mochyy.mochymusic.module.DiagnosticStep
+import com.mochyy.mochymusic.module.FieldKind
 import com.mochyy.mochymusic.module.HttpRequest
 import com.mochyy.mochymusic.module.MatchedTrack
 import com.mochyy.mochymusic.module.ModuleChoice
+import com.mochyy.mochymusic.module.ModuleField
+import com.mochyy.mochymusic.module.ModuleFields
 import com.mochyy.mochymusic.module.ModuleHost
 import com.mochyy.mochymusic.module.ModuleInfo
 import com.mochyy.mochymusic.module.ResolveResult
@@ -31,15 +34,16 @@ import java.util.concurrent.ConcurrentHashMap
  * - Free public tracks work with zero login using SoundCloud's public web client_id.
  * - Optional in-app WebView sign-in lets users connect their own SoundCloud Go+ subscription
  *   to unlock full streams for Go+ tracks.
- * - Paywalled Go+ tracks played without Go+ are flagged as "Go+ Preview (30s)" so the player
- *   shows the notice beside the artist name.
+ * - Paywalled Go+ tracks played without Go+ are flagged as "Go+ Preview (30s)" beside the artist
+ *   name across built-in and module players, or automatically skipped to the next source if
+ *   "Skip Go+ 30s previews" is enabled.
  */
-class SoundCloudModule : SourceModule {
+class SoundCloudModule : SourceModule, ModuleFields {
 
     override val info = ModuleInfo(
         id = Id,
         name = "SoundCloud",
-        version = "1.0",
+        version = "1.1",
         description = "Streams public SoundCloud tracks for free without login. Optionally sign in to unlock your SoundCloud Go+ subscription.",
     )
 
@@ -73,6 +77,23 @@ class SoundCloudModule : SourceModule {
             ),
         ),
     )
+
+    override val fields = listOf(
+        ModuleField(
+            id = FieldSkipGoPlusPreviews,
+            label = "Skip Go+ 30s previews",
+            kind = FieldKind.Toggle,
+            default = "false",
+            description = "Automatically fall back to the next provider (e.g. YouTube Music) when a SoundCloud track is a 30-second Go+ preview.",
+        ),
+    )
+
+    @Volatile
+    private var skipGoPlusPreviews: Boolean = false
+
+    override fun onFields(values: Map<String, String>) {
+        skipGoPlusPreviews = values[FieldSkipGoPlusPreviews].equals("true", ignoreCase = true)
+    }
 
     private lateinit var host: ModuleHost
     private val json = Json { ignoreUnknownKeys = true }
@@ -240,6 +261,20 @@ class SoundCloudModule : SourceModule {
             return ResolveResult.NotFound("No playable stream on SoundCloud")
         }
 
+        val isPreviewByDuration = found.durationMs != null && found.fullDurationMs != null &&
+            found.durationMs <= 35_000L && found.fullDurationMs > 45_000L
+        val isPreviewByModel = found.monetizationModel.equals("SUB_HIGH_TIER", ignoreCase = true) && token == null
+        val isSnip = chosen.snipped ||
+            chosen.url.contains("/preview/", ignoreCase = true) ||
+            found.policy.equals("SNIP", ignoreCase = true) ||
+            isPreviewByDuration ||
+            isPreviewByModel
+
+        if (isSnip && skipGoPlusPreviews) {
+            report(DiagnosticStep("Stream", false, "Skipped SoundCloud Go+ 30s preview (falling back to next provider)"))
+            return ResolveResult.NotFound("SoundCloud Go+ preview skipped")
+        }
+
         val activeCid = cachedClientId ?: ensureClientId(forceRefresh = false)
             ?: return ResolveResult.Unavailable("Missing SoundCloud client ID")
         val sep = if ('?' in chosen.url) '&' else '?'
@@ -261,14 +296,19 @@ class SoundCloudModule : SourceModule {
             return ResolveResult.Unavailable("SoundCloud stream couldn't be opened")
         }
 
-        val isSnip = chosen.snipped || found.policy.equals("SNIP", ignoreCase = true)
+        val finalSnip = isSnip || streamUrl.contains("preview", ignoreCase = true)
+        if (finalSnip && skipGoPlusPreviews) {
+            report(DiagnosticStep("Stream", false, "Skipped SoundCloud Go+ 30s preview (falling back to next provider)"))
+            return ResolveResult.NotFound("SoundCloud Go+ preview skipped")
+        }
+
         val format = if (chosen.protocol == "progressive") StreamFormat.Progressive else StreamFormat.Hls
         val codec = when {
             chosen.mimeType.contains("mp4", ignoreCase = true) || chosen.mimeType.contains("aac", ignoreCase = true) -> "AAC"
             chosen.mimeType.contains("ogg", ignoreCase = true) || chosen.mimeType.contains("opus", ignoreCase = true) -> "OPUS"
             else -> "MP3"
         }
-        val qualityLabel = if (isSnip) "$codec · $GoPlusPreviewTag" else codec
+        val qualityLabel = if (finalSnip) "$codec · $GoPlusPreviewTag" else codec
         report(DiagnosticStep("Stream", true, qualityLabel))
 
         return ResolveResult.Found(
@@ -295,7 +335,7 @@ class SoundCloudModule : SourceModule {
     private fun pickTranscoding(list: List<ScTranscoding>, preferProgressive: Boolean): ScTranscoding? {
         val playable = list.filter { it.protocol == "progressive" || it.protocol == "hls" }
         if (playable.isEmpty()) return null
-        val fullOnly = playable.filterNot { it.snipped }.ifEmpty { playable }
+        val fullOnly = playable.filterNot { it.snipped || it.url.contains("/preview/", ignoreCase = true) }.ifEmpty { playable }
         return if (preferProgressive) {
             fullOnly.firstOrNull { it.protocol == "progressive" }
                 ?: fullOnly.firstOrNull { it.protocol == "hls" && it.mimeType.contains("mp4", ignoreCase = true) }
@@ -320,8 +360,8 @@ class SoundCloudModule : SourceModule {
             val pubArtist = (obj["publisher_metadata"] as? JsonObject)?.str("artist")
             val uploader = (obj["user"] as? JsonObject)?.str("username")
             val artist = pubArtist ?: uploader ?: ""
-            val durationMs = (obj["full_duration"] as? JsonPrimitive)?.longOrNull
-                ?: (obj["duration"] as? JsonPrimitive)?.longOrNull
+            val durationMs = (obj["duration"] as? JsonPrimitive)?.longOrNull
+            val fullDurationMs = (obj["full_duration"] as? JsonPrimitive)?.longOrNull
             val transcodings = ((obj["media"] as? JsonObject)?.get("transcodings") as? JsonArray).orEmpty()
                 .mapNotNull { tEl ->
                     val t = tEl as? JsonObject ?: return@mapNotNull null
@@ -339,9 +379,12 @@ class SoundCloudModule : SourceModule {
                     title = title,
                     artist = artist,
                     album = (obj["publisher_metadata"] as? JsonObject)?.str("album_title"),
-                    durationMs = durationMs,
+                    durationMs = fullDurationMs ?: durationMs,
                 ),
                 policy = obj.str("policy").orEmpty(),
+                monetizationModel = obj.str("monetization_model").orEmpty(),
+                durationMs = durationMs,
+                fullDurationMs = fullDurationMs,
                 trackAuthorization = obj.str("track_authorization"),
                 transcodings = transcodings,
             )
@@ -364,7 +407,6 @@ class SoundCloudModule : SourceModule {
             saveClientId(found)
             return found
         }
-        // Fallback: scan SoundCloud web player JS bundles (same approach as yt-dlp)
         val scripts = ScriptSrcRegex.findAll(home).map { it.groupValues[1] }.toList().asReversed()
         for (src in scripts.take(8)) {
             val js = runCatching {
@@ -402,6 +444,9 @@ class SoundCloudModule : SourceModule {
     private class ScTrack(
         val catalog: CatalogTrack,
         val policy: String,
+        val monetizationModel: String,
+        val durationMs: Long?,
+        val fullDurationMs: Long?,
         val trackAuthorization: String?,
         val transcodings: List<ScTranscoding>,
     )
@@ -409,6 +454,7 @@ class SoundCloudModule : SourceModule {
     companion object {
         const val Id = "soundcloud"
         const val GoPlusPreviewTag = "Go+ Preview (30s)"
+        private const val FieldSkipGoPlusPreviews = "skip_go_plus_previews"
         private const val ApiBase = "https://api-v2.soundcloud.com"
         private const val FreeLabel = "Free · No account needed"
         private const val ChoiceQuality = "quality"

@@ -63,6 +63,7 @@ internal val StatusTrouble = Color(0xFFFFB340)
 private fun logoFor(id: String): Int? = when (id) {
     AppleMusicModule.Id -> R.drawable.provider_apple_music
     MonochromeModule.Id -> R.drawable.provider_monochrome
+    com.mochyy.mochymusic.modules.soundcloud.SoundCloudModule.Id -> R.drawable.provider_soundcloud
     else -> null
 }
 
