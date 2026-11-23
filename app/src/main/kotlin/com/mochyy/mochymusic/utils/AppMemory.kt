@@ -38,13 +38,13 @@ object AppMemory {
                 com.mochyy.mochymusic.canvas.SpotifyCanvasProvider.trimMemory()
                 YTPlayerUtils.trimMemory()
                 PlaybackLogManager.trimMemory()
-                AppProxy.connectionPool.evictAll()
                 scope.launch(Dispatchers.Main) {
-                    YTPlayerUtils.releaseWebViews()
-                    CipherDeobfuscator.releaseWebView()
-                    EjsNTransformSolver.close()
+                    runCatching { YTPlayerUtils.releaseWebViews() }
+                    runCatching { CipherDeobfuscator.releaseWebView() }
+                    runCatching { EjsNTransformSolver.close() }
                 }
                 scope.launch(Dispatchers.IO) {
+                    runCatching { AppProxy.connectionPool.evictAll() }
                     runCatching { SQLiteDatabase.releaseMemory() }
                 }
             }

@@ -29,8 +29,8 @@ extensions.configure<ApplicationExtension> {
         applicationId = "com.mochyy.mochymusic.ext"
         minSdk = 24
         targetSdk = 37
-        versionCode = 78
-        versionName = "8.4.5 Ext"
+        versionCode = 79
+        versionName = "8.4.5.1 Ext"
 
         val gdriveClientIdForScheme = (localProperties.getProperty("GDRIVE_CLIENT_ID") ?: System.getenv("GDRIVE_CLIENT_ID") ?: "").trim()
         val gdriveRedirectScheme = gdriveClientIdForScheme
