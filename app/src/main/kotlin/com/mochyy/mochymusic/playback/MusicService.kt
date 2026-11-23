@@ -3110,6 +3110,31 @@ class MusicService :
         mediaItem: MediaItem?,
         reason: Int,
     ) {
+        val blockedId = mediaItem?.mediaId
+        if (blockedId != null && blockedId in NotRecommended) {
+            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                if (player.currentMediaItem?.mediaId != blockedId || blockedId !in NotRecommended) return@post
+                val count = player.mediaItemCount
+                val cur = player.currentMediaItemIndex
+                var nextIdx = -1
+                if (count > 1 && cur >= 0) {
+                    for (offset in 1 until count) {
+                        val idx = (cur + offset) % count
+                        if (idx < cur && player.repeatMode != Player.REPEAT_MODE_ALL) break
+                        if (player.getMediaItemAt(idx).mediaId !in NotRecommended) {
+                            nextIdx = idx
+                            break
+                        }
+                    }
+                }
+                if (nextIdx >= 0) {
+                    player.seekTo(nextIdx, 0L)
+                } else {
+                    player.pause()
+                }
+            }
+            return
+        }
         clearStreamFailure()
         if (!promotingCrossmix) crossmixDirector.onItemChanged()
 

@@ -106,6 +106,8 @@ fun YouTubeSongMenu(
     val coroutineScope = rememberCoroutineScope()
     val syncUtils = LocalSyncUtils.current
     val isPinned by remember(database, song.id) { database.speedDialDao.isPinned(song.id) }.collectAsState(initial = false)
+    val hiddenSongs by com.mochyy.mochymusic.utils.NotRecommended.hiddenSongs.collectAsState()
+    val isHidden = remember(hiddenSongs, song.id) { hiddenSongs.any { it.id == song.id } }
     val artists = remember {
         song.artists.mapNotNull {
             it.id?.let { artistId ->
@@ -370,7 +372,42 @@ fun YouTubeSongMenu(
                                 onDismiss()
                             }
                         )
-                    } else null
+                    } else null,
+                    Material3MenuItemData(
+                        title = { Text(text = if (isHidden) "Unhide song" else stringResource(R.string.not_recommended_menu)) },
+                        description = { Text(text = if (isHidden) "Allow this song in playback and recommendations again" else "Hide this song from playback, radio, and recommendations") },
+                        icon = {
+                            Icon(
+                                painter = painterResource(if (isHidden) R.drawable.check else R.drawable.thumb_down),
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = {
+                            if (isHidden) {
+                                com.mochyy.mochymusic.utils.NotRecommended.remove(song.id)
+                                com.mochyy.mochymusic.ui.component.TopToaster.show(text = "Song unhidden", thumbnail = song.thumbnail, iconRes = R.drawable.check)
+                            } else {
+                                com.mochyy.mochymusic.utils.NotRecommended.add(
+                                    songId = song.id,
+                                    title = song.title,
+                                    artist = song.artists.joinToString(", ") { it.name },
+                                    thumbnailUrl = song.thumbnail,
+                                )
+                                if (playerConnection.mediaMetadata.value?.id == song.id) {
+                                    if (playerConnection.player.mediaItemCount > 1) playerConnection.seekToNext()
+                                    else playerConnection.player.pause()
+                                }
+                                com.mochyy.mochymusic.ui.component.TopToaster.show(
+                                    text = context.getString(R.string.not_recommended_done),
+                                    thumbnail = song.thumbnail,
+                                    iconRes = R.drawable.thumb_down,
+                                    actionLabel = context.getString(R.string.undo),
+                                    onAction = { com.mochyy.mochymusic.utils.NotRecommended.remove(song.id) },
+                                )
+                            }
+                            onDismiss()
+                        }
+                    ),
                 )
             )
         }

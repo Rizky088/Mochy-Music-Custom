@@ -99,7 +99,7 @@ private val ArcTail = 12.dp
 // the outline round the style that's in use
 private val HighlightColor = Color.White.copy(alpha = 0.9f)
 
-internal val CardLabelStyle = TextStyle(
+internal val CardLabelStyle: TextStyle get() = TextStyle(
     fontFamily = InterFontFamily,
     fontWeight = FontWeight.SemiBold,
     fontSize = 15.sp,
@@ -107,7 +107,7 @@ internal val CardLabelStyle = TextStyle(
     letterSpacing = (-0.03).em,
 )
 
-internal val CardValueStyle = TextStyle(
+internal val CardValueStyle: TextStyle get() = TextStyle(
     fontFamily = InterFontFamily,
     fontWeight = FontWeight.Bold,
     fontSize = 32.sp,
@@ -116,14 +116,14 @@ internal val CardValueStyle = TextStyle(
     color = Color.White,
 )
 
-internal val SmallLabelStyle = TextStyle(
+internal val SmallLabelStyle: TextStyle get() = TextStyle(
     fontFamily = InterFontFamily,
     fontWeight = FontWeight.Medium,
     fontSize = 9.sp,
     letterSpacing = (-0.01).em,
 )
 
-internal val CaptionStyle = TextStyle(
+internal val CaptionStyle: TextStyle get() = TextStyle(
     fontFamily = InterFontFamily,
     fontWeight = FontWeight.Medium,
     fontSize = 10.sp,
@@ -246,7 +246,7 @@ internal fun CustomiseSliderCard(
     }
 }
 
-private val SliderTitleStyle = TextStyle(
+private val SliderTitleStyle: TextStyle get() = TextStyle(
     fontFamily = InterFontFamily,
     fontWeight = FontWeight.Bold,
     fontSize = 13.sp,

@@ -1007,7 +1007,7 @@ private fun Modifier.clipBottomRounded(radius: () -> Float): Modifier = drawWith
     }
 }
 
-private val PageTitle = TextStyle(
+private val PageTitle: TextStyle get() = TextStyle(
     fontFamily = InterFontFamily,
     fontWeight = FontWeight.Bold,
     fontSize = 23.sp,

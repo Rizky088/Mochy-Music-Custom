@@ -121,7 +121,7 @@ private val ToastSquare = Color(0xFFD9D9D9)
 private val ToastError = Color(0xFFEE5A52)
 private val ToastEase = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 
-private val ToastTitle = TextStyle(
+private val ToastTitle: TextStyle get() = TextStyle(
     fontFamily = InterFontFamily,
     fontWeight = FontWeight.Bold,
     fontSize = 17.sp,

@@ -44,7 +44,7 @@ private val TitleFade = Brush.verticalGradient(
     1f to Color.Black.copy(alpha = 0.85f),
 )
 
-private val TileTitleStyle = TextStyle(
+private val TileTitleStyle: TextStyle get() = TextStyle(
     fontFamily = InterFontFamily,
     fontWeight = FontWeight.SemiBold,
     fontSize = 12.sp,

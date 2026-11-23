@@ -120,7 +120,7 @@ private val SpeakerGap = 10.dp
 // no bounce, about a third of a second, quick enough that a held volume key never lags behind
 private val VolumeGlide = spring<Float>(dampingRatio = 1f, stiffness = 400f)
 
-private val PillText = TextStyle(
+private val PillText: TextStyle get() = TextStyle(
     fontFamily = InterFontFamily,
     fontWeight = FontWeight.Bold,
     fontSize = 9.5.sp,

@@ -485,7 +485,7 @@ private fun ColumnScope.AboutSheetContent(
                 PersonRow(
                     name = "Rizky088",
                     subtitle = stringResource(R.string.mochy_ext_credit_subtitle),
-                    avatarUrl = githubAvatarUrl("Rizky088"),
+                    avatarUrl = "${githubAvatarUrl("Rizky088")}&v=2",
                     showArrow = true,
                     onClick = { context.openUrl("https://github.com/Rizky088/Mochy-Music-Custom") },
                 )
@@ -879,6 +879,7 @@ private fun GithubAvatar(
             ImageRequest
                 .Builder(context)
                 .data(url)
+                .diskCachePolicy(coil3.request.CachePolicy.DISABLED)
                 .crossfade(true)
                 .build()
         }

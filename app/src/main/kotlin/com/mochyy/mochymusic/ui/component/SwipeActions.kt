@@ -147,7 +147,7 @@ private val PillPadding = 13.dp
 private val PillIconSize = 18.dp
 private val PillLabelSpacing = 6.dp
 
-private val SwipeLabelStyle = TextStyle(
+private val SwipeLabelStyle: TextStyle get() = TextStyle(
     fontFamily = InterFontFamily,
     fontWeight = FontWeight.SemiBold,
     fontSize = 12.5.sp,

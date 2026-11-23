@@ -5,6 +5,29 @@
 
 package com.mochyy.mochymusic.ui.screens.library
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import com.mochyy.mochymusic.db.entities.Song
+import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
+import com.mochyy.mochymusic.ui.screens.search.SearchColors
+import com.mochyy.mochymusic.utils.HiddenSong
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -119,5 +142,127 @@ fun LazyListScope.libraryGenresTab(genres: List<LocalGenre>?, navController: Nav
             onClick = open,
             onLongClick = open,
         )
+    }
+}
+
+/** blocked / hidden songs, with one-tap Unhide so people can easily restore them */
+fun LazyListScope.libraryHiddenTab(
+    hiddenSongs: List<HiddenSong>,
+    librarySongs: List<Song>,
+    query: String,
+    onUnhide: (String) -> Unit,
+    onUnhideAll: () -> Unit,
+) {
+    val byId = librarySongs.associateBy { it.id }
+    val resolved = hiddenSongs.map { item ->
+        val dbSong = byId[item.id]
+        HiddenSong(
+            id = item.id,
+            title = item.title.ifBlank { dbSong?.song?.title.orEmpty() }.ifBlank { item.id },
+            artist = item.artist.ifBlank { dbSong?.artists?.joinToString(", ") { it.name }.orEmpty() },
+            thumbnailUrl = item.thumbnailUrl ?: dbSong?.song?.thumbnailUrl,
+            hiddenAt = item.hiddenAt,
+        )
+    }
+    val filtered = if (query.isBlank()) {
+        resolved
+    } else {
+        resolved.filter { it.title.contains(query, ignoreCase = true) || it.artist.contains(query, ignoreCase = true) }
+    }
+
+    if (resolved.isEmpty()) {
+        item(key = "hidden_empty") {
+            LibraryEmptyState(text = "No hidden music yet.\nUse \"Don't recommend\" on any song to hide it from playback and recommendations.")
+        }
+        return
+    }
+
+    item(key = "hidden_unhide_all") {
+        LibraryManagePill(text = "Unhide all (${resolved.size})", onClick = onUnhideAll)
+        Spacer(Modifier.height(18.dp))
+    }
+
+    if (filtered.isEmpty()) {
+        item(key = "hidden_no_match") {
+            LibraryEmptyState(text = "No hidden songs match \"$query\".")
+        }
+        return
+    }
+
+    item(key = "hidden_header") {
+        LibraryCapsLabel("Hidden music · ${filtered.size}")
+        Spacer(Modifier.height(8.dp))
+    }
+
+    items(filtered, key = { "hidden_${it.id}" }, contentType = { "hiddenRow" }) { song ->
+        val wp = LocalWallpaperPalette.current
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = SearchHorizontalPadding, vertical = 4.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(wp?.surfaceContainer?.copy(alpha = 0.72f) ?: Color(0xFF1A1A1D))
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(wp?.surfaceContainerHigh ?: Color(0xFF28282C)),
+            ) {
+                if (!song.thumbnailUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = song.thumbnailUrl,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(48.dp),
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(R.drawable.music_note),
+                        contentDescription = null,
+                        tint = Color.White.copy(alpha = 0.6f),
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+            }
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = song.title,
+                    color = SearchColors.Primary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (song.artist.isNotBlank()) {
+                    Text(
+                        text = song.artist,
+                        color = SearchColors.Secondary,
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(wp?.chipSelected ?: Color(0xFF3A3A3E))
+                    .clickable { onUnhide(song.id) }
+                    .padding(horizontal = 14.dp, vertical = 7.dp),
+            ) {
+                Text(
+                    text = "Unhide",
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
     }
 }

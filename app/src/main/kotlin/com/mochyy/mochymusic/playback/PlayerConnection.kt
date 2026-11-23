@@ -650,11 +650,20 @@ class PlayerConnection(
         )
     }
 
-    // the song playing now stops coming back in autoplay, radios and home, and we skip past it right away
+    // the song playing now is blocked from playback, autoplay, radios and home, and we skip past it right away
     fun stopRecommendingCurrent() {
         val metadata = player.currentMetadata ?: return
-        NotRecommended.add(metadata.id)
-        seekToNext()
+        NotRecommended.add(
+            songId = metadata.id,
+            title = metadata.title,
+            artist = metadata.artists.joinToString(", ") { it.name },
+            thumbnailUrl = metadata.thumbnailUrl,
+        )
+        if (player.mediaItemCount > 1) {
+            seekToNext()
+        } else {
+            player.pause()
+        }
         TopToaster.show(
             text = context.getString(R.string.not_recommended_done),
             thumbnail = metadata.thumbnailUrl,

@@ -91,6 +91,7 @@ fun LibraryHomeScreen(
     val localImports by importViewModel.localImports.collectAsState()
 
     var tab by rememberSaveable { mutableStateOf(LibraryTab.All) }
+    val hiddenSongs by com.mochyy.mochymusic.utils.NotRecommended.hiddenSongs.collectAsState()
     // only the open tab's shelf is collected; null while it is first read
     val shelfData = tab.shelf?.let { collectShelfTabData(viewModel, it) }
     val localActions = rememberLocalImportActions(importViewModel)
@@ -169,7 +170,7 @@ fun LibraryHomeScreen(
                 Spacer(modifier = Modifier.height(14.dp))
             }
 
-            if (query.text.isNotBlank()) {
+            if (query.text.isNotBlank() && tab != LibraryTab.Hidden) {
                 librarySearchResults(
                     results = results,
                     query = query.text,
@@ -279,6 +280,16 @@ fun LibraryHomeScreen(
                         )
                     },
                 )
+            
+                LibraryTab.Hidden -> {
+                    libraryHiddenTab(
+                        hiddenSongs = hiddenSongs,
+                        librarySongs = songs,
+                        query = query.text.trim(),
+                        onUnhide = { com.mochyy.mochymusic.utils.NotRecommended.remove(it) },
+                        onUnhideAll = { com.mochyy.mochymusic.utils.NotRecommended.clearAll() },
+                    )
+                }
             }
         }
     }

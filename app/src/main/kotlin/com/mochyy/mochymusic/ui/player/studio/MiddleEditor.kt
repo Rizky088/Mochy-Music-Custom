@@ -42,7 +42,7 @@ import com.mochyy.mochymusic.ui.utils.stableStatusBars
 import com.mochyy.mochymusic.ui.component.RemoteFocus
 
 /** the player's menu item label, exactly as its chevron menu sets it */
-private val MenuLabelStyle = TextStyle(
+private val MenuLabelStyle: TextStyle get() = TextStyle(
     fontFamily = com.mochyy.mochymusic.ui.theme.InterFontFamily,
     fontSize = 14.sp,
     fontWeight = FontWeight.SemiBold,

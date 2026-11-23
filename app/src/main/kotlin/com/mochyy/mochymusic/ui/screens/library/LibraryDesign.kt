@@ -260,7 +260,7 @@ private fun LibraryCoverStack(
 }
 
 /** The big grey count on every Library card. */
-private val LibraryCountStyle = TextStyle(
+private val LibraryCountStyle: TextStyle get() = TextStyle(
     fontFamily = InterFontFamily,
     fontWeight = FontWeight.Bold,
     fontSize = 34.sp,

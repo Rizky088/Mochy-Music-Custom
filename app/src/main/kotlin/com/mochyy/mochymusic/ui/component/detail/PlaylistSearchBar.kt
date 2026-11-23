@@ -48,7 +48,7 @@ import com.mochyy.mochymusic.ui.utils.stableStatusBarsPadding
 private val BarHeight = 44.dp
 private val BarFill = Color(0xFF3A3D42).copy(alpha = 0.78f)
 
-private val FieldText = TextStyle(
+private val FieldText: TextStyle get() = TextStyle(
     fontFamily = InterFontFamily,
     fontWeight = FontWeight.Bold,
     fontSize = 15.sp,

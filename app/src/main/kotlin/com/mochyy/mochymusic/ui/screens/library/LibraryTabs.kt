@@ -55,6 +55,7 @@ enum class LibraryTab(val labelRes: Int, val shelf: LibraryShelfKind? = null) {
     History(R.string.history),
     Genres(R.string.library_tab_genres),
     Imported(R.string.library_tab_imported),
+    Hidden(R.string.library_tab_hidden),
 }
 
 private val ChipTrack = Color(0xFF161618)

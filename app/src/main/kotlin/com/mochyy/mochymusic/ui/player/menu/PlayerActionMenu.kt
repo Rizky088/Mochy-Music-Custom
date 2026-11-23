@@ -465,14 +465,21 @@ fun PlayerActionMenu(
                     enabled = currentMetadata != null,
                     onClick = { songToEdit = currentMetadata },
                 )
-                if (isAutoplaySong) {
+                val hiddenList by com.mochyy.mochymusic.utils.NotRecommended.hiddenSongs.collectAsState()
+                val currentHidden = songId != null && hiddenList.any { it.id == songId }
+                if (currentMetadata != null) {
                     Spacer(modifier = Modifier.height(8.dp))
                     MenuRow(
-                        icon = R.drawable.thumb_down,
-                        title = androidx.compose.ui.res.stringResource(R.string.not_recommended_menu),
+                        icon = if (currentHidden) R.drawable.check else R.drawable.thumb_down,
+                        title = if (currentHidden) "Unhide song" else androidx.compose.ui.res.stringResource(R.string.not_recommended_menu),
                         onClick = {
-                            onDismiss()
-                            playerConnection.stopRecommendingCurrent()
+                            if (currentHidden && songId != null) {
+                                com.mochyy.mochymusic.utils.NotRecommended.remove(songId)
+                                onDismiss()
+                            } else {
+                                onDismiss()
+                                playerConnection.stopRecommendingCurrent()
+                            }
                         },
                     )
                 }
