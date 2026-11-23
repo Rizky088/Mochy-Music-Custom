@@ -12,6 +12,7 @@
     "Tools"
   ],
   "chart": [
+    "cassette-queue",
     "vinyl-wave",
     "miku-player",
     "yeno-orbit",
@@ -538,6 +539,54 @@
       "updated": 1795451543948,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1574226905736028180",
       "postUrl": "https://discord.com/channels/916351383341522994/1574226905736028180"
+    },
+    {
+      "id": "freestyle-glass",
+      "name": "Freestyle Glass",
+      "moduleId": "freestyle-glass",
+      "version": "1.18",
+      "author": "yzerr",
+      "description": "A Freestyle / Xbox 360 dashboard look with liquid glass: orange sky with ribbons, Xbox 360 game cases for the playing and next songs, a blade-style header, glossy gel buttons and glass bars",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/freestyle-glass.png",
+      "banner": "",
+      "previews": [],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/freestyle-glass.zip",
+      "size": 150086,
+      "updated": 1795456229234,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1574260393537175722",
+      "postUrl": "https://discord.com/channels/916351383341522994/1574260393537175722"
+    },
+    {
+      "id": "cassette-queue",
+      "name": "Cassette Queue",
+      "moduleId": "cassette-queue",
+      "version": "2.8.1",
+      "author": "you",
+      "description": "Vertical cassette with the next songs as cassette spines. Styles: classic, closed case and cassette with an info insert. Immersive mode animates the cassette swap. Plastic textures: micro-scratches, friction wear and aging. Second player: Pixel Deck, a pixel-art tape deck. Pixel Deck has two skins you can switch: pixel art and realistic (the realistic one uses the cassettes above, with their colors, label, tape, style and texture options). In landscape the cassette lies horizontally in every style (classic, closed case and info insert) and in both players; Pixel Deck turns sideways with it. Third player: Cassette Shelf, a shelf of cassette spines (previous and upcoming songs) around the current cassette, with the title and compact controls underneath. Landscape: the shelf of spines. Portrait: a column of horizontal spines (the playing song is an empty spine with just its name) with Cassette Queue buttons. Closed cases (cover + plastic) sit behind the current cassette. Cassette Shelf portrait: the playing cassette can peek out above the current song's spine, as if it were slotted in (toggle: 'peek'). Cassette Shelf landscape: bigger shelf (x1.2), smaller title and artist. Landscape: no progress bar; |< STOP >| buttons tucked in the bottom-right corner. Fourth player: Cassette Stage, made for landscape and filling the screen: big cassette (classic or closed case), deck keys and a metal rack with the playing, previous and next spines. Portrait only asks you to turn the phone.",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/cassette-queue.png",
+      "banner": "",
+      "previews": [],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/cassette-queue.zip",
+      "size": 7015065,
+      "updated": 1795456291159,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1574429562434093117",
+      "postUrl": "https://discord.com/channels/916351383341522994/1574429562434093117"
     }
   ]
 }
