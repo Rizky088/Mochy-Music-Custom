@@ -12,8 +12,6 @@
     "Tools"
   ],
   "chart": [
-    "qtide-tidal",
-    "qtide-qobuz",
     "vinyl-wave",
     "miku-player",
     "yeno-orbit",
@@ -416,10 +414,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/qtide-qobuz.zip",
       "size": 1750648,
-      "updated": 1795369426242,
+      "updated": 1795425570496,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573847246682849390",
       "postUrl": "https://discord.com/channels/916351383341522994/1573847246682849390",
-      "hidden": true
+      "hidden": false
     },
     {
       "id": "qtide-tidal",
@@ -440,10 +438,10 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/qtide-tidal.zip",
       "size": 1748457,
-      "updated": 1795369426242,
+      "updated": 1795425589605,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573847246682849390",
       "postUrl": "https://discord.com/channels/916351383341522994/1573847246682849390",
-      "hidden": true
+      "hidden": false
     },
     {
       "id": "edge-player",
@@ -492,6 +490,30 @@
       "updated": 1795423333044,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1572060423400980641",
       "postUrl": "https://discord.com/channels/916351383341522994/1572060423400980641"
+    },
+    {
+      "id": "qtide-deezer",
+      "name": "Qtide \u2014 Deezer",
+      "moduleId": "qtide-deezer",
+      "version": "1.4",
+      "author": "geisselgottes",
+      "description": "Deezer: your own account, FLAC on a HiFi plan",
+      "kind": "source",
+      "tags": [
+        "Sources"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/qtide-deezer.png",
+      "banner": "",
+      "previews": [],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/qtide-deezer.zip",
+      "size": 1747506,
+      "updated": 1795425548502,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573847246682849390",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573847246682849390"
     }
   ]
 }
