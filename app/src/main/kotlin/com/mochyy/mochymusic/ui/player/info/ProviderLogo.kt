@@ -34,6 +34,7 @@ internal fun ProviderLogo(providerId: String, name: String, size: Dp) {
     when (providerId) {
         SourceModules.YouTubeId -> ProviderSquircle(service = AccountService.YOUTUBE_MUSIC, size = size)
         "applemusic" -> ProviderSquircle(service = AccountService.APPLE_MUSIC, size = size)
+        "soundcloud" -> ProviderSquircle(service = AccountService.SOUNDCLOUD, size = size)
         "monochrome" -> Image(
             painter = painterResource(R.drawable.provider_monochrome),
             contentDescription = name,

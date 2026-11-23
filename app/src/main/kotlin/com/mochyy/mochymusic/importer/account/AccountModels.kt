@@ -48,6 +48,13 @@ enum class AccountService(
         label = "YouTube Music",
         loginUrl = null,
         webOrigins = emptyList(),
+    ),
+    SOUNDCLOUD(
+        route = "soundcloud",
+        label = "SoundCloud",
+        loginUrl = "https://soundcloud.com/signin",
+        webOrigins = listOf("https://soundcloud.com", "https://m.soundcloud.com", "https://secure.soundcloud.com"),
+        playerOrigins = setOf("https://soundcloud.com", "https://m.soundcloud.com", "https://api-v2.soundcloud.com"),
     );
 
     companion object {
@@ -143,9 +150,12 @@ class CapturedCredentials {
         val trimmed = value.trim()
         when (name.trim().lowercase()) {
             "authorization" -> {
-                if (!trimmed.startsWith("Bearer ", ignoreCase = true)) return
-                val token = trimmed.substring(7).trim()
-                if (token.length < 20) return
+                val token = when {
+                    trimmed.startsWith("Bearer ", ignoreCase = true) -> trimmed.substring(7).trim()
+                    trimmed.startsWith("OAuth ", ignoreCase = true) -> trimmed.substring(6).trim()
+                    else -> return
+                }
+                if (token.length < 12) return
                 synchronized(this) {
                     bearers.remove(token)
                     bearers[token] = hostOf(url)

@@ -113,7 +113,7 @@ private fun SupportButtons(popup: PopupSheetState) {
             )
             DonatePillButton(
                 text = stringResource(R.string.supplemental_support_star),
-                onClick = { context.openUrl(GithubRepoUrl) },
+                onClick = { popup.showStarRepoSheet() },
                 modifier = Modifier.weight(1f),
             )
         }
@@ -122,5 +122,63 @@ private fun SupportButtons(popup: PopupSheetState) {
             onClick = popup::dismiss,
             quiet = true,
         )
+    }
+}
+
+/** lets users choose between starring official Mochy Music or the Mochy Ext fork on GitHub */
+fun PopupSheetState.showStarRepoSheet() {
+    var sheet: PopupSheetHandle? = null
+    sheet = showWithHandle(
+        buttonBar = {
+            val context = LocalContext.current
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                DonatePillButton(
+                    text = "Official GitHub (Mochy Music)",
+                    onClick = {
+                        context.openUrl(GithubRepoUrl)
+                        sheet?.dismiss()
+                    },
+                )
+                DonatePillButton(
+                    text = "Mochy Ext Fork GitHub",
+                    onClick = {
+                        context.openUrl(com.mochyy.mochymusic.core.updater.ForkGithubRepoUrl)
+                        sheet?.dismiss()
+                    },
+                )
+                DonatePillButton(
+                    text = "Back",
+                    onClick = { sheet?.dismiss() },
+                    quiet = true,
+                )
+            }
+        },
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 14.dp),
+        ) {
+            Text(
+                text = "Star on GitHub",
+                fontSize = 26.sp,
+                lineHeight = 30.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = (-0.8).sp,
+                textAlign = TextAlign.Center,
+                color = Color.White,
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = "Choose which repository you want to star — both Official Mochy Music and the Mochy Ext fork are free and open source!",
+                fontSize = 13.5.sp,
+                lineHeight = 19.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                color = DonateSoftText,
+            )
+            Spacer(Modifier.height(8.dp))
+        }
     }
 }

@@ -42,6 +42,7 @@ internal fun ProviderSquircle(service: AccountService, size: Dp = 40.dp, modifie
             Brush.verticalGradient(listOf(Color(0xFFFA5C70), Color(0xFFFA2D48))),
             zoom = 1.1f,
         )
+        AccountService.SOUNDCLOUD -> ProviderArt(R.drawable.provider_soundcloud, SolidColor(Color(0xFFFF5500)))
     }
     Box(
         modifier = modifier

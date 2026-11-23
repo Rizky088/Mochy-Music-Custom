@@ -44,7 +44,7 @@ class SoundCloudModule : SourceModule, ModuleFields {
         id = Id,
         name = "SoundCloud",
         version = "1.1",
-        description = "Streams public SoundCloud tracks for free without login. Optionally sign in to unlock your SoundCloud Go+ subscription.",
+        description = "Streams public SoundCloud tracks for free without login. Go+ tracks play as 30-second previews unless you sign in with an active SoundCloud Go+ subscription.",
     )
 
     override val signIn = SignInSpec(
@@ -64,7 +64,7 @@ class SoundCloudModule : SourceModule, ModuleFields {
         ),
         desktopSite = false,
         title = "Sign in to SoundCloud",
-        subtitle = "Optional: unlocks full SoundCloud Go+ tracks",
+        subtitle = "Requires an active SoundCloud Go+ subscription to unlock full Go+ tracks",
     )
 
     override val choices = listOf(
@@ -84,7 +84,7 @@ class SoundCloudModule : SourceModule, ModuleFields {
             label = "Skip Go+ 30s previews",
             kind = FieldKind.Toggle,
             default = "false",
-            description = "Automatically fall back to the next provider (e.g. YouTube Music) when a SoundCloud track is a 30-second Go+ preview.",
+            description = "Fall back to the next provider when a track is a 30-second preview. Full tracks (including Go+ tracks when signed in with an active Go+ subscription) still play normally.",
         ),
     )
 

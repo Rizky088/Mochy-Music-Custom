@@ -83,7 +83,8 @@ internal fun ImportSource.service(): AccountService? = when (this) {
     ImportSource.APPLE_MUSIC -> AccountService.APPLE_MUSIC
     ImportSource.TIDAL -> AccountService.TIDAL
     ImportSource.YOUTUBE_MUSIC -> AccountService.YOUTUBE_MUSIC
-    ImportSource.DEEZER, ImportSource.SOUNDCLOUD, ImportSource.OTHER -> null
+    ImportSource.SOUNDCLOUD -> AccountService.SOUNDCLOUD
+    ImportSource.DEEZER, ImportSource.OTHER -> null
 }
 
 /** The services the Imported tab always lists, in the mock's order, even before anything came from them. */

@@ -66,6 +66,7 @@ class AccountImportSession(
         AccountService.APPLE_MUSIC -> AppleMusicConnector
         AccountService.TIDAL -> TidalConnector
         AccountService.YOUTUBE_MUSIC -> null
+        AccountService.SOUNDCLOUD -> SoundCloudConnector
     }
 
     private val _state = MutableStateFlow<AccountImportState>(AccountImportState.Loading("Getting ready…"))
@@ -160,8 +161,13 @@ class AccountImportSession(
     fun onCookies(cookieHeader: String?) {
         if (library != null || cookieHeader.isNullOrBlank()) return
         cookieHeader.split(';').forEach { pair ->
-            if (pair.substringBefore('=').trim().equals("media-user-token", ignoreCase = true)) {
-                credentials.addHeader("media-user-token", pair.substringAfter('=').trim(), "https://music.apple.com/")
+            val key = pair.substringBefore('=').trim()
+            val value = pair.substringAfter('=', "").trim()
+            if (key.equals("media-user-token", ignoreCase = true)) {
+                credentials.addHeader("media-user-token", value, "https://music.apple.com/")
+                connectSignal.trySend(Unit)
+            } else if (service == AccountService.SOUNDCLOUD && key.equals("oauth_token", ignoreCase = true) && value.length >= 12) {
+                credentials.addHeader("authorization", "OAuth $value", "https://soundcloud.com/")
                 connectSignal.trySend(Unit)
             }
         }

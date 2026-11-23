@@ -183,6 +183,7 @@ class PlaylistResync @Inject constructor(
         ImportSource.SPOTIFY -> AccountService.SPOTIFY
         ImportSource.APPLE_MUSIC -> AccountService.APPLE_MUSIC
         ImportSource.TIDAL -> AccountService.TIDAL
+        ImportSource.SOUNDCLOUD -> AccountService.SOUNDCLOUD
         else -> null
     }
 

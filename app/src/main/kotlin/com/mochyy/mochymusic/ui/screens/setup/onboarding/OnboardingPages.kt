@@ -182,6 +182,7 @@ internal fun ProviderListPage(onPick: (AccountService) -> Unit, onBack: () -> Un
                 AccountService.APPLE_MUSIC to stringResource(R.string.onb_provider_apple_desc),
                 AccountService.YOUTUBE_MUSIC to stringResource(R.string.onb_provider_youtube_desc),
                 AccountService.TIDAL to stringResource(R.string.onb_provider_tidal_desc),
+                AccountService.SOUNDCLOUD to "Liked tracks and playlists (public & private)",
             ).forEach { (service, description) ->
                 OnbCard(modifier = Modifier.fillMaxWidth(), onClick = { onPick(service) }, shape = RoundedCornerShape(20.dp)) {
                     Row(
@@ -193,45 +194,6 @@ internal fun ProviderListPage(onPick: (AccountService) -> Unit, onBack: () -> Un
                         Column(modifier = Modifier.weight(1f)) {
                             Text(service.label, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             Text(description, color = Onb.Muted, fontSize = 12.sp, maxLines = 2)
-                        }
-                    }
-                }
-            }
-            if (onPasteLink != null) {
-                OnbCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onPasteLink() },
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.provider_soundcloud),
-                            contentDescription = "SoundCloud",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(SquircleShape),
-                        )
-                        Spacer(Modifier.width(14.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "SoundCloud",
-                                color = Color.White,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                            Text(
-                                text = "Public playlists and albums via link",
-                                color = Onb.Subtitle,
-                                fontSize = 12.sp,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                            )
                         }
                     }
                 }

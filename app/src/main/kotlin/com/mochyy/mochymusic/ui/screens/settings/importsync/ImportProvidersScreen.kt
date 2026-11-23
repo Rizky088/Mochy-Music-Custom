@@ -52,6 +52,7 @@ fun ImportProvidersScreen(
                     AccountService.APPLE_MUSIC to stringResource(R.string.import_provider_apple_music_desc),
                     AccountService.YOUTUBE_MUSIC to stringResource(R.string.import_provider_ytm_desc),
                     AccountService.TIDAL to stringResource(R.string.import_provider_tidal_desc),
+                    AccountService.SOUNDCLOUD to "Liked tracks and playlists (public & private)", 
                 ).map { (service, description) ->
                     SettingsItem(
                         title = { Text(service.label) },

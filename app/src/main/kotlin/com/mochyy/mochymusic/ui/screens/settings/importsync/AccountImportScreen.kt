@@ -171,6 +171,10 @@ internal fun AccountService.onSignInTick(
             onCookies(CookieManager.getInstance().getCookie("https://music.apple.com"))
         }
 
+        AccountService.SOUNDCLOUD -> {
+            onCookies(CookieManager.getInstance().getCookie("https://soundcloud.com"))
+        }
+
         AccountService.TIDAL, AccountService.YOUTUBE_MUSIC -> {
             Unit
         }
