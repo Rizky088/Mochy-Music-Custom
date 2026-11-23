@@ -477,7 +477,8 @@
       "description": "Liquid glass bars + a full-bleed cover player",
       "kind": "look",
       "tags": [
-        "Looks"
+        "Looks",
+        "Players"
       ],
       "paid": false,
       "locked": false,
@@ -488,7 +489,7 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/crystal-glass.zip",
       "size": 286864,
-      "updated": 1795418902051,
+      "updated": 1795423333044,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1572060423400980641",
       "postUrl": "https://discord.com/channels/916351383341522994/1572060423400980641"
     }
