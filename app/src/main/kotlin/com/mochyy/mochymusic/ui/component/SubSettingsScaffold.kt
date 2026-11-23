@@ -57,7 +57,6 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -137,11 +136,8 @@ fun SubSettingsScaffold(
     // top-right, so it reads as one shape warping into a circle rather than one thing fading out
     // while an unrelated icon fades in elsewhere. The two rects are plain layout constants - no
     // live position measurement feeding back into the content a RenderNode is capturing.
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val expandedBarX = PagePadding
     val expandedBarY = totalHeaderHeight
-    val expandedBarWidth = screenWidth - PagePadding * 2
-    val collapsedBarX = screenWidth - PagePadding - BackButtonSize
     val collapsedBarY = statusBarTop + HeaderTopPadding
 
     LaunchedEffect(collapse) {
@@ -304,7 +300,7 @@ fun SubSettingsScaffold(
                 modifier = Modifier
                     .layout { measurable, constraints ->
                         val p = collapse.value
-                        val paneWidthPx = if (constraints.hasBoundedWidth) constraints.maxWidth.toFloat() else screenWidth.toPx()
+                        val paneWidthPx = if (constraints.hasBoundedWidth) constraints.maxWidth.toFloat() else (PagePadding * 2 + BackButtonSize).toPx()
                         val padPx = PagePadding.toPx()
                         val backPx = BackButtonSize.toPx()
                         val barExpandedW = (paneWidthPx - padPx * 2f).coerceAtLeast(backPx)
