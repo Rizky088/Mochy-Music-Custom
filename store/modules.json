@@ -519,9 +519,9 @@
       "id": "afterglow-mirror",
       "name": "AURORA mirror",
       "moduleId": "afterglow-mirror",
-      "version": "3.18",
+      "version": "3.1",
       "author": "claude",
-      "description": "Original AURORA layout with metadata, one-line lyrics, seek bar and codec row shifted down together while preserving internal spacing",
+      "description": "THOSE WHO PREFER CLEAN PLAYER\nOriginal AURORA layout with metadata, one-line lyrics, seek bar and codec row shifted down together while preserving internal spacing",
       "kind": "player",
       "tags": [
         "Players"
@@ -529,13 +529,13 @@
       "paid": false,
       "locked": false,
       "hidden": false,
-      "icon": "",
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/afterglow-mirror.png",
       "banner": "",
       "previews": [],
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/afterglow-mirror.zip",
-      "size": 12931,
-      "updated": 1795450576959,
+      "size": 1679850,
+      "updated": 1795451264280,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1574226905736028180",
       "postUrl": "https://discord.com/channels/916351383341522994/1574226905736028180"
     }
