@@ -111,7 +111,7 @@ private fun AddCheckedContent(ready: LinkCheck.Ready, viewModel: ModulesViewMode
             onAdd = {
                 adding = true
                 scope.launch {
-                    val id = viewModel.install(ready, allowUntrusted = ready.untrustedCode)
+                    val id = runCatching { viewModel.install(ready, allowUntrusted = ready.untrustedCode) }.getOrNull()
                     if (id != null) return@launch onAdded(id)
                     // only a zip's own code can fail here
                     adding = false
@@ -150,7 +150,8 @@ private fun FindModulesContent(viewModel: ModulesViewModel, onAdded: (String) ->
         problem = null
         problemFromFile = false
         scope.launch {
-            show(viewModel.check(target))
+            val result = runCatching { viewModel.check(target) }.getOrElse { LinkCheck.Unreachable }
+            show(result)
             checking = false
         }
     }
@@ -161,7 +162,8 @@ private fun FindModulesContent(viewModel: ModulesViewModel, onAdded: (String) ->
         problem = null
         problemFromFile = true
         scope.launch {
-            show(viewModel.checkZip(uri))
+            val result = runCatching { viewModel.checkZip(uri) }.getOrElse { LinkCheck.Unreachable }
+            show(result)
             checking = false
         }
     }
@@ -189,7 +191,7 @@ private fun FindModulesContent(viewModel: ModulesViewModel, onAdded: (String) ->
                 onAdd = {
                     checking = true
                     scope.launch {
-                        val id = viewModel.install(confirming, allowUntrusted = confirming.untrustedCode)
+                        val id = runCatching { viewModel.install(confirming, allowUntrusted = confirming.untrustedCode) }.getOrNull()
                         if (id != null) return@launch onAdded(id)
                         // only a zip's own code can fail here, so the problem shows under the file button
                         checking = false

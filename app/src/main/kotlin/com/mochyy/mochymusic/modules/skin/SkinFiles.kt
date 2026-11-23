@@ -13,7 +13,7 @@ internal object SkinFiles {
         File(context.filesDir, "module_files/" + moduleId.replace(Regex("[^a-z0-9._-]"), "-"))
 
     /** unpacks the pictures and fonts under [root], the manifest's folder in the zip; null when nothing was kept */
-    fun unpack(context: Context, uri: Uri, moduleId: String, root: String): File? {
+    fun unpack(context: Context, uri: Uri, moduleId: String, root: String): File? = runCatching {
         val target = folderFor(context, moduleId)
         target.deleteRecursively()
         val targetPath = target.canonicalPath + File.separator
@@ -36,8 +36,8 @@ internal object SkinFiles {
                 }
             }
         }
-        return target.takeIf { count > 0 }
-    }
+        target.takeIf { count > 0 }
+    }.getOrNull()
 
     fun delete(context: Context, moduleId: String) {
         folderFor(context, moduleId).deleteRecursively()

@@ -81,7 +81,7 @@ private fun AddItemsContent(id: String, name: String, viewModel: ModulesViewMode
         problem = null
         problemFromFile = fromFile
         scope.launch {
-            val outcome = work()
+            val outcome = runCatching { work() }.getOrElse { ItemsOutcome.Problem(ItemProblem.Broken) }
             adding = false
             show(outcome)
         }

@@ -889,17 +889,25 @@ val MIGRATION_42_43 =
 val MIGRATION_43_44 =
     object : Migration(43, 44) {
         override fun migrate(db: SupportSQLiteDatabase) {
-            // local songs' genre tags for the library's Genres tab, read again for files that came in before
-            db.execSQL("ALTER TABLE `song` ADD COLUMN `genre` TEXT")
+            // local songs' genre tags for the library's Genres tab, checked first so pre-existing columns never fail migration
+            val columns = db.query("PRAGMA table_info(`song`)").use { cursor ->
+                val name = cursor.getColumnIndex("name")
+                buildSet { while (cursor.moveToNext()) add(cursor.getString(name)) }
+            }
+            if ("genre" !in columns) db.execSQL("ALTER TABLE `song` ADD COLUMN `genre` TEXT")
         }
     }
 
 val MIGRATION_44_45 =
     object : Migration(44, 45) {
         override fun migrate(db: SupportSQLiteDatabase) {
-            // who made an imported playlist on its service, so its page can still credit them
-            db.execSQL("ALTER TABLE `imported_playlist` ADD COLUMN `authorName` TEXT")
-            db.execSQL("ALTER TABLE `imported_playlist` ADD COLUMN `authorAvatarUrl` TEXT")
-            db.execSQL("ALTER TABLE `imported_playlist` ADD COLUMN `authorUrl` TEXT")
+            // who made an imported playlist on its service, checked first so pre-existing columns never fail migration
+            val columns = db.query("PRAGMA table_info(`imported_playlist`)").use { cursor ->
+                val name = cursor.getColumnIndex("name")
+                buildSet { while (cursor.moveToNext()) add(cursor.getString(name)) }
+            }
+            if ("authorName" !in columns) db.execSQL("ALTER TABLE `imported_playlist` ADD COLUMN `authorName` TEXT")
+            if ("authorAvatarUrl" !in columns) db.execSQL("ALTER TABLE `imported_playlist` ADD COLUMN `authorAvatarUrl` TEXT")
+            if ("authorUrl" !in columns) db.execSQL("ALTER TABLE `imported_playlist` ADD COLUMN `authorUrl` TEXT")
         }
     }

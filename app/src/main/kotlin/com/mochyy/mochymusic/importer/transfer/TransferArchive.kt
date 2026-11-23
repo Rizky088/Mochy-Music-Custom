@@ -128,7 +128,10 @@ internal object TransferArchive {
                 "d" -> into[doublePreferencesKey(name)] = (value as? Number)?.toDouble() ?: continue
                 "s" -> into[stringPreferencesKey(name)] = value as? String ?: continue
                 "ss" -> into[stringSetPreferencesKey(name)] = (value as? JSONArray)?.strings() ?: continue
-                "bytes" -> into[byteArrayPreferencesKey(name)] = Base64.decode(value as? String ?: continue, Base64.NO_WRAP)
+                "bytes" -> {
+                    val encoded = value as? String ?: continue
+                    runCatching { Base64.decode(encoded, Base64.NO_WRAP) }.getOrNull()?.let { into[byteArrayPreferencesKey(name)] = it }
+                }
             }
         }
     }

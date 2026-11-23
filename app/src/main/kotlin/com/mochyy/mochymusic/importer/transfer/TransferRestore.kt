@@ -84,8 +84,10 @@ object TransferRestore {
         }
         restorePrefs(context, File(staging, TransferArchive.PrefsPrefix))
         File(staging, TransferArchive.SettingsEntry).takeIf { it.exists() }?.let { settings ->
-            val json = JSONObject(settings.readText())
-            runBlocking { context.dataStore.edit { TransferArchive.jsonIntoPreferences(json, it) } }
+            runCatching {
+                val json = JSONObject(settings.readText())
+                runBlocking { context.dataStore.edit { TransferArchive.jsonIntoPreferences(json, it) } }
+            }.onFailure { Log.e(Tag, "Couldn't restore settings.json", it) }
         }
         replaceDatabase(context.getDatabasePath(InternalDatabase.DB_NAME), File(staging, TransferArchive.LibraryEntry))
         markOnboardedOnThisInstall(context)
@@ -116,9 +118,11 @@ object TransferRestore {
     private fun restorePrefs(context: Context, folder: File) {
         for (file in folder.listFiles().orEmpty()) {
             val fileName = TransferArchive.PrefsToCarry[file.name.removeSuffix(".json")] ?: continue
-            val editor = context.getSharedPreferences(fileName, Context.MODE_PRIVATE).edit()
-            TransferArchive.jsonIntoSharedPreferences(JSONObject(file.readText()), editor)
-            editor.commit()
+            runCatching {
+                val editor = context.getSharedPreferences(fileName, Context.MODE_PRIVATE).edit()
+                TransferArchive.jsonIntoSharedPreferences(JSONObject(file.readText()), editor)
+                editor.commit()
+            }.onFailure { Log.e(Tag, "Couldn't restore prefs $fileName", it) }
         }
     }
 

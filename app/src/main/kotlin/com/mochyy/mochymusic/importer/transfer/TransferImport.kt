@@ -152,7 +152,7 @@ class TransferImporter @Inject constructor(
             db.beginTransaction()
             try {
                 if (mover.from.isNotEmpty()) rewritePaths(db, mover)
-                if (localSongs.exists()) missing = relinkLocalSongs(db, JSONArray(localSongs.readText()))
+                if (localSongs.exists()) missing = runCatching { relinkLocalSongs(db, JSONArray(localSongs.readText())) }.getOrDefault(0)
                 db.setTransactionSuccessful()
             } finally {
                 db.endTransaction()
@@ -233,7 +233,7 @@ class TransferImporter @Inject constructor(
     // drops any login that slipped in and moves saved paths, in settings.json and each prefs file alike
     private fun rewriteSettings(file: File, mover: PathMover) {
         if (!file.exists()) return
-        val json = JSONObject(file.readText())
+        val json = runCatching { JSONObject(file.readText()) }.getOrNull() ?: return
         TransferArchive.LoginKeys.forEach { json.remove(it) }
         file.writeText(TransferArchive.mapStrings(json, mover::move).toString())
     }

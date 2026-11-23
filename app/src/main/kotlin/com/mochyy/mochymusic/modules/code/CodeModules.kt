@@ -31,7 +31,7 @@ internal object CodeModules {
     class Loaded(val module: BridgedModule, val folder: String)
 
     /** copies the apk at [path] in the zip out to the cache to be checked; null when it isn't there or is too big */
-    fun extract(context: Context, uri: Uri, path: String): File? {
+    fun extract(context: Context, uri: Uri, path: String): File? = runCatching {
         val dir = File(context.cacheDir, "code_check").apply {
             deleteRecursively()
             mkdirs()
@@ -39,30 +39,29 @@ internal object CodeModules {
         val target = File(dir, "module.apk")
         context.contentResolver.openInputStream(uri)?.use { raw ->
             ZipInputStream(raw.buffered()).use { zip ->
-                generateSequence { zip.nextEntry }.take(MaxZipEntries).firstOrNull { !it.isDirectory && it.name.trimStart('/') == path } ?: return null
-                return target.takeIf { copyCapped(zip, it) }
+                generateSequence { zip.nextEntry }.take(MaxZipEntries).firstOrNull { !it.isDirectory && it.name.trimStart('/') == path } ?: return@runCatching null
+                return@runCatching target.takeIf { copyCapped(zip, it) }
             }
         }
-        return null
-    }
+        null
+    }.onFailure { Timber.tag(Tag).w(it, "Couldn't extract code module apk") }.getOrNull()
 
     /** true when the apk is signed with exactly the keys this copy of mochy is signed with */
     fun signedLikeMochy(context: Context, apk: File): Boolean =
         signedLikeMochy(context, context.packageManager.getPackageArchiveInfo(apk.path, SignatureFlags))
 
     /** true when Android can read the apk and it declares a Mochy module entry point */
-    fun isValidApk(context: Context, apk: File): Boolean {
+    fun isValidApk(context: Context, apk: File): Boolean = runCatching {
         val info = context.packageManager.getPackageArchiveInfo(apk.path, SignatureFlags or PackageManager.GET_META_DATA)
-        return info?.applicationInfo?.metaData?.getString(ModuleRegistry.EntryMetaKey) != null
-    }
+        info?.applicationInfo?.metaData?.getString(ModuleRegistry.EntryMetaKey) != null
+    }.getOrDefault(false)
 
     /** formatted SHA-256 fingerprint of the apk's signing certificate, or null if unsigned */
-    fun signerFingerprint(context: Context, apk: File): String? {
+    fun signerFingerprint(context: Context, apk: File): String? = runCatching {
         val info = context.packageManager.getPackageArchiveInfo(apk.path, SignatureFlags)
         val fps = signers(info).sorted()
-        if (fps.isEmpty()) return null
-        return fps.first().chunked(2).joinToString(":").uppercase()
-    }
+        if (fps.isEmpty()) null else fps.first().chunked(2).joinToString(":").uppercase()
+    }.getOrNull()
 
     /** puts a checked apk in place under [key] and starts it; null when its code can't run in this mochy */
     fun install(context: Context, key: String, apk: File, allowUntrusted: Boolean = false): Loaded? {

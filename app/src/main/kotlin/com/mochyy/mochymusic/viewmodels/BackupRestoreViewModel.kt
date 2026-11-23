@@ -77,16 +77,17 @@ class BackupRestoreViewModel @Inject constructor(
     fun restore(context: Context, uri: Uri) {
         runCatching {
             Timber.tag("RESTORE").i("Starting restore from URI: $uri")
+            var foundAny = false
             context.applicationContext.contentResolver.openInputStream(uri)?.use { raw ->
                 raw.zipInputStream().use { inputStream ->
                     var entry = tryOrNull { inputStream.nextEntry }
-                    var foundAny = false
                     while (entry != null) {
                         Timber.tag("RESTORE").i("Found zip entry: ${entry.name}")
                         when (entry.name) {
                             SETTINGS_FILENAME -> {
                                 Timber.tag("RESTORE").i("Restoring settings to datastore")
                                 foundAny = true
+                                (context.filesDir / "datastore").mkdirs()
                                 (context.filesDir / "datastore" / SETTINGS_FILENAME).outputStream()
                                     .use { outputStream ->
                                         inputStream.copyTo(outputStream)
@@ -96,9 +97,12 @@ class BackupRestoreViewModel @Inject constructor(
                                 Timber.tag("RESTORE").i("Restoring DB (entry = ${entry.name})")
                                 foundAny = true
 
-                                val dbPath = database.openHelper.writableDatabase.path
+                                val dbPath = requireNotNull(database.openHelper.writableDatabase.path) { "Missing database path" }
                                 runBlocking(Dispatchers.IO) { database.checkpoint() }
                                 database.close()
+                                listOf("-wal", "-shm", "-journal").forEach { suffix ->
+                                    java.io.File(dbPath + suffix).delete()
+                                }
                                 Timber.tag("RESTORE").i("Overwriting DB at path: $dbPath")
                                 FileOutputStream(dbPath).use { outputStream ->
                                     inputStream.copyTo(outputStream)
@@ -111,17 +115,22 @@ class BackupRestoreViewModel @Inject constructor(
                         }
                         entry = tryOrNull { inputStream.nextEntry }
                     }
-                    if (!foundAny) {
-                        Timber.tag("RESTORE").w("No expected entries found in archive")
-                    }
                 }
-            } ?: run {
-                Timber.tag("RESTORE").e("Could not open input stream for uri: $uri")
+            } ?: error("Could not open input stream for uri: $uri")
+
+            if (!foundAny) {
+                Timber.tag("RESTORE").w("No expected entries found in archive")
+                com.mochyy.mochymusic.ui.component.TopToaster.error(context.getString(R.string.restore_failed))
+                return@runCatching
             }
 
             context.stopService(Intent(context, MusicService::class.java))
             context.filesDir.resolve(PERSISTENT_QUEUE_FILE).delete()
-            context.startActivity(Intent(context, MainActivity::class.java))
+            context.startActivity(
+                Intent(context, MainActivity::class.java).addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                )
+            )
             exitProcess(0)
         }.onFailure {
             reportException(it)
