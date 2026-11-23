@@ -69,10 +69,10 @@
     {
       "id": "yeno-orbit-tablet",
       "name": "Yeno's Orbit Tablet",
-      "moduleId": "yeno-orbit-dpi-fix",
-      "version": "1.10.10",
+      "moduleId": "yeno-orbit-tablet-dpi-fix",
+      "version": "1.10.12",
       "author": "Yeno",
-      "description": "DPI fix edition for tall phones: the whole player is drawn 12% larger and the sky is stretched so it reaches the top and bottom edges of the screen. Your music in orbit. A circular cover ringed by a visualizer that glows brighter as the song plays, a progress arc with a glowing moon, a twinkling starfield, a live seek bar and controls on frosted glass. v1.3: make it yours - 6 colour themes, 4 visualizer rings, sky, seek bar, controls, title and lyrics styles, spinning cover, song change animations, background variants, plus the queue bar and audio format badge. New: four more space backgrounds - pulsar, eclipse, solar system and constellations - each in its own corner of the sky, on top of the galaxy, black hole, deep nebula and aurora. Tap the artist name or the song title to open their page. Top and bottom padding sliders fit the player to any screen.",
+      "description": "Tablet DPI fix edition: the whole player is drawn larger and the sky is stretched so it reaches the top and bottom edges of the screen, in landscape and portrait. Your music in orbit. A circular cover ringed by a visualizer that glows brighter as the song plays, a progress arc with a glowing moon, a twinkling starfield, a live seek bar and controls on frosted glass. v1.3: make it yours - 6 colour themes, 4 visualizer rings, sky, seek bar, controls, title and lyrics styles, spinning cover, song change animations, background variants, plus the queue bar and audio format badge. New: four more space backgrounds - pulsar, eclipse, solar system and constellations - each in its own corner of the sky, on top of the galaxy, black hole, deep nebula and aurora. Tap the artist name or the song title to open their page. Top and bottom padding sliders fit the player to any screen. Tablet edition: everything enlarged to fill a tablet screen, and the volume bar sits clear of the play button.",
       "kind": "player",
       "tags": [
         "Players"
@@ -84,8 +84,8 @@
       "previews": [],
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/yeno-orbit-tablet.zip",
-      "size": 596647,
-      "updated": 1795424746007,
+      "size": 599251,
+      "updated": 1795425067058,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
       "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
     },
