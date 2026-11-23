@@ -53,6 +53,12 @@ fun IntegrationsScreen(navController: NavController) {
                 onClick = { navController.navigate(scrobbleServiceRoute(ScrobbleSite.LIBREFM)) },
             )
             IntegrationRow(
+                name = ScrobbleSite.LISTENBRAINZ.label,
+                description = "Free open-source scrobbling with your ListenBrainz user token",
+                icon = R.drawable.integration_listenbrainz,
+                onClick = { navController.navigate(scrobbleServiceRoute(ScrobbleSite.LISTENBRAINZ)) },
+            )
+            IntegrationRow(
                 name = stringResource(R.string.module_youtube_name),
                 description = stringResource(R.string.module_youtube_desc),
                 icon = R.drawable.provider_youtube_music,

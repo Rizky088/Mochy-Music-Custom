@@ -2,6 +2,9 @@
 
 package com.mochyy.mochymusic.ui.screens.playlist
 
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
+
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -65,10 +68,13 @@ internal fun PickRow(
     thumbnailUrl: String?,
     inPlaylist: Boolean,
     picks: AddMusicPicks,
+    preview: AddMusicPreviewPlayer,
     toMetadata: () -> MediaMetadata,
 ) {
     // Only the row whose tick changed recomposes, not every row on screen.
     val picked by remember(id) { derivedStateOf { id in picks.ids } }
+    val isPreviewPlaying = preview.activeId == id
+    val isPreviewLoading = preview.loadingId == id
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -86,15 +92,44 @@ internal fun PickRow(
     ) {
         PickBox(checked = inPlaylist || picked)
         Spacer(Modifier.width(14.dp))
-        AsyncImage(
-            model = thumbnailUrl?.resize(144, 144),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(48.dp)
                 .clip(RoundedCornerShape(11.dp))
-                .background(MenuRowSurface),
-        )
+                .background(MenuRowSurface)
+                .clickable { preview.toggle(toMetadata()) },
+        ) {
+            AsyncImage(
+                model = thumbnailUrl?.resize(144, 144),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(48.dp),
+            )
+            if (isPreviewPlaying || isPreviewLoading) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(Color.Black.copy(alpha = 0.52f)),
+                ) {
+                    if (isPreviewLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(R.drawable.pause),
+                            contentDescription = "Stop preview",
+                            tint = Color.White,
+                            modifier = Modifier.size(22.dp),
+                        )
+                    }
+                }
+            }
+        }
         Spacer(Modifier.width(13.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -106,12 +141,40 @@ internal fun PickRow(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = if (inPlaylist) "In this playlist · $artists" else artists,
-                color = Color.White.copy(alpha = 0.55f),
+                text = when {
+                    isPreviewPlaying -> "Previewing · $artists"
+                    inPlaylist -> "In this playlist · $artists"
+                    else -> artists
+                },
+                color = if (isPreviewPlaying) Color.White.copy(alpha = 0.85f) else Color.White.copy(alpha = 0.55f),
                 fontSize = 12.5.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+        }
+        Spacer(Modifier.width(8.dp))
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(34.dp)
+                .clip(CircleShape)
+                .background(if (isPreviewPlaying) Color.White else MenuRowSurface)
+                .clickable { preview.toggle(toMetadata()) },
+        ) {
+            if (isPreviewLoading) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(16.dp),
+                )
+            } else {
+                Icon(
+                    painter = painterResource(if (isPreviewPlaying) R.drawable.pause else R.drawable.play),
+                    contentDescription = if (isPreviewPlaying) "Stop preview" else "Preview song",
+                    tint = if (isPreviewPlaying) Color.Black else Color.White.copy(alpha = 0.85f),
+                    modifier = Modifier.size(17.dp),
+                )
+            }
         }
     }
 }

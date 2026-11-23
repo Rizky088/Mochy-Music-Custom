@@ -175,8 +175,13 @@ class ModulesViewModel @Inject constructor(
     }
 
     fun signOut(id: String) {
-        registry.module(id)?.signOut()
-        modules.setEnabled(id, false)
+        val mod = registry.module(id)
+        mod?.signOut()
+        if (mod is com.mochyy.mochymusic.modules.soundcloud.SoundCloudModule) {
+            modules.refresh()
+        } else {
+            modules.setEnabled(id, false)
+        }
         _steps.value = emptyList()
     }
 

@@ -5435,6 +5435,7 @@ class MusicService :
         val youTube = com.mochyy.mochymusic.modules.SourceModules.YouTubeId
         resolvedSourceIds[mediaId] = youTube
         forgetModuleFacts(mediaId)
+        com.mochyy.mochymusic.modules.soundcloud.SoundCloudPlaybackState.update(mediaId, false)
         notePlayingFrom(mediaId, PlayingFrom(youTube, "YouTube Music"))
         return null
     }
@@ -5450,6 +5451,9 @@ class MusicService :
         val cacheKey = "$ModuleCacheKeyPrefix${module.info.id}|$mediaId"
         moduleStreamHeaders[cacheKey] = stream.headers
         streamFacts.update { it + (mediaId to StreamFacts(codec = stream.codec, fromModule = true)) }
+        val isScGoPlusPreview = module.info.id == com.mochyy.mochymusic.modules.soundcloud.SoundCloudModule.Id &&
+            stream.qualityLabel.contains(com.mochyy.mochymusic.modules.soundcloud.SoundCloudModule.GoPlusPreviewTag)
+        com.mochyy.mochymusic.modules.soundcloud.SoundCloudPlaybackState.update(mediaId, isScGoPlusPreview)
         notePlayingFrom(mediaId, PlayingFrom(module.info.id, module.info.name, stream.qualityLabel, stream.matched.id))
         Timber.tag("StreamFetch").i("$mediaId plays from ${module.info.name}: ${stream.matched.title} · ${stream.qualityLabel}")
         return com.mochyy.mochymusic.playback.custom.CustomStreamResult(

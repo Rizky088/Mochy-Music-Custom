@@ -37,11 +37,19 @@ class PlayerUiState(connection: PlayerConnection) {
     val trackInfo: StateFlow<TrackInfo> = combine(
         connection.mediaMetadata,
         connection.currentSong,
-    ) { metadata, song ->
+        com.mochyy.mochymusic.modules.soundcloud.SoundCloudPlaybackState.snippedMediaIds,
+    ) { metadata, song, snippedIds ->
+        val baseArtist = metadata?.artists?.joinToString { it.name }.orEmpty()
+        val isScGoPlusPreview = metadata?.id != null && metadata.id in snippedIds
+        val displayArtist = if (isScGoPlusPreview) {
+            if (baseArtist.isBlank()) "SoundCloud Go+ Preview (30s)" else "$baseArtist · Go+ Preview (30s)"
+        } else {
+            baseArtist
+        }
         TrackInfo(
             mediaId = metadata?.id.orEmpty(),
             title = metadata?.title.orEmpty(),
-            artist = metadata?.artists?.joinToString { it.name }.orEmpty(),
+            artist = displayArtist,
             album = metadata?.album?.title.orEmpty(),
             thumbnailUrl = metadata?.thumbnailUrl,
             liked = song?.song?.liked == true,

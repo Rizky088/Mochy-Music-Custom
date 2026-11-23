@@ -46,6 +46,12 @@ class IntegrationsViewModel @Inject constructor(
     suspend fun signIn(site: ScrobbleSite, username: String, password: String): String =
         scrobbler.signIn(site, username, password)
 
+    suspend fun signInListenBrainz(token: String, serverUrl: String): String =
+        scrobbler.signInListenBrainz(token, serverUrl)
+
+    suspend fun saveLastFmCustomCredentials(apiKey: String, secret: String) =
+        scrobbler.saveLastFmCustomCredentials(apiKey, secret)
+
     fun signOut(site: ScrobbleSite) {
         viewModelScope.launch { scrobbler.signOut(site) }
     }

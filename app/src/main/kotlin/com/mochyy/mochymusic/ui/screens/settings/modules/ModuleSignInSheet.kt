@@ -93,6 +93,17 @@ private fun ModuleSignInContent(
                     onApplePageProbe = { viewModel.onApplePageProbe(id, it, onDone) },
                     onCookies = { viewModel.onAppleCookies(id, it, onDone) },
                 )
+                if (id == com.mochyy.mochymusic.modules.soundcloud.SoundCloudModule.Id) {
+                    val cookies = android.webkit.CookieManager.getInstance().getCookie("https://soundcloud.com")
+                    cookies?.split(';')?.forEach { pair ->
+                        if (pair.substringBefore('=').trim().equals("oauth_token", ignoreCase = true)) {
+                            val token = pair.substringAfter('=').trim()
+                            if (token.length >= 10) {
+                                viewModel.onSignInHeader(id, "authorization", "OAuth $token", "https://soundcloud.com/", onDone)
+                            }
+                        }
+                    }
+                }
             },
             onExit = onClose,
             onUrlChange = { url = it },

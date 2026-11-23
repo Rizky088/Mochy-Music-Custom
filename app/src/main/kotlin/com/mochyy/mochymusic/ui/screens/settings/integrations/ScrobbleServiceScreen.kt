@@ -73,6 +73,20 @@ fun ScrobbleServiceScreen(
         }
     }
 
+    val uriHandler = LocalUriHandler.current
+    fun openLastFmKeySheet() {
+        var sheet: PopupSheetHandle? = null
+        sheet = overlay.showWithHandle {
+            LastFmCustomKeySheetContent(
+                viewModel = viewModel,
+                onSaved = {
+                    sheet?.dismiss()
+                    Toast.makeText(context, "Last.fm API settings saved", Toast.LENGTH_SHORT).show()
+                },
+            )
+        }
+    }
+
     SubSettingsScaffold(
         title = site.label,
         onBack = { navController.navigateUp() },
@@ -85,6 +99,36 @@ fun ScrobbleServiceScreen(
             onSignIn = ::signIn,
             onSignOut = { viewModel.signOut(site) },
         )
+        if (site == ScrobbleSite.LASTFM) {
+            Spacer(Modifier.height(16.dp))
+            SettingsGroup(
+                title = "Last.fm API Notice & Free Alternatives",
+                style = SettingsGroupStyle.Grouped,
+                items = listOf(
+                    SettingsItem(
+                        title = { Text(if (ScrobbleSite.customLastFmKey.isNotBlank()) "Custom Last.fm Pro API key (Active)" else "Enter your own Last.fm Pro API key") },
+                        descriptionText = "Last.fm now requires a Pro API key for direct sign-in. Paste your own key & secret here while community fork approval is pending.",
+                        icon = painterResource(R.drawable.key),
+                        iconShape = CircleShape,
+                        onClick = ::openLastFmKeySheet,
+                    ),
+                    SettingsItem(
+                        title = { Text("Use Pano Scrobbler (Free workaround)") },
+                        descriptionText = "Open-source Android app that scrobbles Mochy Ext to Last.fm for free via media notifications. Tap to open GitHub.",
+                        icon = painterResource(R.drawable.web_link),
+                        iconShape = CircleShape,
+                        onClick = { uriHandler.openUri("https://github.com/kawaiiDango/pano-scrobbler") },
+                    ),
+                    SettingsItem(
+                        title = { Text("Try ListenBrainz (Free, built-in)") },
+                        descriptionText = "Free open-source scrobbling with no API key required — just paste your ListenBrainz user token.",
+                        icon = painterResource(R.drawable.music_history),
+                        iconShape = CircleShape,
+                        onClick = { navController.navigate(scrobbleServiceRoute(ScrobbleSite.LISTENBRAINZ)) },
+                    ),
+                ),
+            )
+        }
         Spacer(Modifier.height(16.dp))
 
         // shared by both services, so it reads the same on either page
@@ -104,7 +148,7 @@ fun ScrobbleServiceScreen(
                     onClick = { onNowPlayingChange(!nowPlaying) },
                     trailingContent = { AppSwitch(checked = nowPlaying, onCheckedChange = onNowPlayingChange) },
                 ),
-                SettingsItem(
+                if (site != ScrobbleSite.LISTENBRAINZ) SettingsItem(
                     title = { Text(sendLikesTitle) },
                     highlightKey = "Send likes",
                     searchText = sendLikesTitle,
@@ -113,7 +157,7 @@ fun ScrobbleServiceScreen(
                     iconShape = CircleShape,
                     onClick = { onSendLikesChange(!sendLikes) },
                     trailingContent = { AppSwitch(checked = sendLikes, onCheckedChange = onSendLikesChange) },
-                ),
+                ) else null,
                 if (pending > 0) {
                     val waiting = pluralStringResource(R.plurals.scrobble_plays_waiting, pending, pending)
                     SettingsItem(

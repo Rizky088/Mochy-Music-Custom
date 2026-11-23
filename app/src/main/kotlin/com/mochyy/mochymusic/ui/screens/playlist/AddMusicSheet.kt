@@ -180,6 +180,7 @@ private fun AddMusicContent(playlistId: String, startInLibrary: Boolean, picks: 
     }
 
     val added = inPlaylist ?: emptySet()
+    val preview = rememberAddMusicPreviewPlayer()
 
     Column(
         modifier = Modifier
@@ -241,9 +242,9 @@ private fun AddMusicContent(playlistId: String, startInLibrary: Boolean, picks: 
                 .weight(1f),
         ) {
             when {
-                needle.isNotEmpty() -> searchResults(search, added, picks)
-                tab == AddMusicTab.Suggested -> suggestedSongs(suggestions, inPlaylist, picks)
-                else -> librarySongs(library, added, picks)
+                needle.isNotEmpty() -> searchResults(search, added, picks, preview)
+                tab == AddMusicTab.Suggested -> suggestedSongs(suggestions, inPlaylist, picks, preview)
+                else -> librarySongs(library, added, picks, preview)
             }
         }
     }
@@ -252,6 +253,7 @@ private fun LazyListScope.searchResults(
     results: SongSearchResults?,
     added: Set<String>,
     picks: AddMusicPicks,
+    preview: AddMusicPreviewPlayer,
 ) {
     if (results == null) {
         item(key = "search-bones") { PickRowBones() }
@@ -260,7 +262,7 @@ private fun LazyListScope.searchResults(
 
     if (results.library.isNotEmpty()) {
         item(key = "library-label") { SheetLabel(stringResource(R.string.your_library), Modifier.padding(bottom = 6.dp)) }
-        librarySongRows("library-hit", results.library, added, picks)
+        librarySongRows("library-hit", results.library, added, picks, preview)
         item(key = "library-gap") { Spacer(Modifier.height(14.dp)) }
     }
 
@@ -272,7 +274,7 @@ private fun LazyListScope.searchResults(
         }
         online.isNotEmpty() -> {
             item(key = "online-label") { SheetLabel(stringResource(R.string.songs), Modifier.padding(bottom = 6.dp)) }
-            onlineSongRows("online", online, added, picks)
+            onlineSongRows("online", online, added, picks, preview)
         }
         results.onlineFailed -> item(key = "online-failed") {
             SheetNote(stringResource(R.string.supplemental_online_search_failed))
@@ -287,10 +289,11 @@ private fun LazyListScope.suggestedSongs(
     suggestions: List<SongItem>?,
     inPlaylist: Set<String>?,
     picks: AddMusicPicks,
+    preview: AddMusicPreviewPlayer,
 ) {
     when {
         suggestions == null -> item(key = "suggested-bones") { PickRowBones() }
-        suggestions.isNotEmpty() -> onlineSongRows("suggested", suggestions, inPlaylist.orEmpty(), picks)
+        suggestions.isNotEmpty() -> onlineSongRows("suggested", suggestions, inPlaylist.orEmpty(), picks, preview)
         inPlaylist?.isEmpty() == true -> item(key = "suggested-empty") {
             SheetNote(stringResource(R.string.supplemental_playlist_suggestions_empty))
         }
@@ -300,13 +303,18 @@ private fun LazyListScope.suggestedSongs(
     }
 }
 
-private fun LazyListScope.librarySongs(library: List<Song>?, added: Set<String>, picks: AddMusicPicks) {
+private fun LazyListScope.librarySongs(
+    library: List<Song>?,
+    added: Set<String>,
+    picks: AddMusicPicks,
+    preview: AddMusicPreviewPlayer,
+) {
     when {
         library == null -> item(key = "library-bones") { PickRowBones() }
         library.isEmpty() -> item(key = "library-empty") {
             SheetNote(stringResource(R.string.supplemental_library_search_empty))
         }
-        else -> librarySongRows("library", library, added, picks)
+        else -> librarySongRows("library", library, added, picks, preview)
     }
 }
 
@@ -315,6 +323,7 @@ private fun LazyListScope.librarySongRows(
     songs: List<Song>,
     added: Set<String>,
     picks: AddMusicPicks,
+    preview: AddMusicPreviewPlayer,
 ) {
     items(items = songs, key = { "$keyPrefix-${it.id}" }) { song ->
         PickRow(
@@ -324,6 +333,7 @@ private fun LazyListScope.librarySongRows(
             thumbnailUrl = song.song.thumbnailUrl,
             inPlaylist = song.id in added,
             picks = picks,
+            preview = preview,
             toMetadata = { song.toMediaMetadata() },
         )
     }
@@ -334,6 +344,7 @@ private fun LazyListScope.onlineSongRows(
     songs: List<SongItem>,
     added: Set<String>,
     picks: AddMusicPicks,
+    preview: AddMusicPreviewPlayer,
 ) {
     items(items = songs, key = { "$keyPrefix-${it.id}" }) { song ->
         PickRow(
@@ -343,6 +354,7 @@ private fun LazyListScope.onlineSongRows(
             thumbnailUrl = song.thumbnail,
             inPlaylist = song.id in added,
             picks = picks,
+            preview = preview,
             toMetadata = { song.toMediaMetadata() },
         )
     }

@@ -47,9 +47,12 @@ class GlassState {
      */
     var renderNode by mutableStateOf<Any?>(null)
     var rootPosition by mutableStateOf(Offset.Zero)
+    var contentVersion by mutableIntStateOf(0)
+    internal var recorded: Boolean = false
 
     // drops the recorded screen display list when the window hides so gpu textures can be reclaimed
     fun discard() {
+        recorded = false
         val node = renderNode ?: return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) glassNodeDiscard(node)
     }
@@ -180,6 +183,10 @@ fun Modifier.glassRoot(state: GlassState, isActive: () -> Boolean = { true }): M
                 glassNodeEndRecording(node)
 
                 if (glassNodeHasContent(node)) {
+                    if (!state.recorded) {
+                        state.recorded = true
+                        state.contentVersion++
+                    }
                     drawIntoCanvas { it.nativeCanvas.drawGlassNode(node) }
                 }
             } else {

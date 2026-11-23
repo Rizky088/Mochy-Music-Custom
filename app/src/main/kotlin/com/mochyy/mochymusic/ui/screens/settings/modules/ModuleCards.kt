@@ -192,7 +192,12 @@ internal fun AccountActions(entry: ModuleEntry, checking: Boolean, onSignIn: () 
             modifier = Modifier.weight(1f),
             onClick = onCheck,
         )
-        if (needsAccount) PillButton(stringResource(R.string.module_sign_out), icon = R.drawable.close, modifier = Modifier.weight(1f), onClick = onSignOut)
+        val optionalSc = module as? com.mochyy.mochymusic.modules.soundcloud.SoundCloudModule
+        if (optionalSc != null && !optionalSc.hasAccountLogin) {
+            PillButton("Sign in (Go+)", icon = R.drawable.login, filled = true, modifier = Modifier.weight(1f), onClick = onSignIn)
+        } else if (needsAccount) {
+            PillButton(stringResource(R.string.module_sign_out), icon = R.drawable.close, modifier = Modifier.weight(1f), onClick = onSignOut)
+        }
     }
 }
 

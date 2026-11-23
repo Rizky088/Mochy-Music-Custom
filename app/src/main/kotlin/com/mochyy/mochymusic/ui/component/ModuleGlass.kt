@@ -78,6 +78,7 @@ internal fun ModuleChromeGlass(
                 .fillMaxSize()
                 .graphicsLayer {
                     clip = true
+                    if (size.width <= 0f || size.height <= 0f) return@graphicsLayer
                     // read here, so the pill's slide and lift only rebuild the effect while they move and never recompose
                     val lit = if (glass.drawsPill) pill?.invoke(Size(size.width - margin * 2f, size.height - margin * 2f)) else null
                     if (cache.effect == null || cache.glass !== glass || cache.width != size.width || cache.height != size.height ||
@@ -99,6 +100,9 @@ internal fun ModuleChromeGlass(
                     renderEffect = cache.effect
                 },
         ) {
+            // Subscribe to first-frame / post-resume content readiness so HWUI always links the RenderNode
+            @Suppress("UNUSED_VARIABLE")
+            val readyTick = state.contentVersion
             val node = state.renderNode ?: return@Canvas
             if (!glassNodeHasContent(node)) return@Canvas
             translate(left = -(position.x - state.rootPosition.x), top = -(position.y - state.rootPosition.y)) {

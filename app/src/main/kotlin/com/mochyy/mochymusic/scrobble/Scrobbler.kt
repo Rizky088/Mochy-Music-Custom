@@ -55,8 +55,13 @@ class Scrobbler @Inject constructor(
     val pending: StateFlow<Int> get() = queue.size
 
     init {
-        // plays left from last time go out as soon as the app is back
+        // load optional custom Last.fm API credentials and drain any pending scrobbles
         scope.launch {
+            val prefs = context.dataStore.data.first()
+            ScrobbleSite.updateLastFmCustomCredentials(
+                prefs[com.mochyy.mochymusic.constants.LastFmCustomApiKeyKey].orEmpty(),
+                prefs[com.mochyy.mochymusic.constants.LastFmCustomSecretKey].orEmpty(),
+            )
             queue.load()
             if (queue.size.value > 0) send()
         }
@@ -66,9 +71,14 @@ class Scrobbler @Inject constructor(
         if (OfflineMode.isOn) return
         scope.launch {
             if (context.dataStore.data.first()[LastFMUseNowPlaying] == false) return@launch
+            val lbUrl = context.dataStore.data.first()[com.mochyy.mochymusic.constants.ListenBrainzUrlKey]
             for ((site, session) in sites(includePaused = false)) {
                 try {
-                    site.api.updateNowPlaying(session, track)
+                    if (site == ScrobbleSite.LISTENBRAINZ) {
+                        ListenBrainzClient.submitNowPlaying(lbUrl ?: ListenBrainzClient.DefaultServerUrl, session, track)
+                    } else {
+                        site.api.updateNowPlaying(session, track)
+                    }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -96,6 +106,7 @@ class Scrobbler @Inject constructor(
         scope.launch {
             if (context.dataStore.data.first()[LastFMUseSendLikes] != true) return@launch
             for ((site, session) in sites(includePaused = false)) {
+                if (site == ScrobbleSite.LISTENBRAINZ) continue
                 try {
                     site.api.love(session, artist, track, love)
                 } catch (e: CancellationException) {
@@ -117,13 +128,18 @@ class Scrobbler @Inject constructor(
         // offline mode keeps the app off the network; the next play after it's turned off sends these
         if (OfflineMode.isOn) return@withLock true
         var allSent = true
+        val lbUrl = context.dataStore.data.first()[com.mochyy.mochymusic.constants.ListenBrainzUrlKey]
         // paused services still get plays from before the pause
         for ((site, session) in sites(includePaused = true)) {
             while (true) {
                 val batch = queue.nextFor(site, Audioscrobbler.MAX_BATCH)
                 if (batch.isEmpty()) break
                 try {
-                    site.api.scrobble(session, batch.map { it.track to it.startedAt })
+                    if (site == ScrobbleSite.LISTENBRAINZ) {
+                        ListenBrainzClient.submitListens(lbUrl ?: ListenBrainzClient.DefaultServerUrl, session, batch.map { it.track to it.startedAt })
+                    } else {
+                        site.api.scrobble(session, batch.map { it.track to it.startedAt })
+                    }
                     queue.markSent(site, batch)
                 } catch (e: CancellationException) {
                     throw e
@@ -166,6 +182,34 @@ class Scrobbler @Inject constructor(
             it[site.enabledKey] = true
         }
         return session.name
+    }
+
+    suspend fun signInListenBrainz(token: String, serverUrl: String): String {
+        val cleanUrl = ListenBrainzClient.normalizeServer(serverUrl)
+        val cleanToken = token.trim()
+        val username = ListenBrainzClient.validateToken(cleanUrl, cleanToken)
+        context.dataStore.edit {
+            it[ScrobbleSite.LISTENBRAINZ.sessionKey] = cleanToken
+            it[ScrobbleSite.LISTENBRAINZ.usernameKey] = username
+            it[ScrobbleSite.LISTENBRAINZ.enabledKey] = true
+            it[com.mochyy.mochymusic.constants.ListenBrainzUrlKey] = cleanUrl
+        }
+        return username
+    }
+
+    suspend fun saveLastFmCustomCredentials(apiKey: String, secret: String) {
+        val k = apiKey.trim()
+        val s = secret.trim()
+        context.dataStore.edit {
+            if (k.isNotEmpty() && s.isNotEmpty()) {
+                it[com.mochyy.mochymusic.constants.LastFmCustomApiKeyKey] = k
+                it[com.mochyy.mochymusic.constants.LastFmCustomSecretKey] = s
+            } else {
+                it.remove(com.mochyy.mochymusic.constants.LastFmCustomApiKeyKey)
+                it.remove(com.mochyy.mochymusic.constants.LastFmCustomSecretKey)
+            }
+        }
+        ScrobbleSite.updateLastFmCustomCredentials(k, s)
     }
 
     suspend fun signOut(site: ScrobbleSite) {

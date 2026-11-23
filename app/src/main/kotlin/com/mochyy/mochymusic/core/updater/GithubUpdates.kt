@@ -69,11 +69,11 @@ data class FullVersion(
         return buildNumber.compareTo(other.buildNumber)
     }
 
-    // what people read: 8.4.5, 8.4.51 for a fork patch, or 8.4.5.1 for a nightly
+    // what people read: 8.4.6, 8.4.6.1 for a fork update, or 8.4.6.1 for a nightly
     val name: String
         get() = when {
-            subPatch > 0 && nightly > 0 -> "$major.$minor.$patch$subPatch.$nightly"
-            subPatch > 0 -> "$major.$minor.$patch$subPatch"
+            subPatch > 0 && nightly > 0 -> "$major.$minor.$patch.$subPatch.$nightly"
+            subPatch > 0 -> "$major.$minor.$patch.$subPatch"
             nightly > 0 -> "$major.$minor.$patch.$nightly"
             else -> "$major.$minor.$patch"
         }
