@@ -2,7 +2,7 @@
 
 > **Unofficial Community Fork** — Built on top of [**Mochy Music**](https://github.com/realidkroo/mochy-music) by **realidkroo** (Roo), **Keycii** (key), and upstream contributors. Free and open source under **GPL-3.0**.
 
-**Mochy Ext** is an extended, personal/community fork of Mochy Music (`com.mochyy.mochymusic.ext`) that installs side-by-side alongside official Mochy. It tracks upstream releases while adding wallpaper-matched theming, a self-hosted Module Store, Google Drive cloud backup, and extra crash/low-RAM protections.
+**Mochy Ext** is a free, open-source community fork of Mochy Music that installs side-by-side alongside Official Mochy. It stays synced with upstream updates while adding extra visual customization, font options, song hiding, a community Module Store, and Google Drive backups.
 
 <p>
   <a href="https://github.com/Rizky088/Mochy-Music-Custom/releases/latest">
@@ -11,8 +11,11 @@
   <a href="https://github.com/realidkroo/mochy-music">
     <img src="https://img.shields.io/badge/Upstream-Mochy%20Music-cba6f7?style=for-the-badge" alt="Upstream Mochy Music" />
   </a>
+  <a href="https://discord.com/users/967219459137871893">
+    <img src="https://img.shields.io/badge/Bug%20Reports-Discord%20DM-5865F2?style=for-the-badge" alt="Report Bugs on Discord" />
+  </a>
   <a href="https://discord.gg/4DAafDMxZb">
-    <img src="https://img.shields.io/badge/Official%20Mochy-Discord-5865F2?style=for-the-badge" alt="Official Mochy Discord" />
+    <img src="https://img.shields.io/badge/Official%20Mochy-Discord-313244?style=for-the-badge" alt="Official Mochy Discord" />
   </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/License-GPL--3.0-a6e3a1?style=for-the-badge" alt="GPL-3.0 License" />
@@ -20,33 +23,39 @@
 </p>
 
 > [!IMPORTANT]
-> **Support & Bug Reports:** Please **do not** report Mochy Ext bugs in the official Mochy Music repository or official support channels. Open an issue in [Rizky088/Mochy-Music-Custom/issues](https://github.com/Rizky088/Mochy-Music-Custom/issues) instead. If you want the official, unmodified app, download it directly from [realidkroo/mochy-music](https://github.com/realidkroo/mochy-music/releases).
+> **Support & Bug Reports:** Please **do not** report Mochy Ext bugs in the official Mochy Music repo or official Mochy support channels.
+> Instead, report Mochy Ext bugs on [**GitHub Issues**](https://github.com/Rizky088/Mochy-Music-Custom/issues) or reach out directly on [**Discord**](https://discord.com/users/967219459137871893).
+> If you want the official, unmodified app, download it from [**realidkroo/mochy-music**](https://github.com/realidkroo/mochy-music/releases).
 
 ---
 
-## What Is Different in Mochy Ext?
+## What's Different in Mochy Ext?
 
-- **Side-by-Side Install:** Uses package ID `com.mochyy.mochymusic.ext`, so you can keep Official Mochy installed without conflicts.
-- **Unified Wallpaper-Matched UI:** Extracts a consistent dark palette from your wallpaper across Home, Library, Profile, Stats/Recap, Settings, Dev Space, and the Module Store, plus optional seamless 1080p live video wallpaper support.
-- **Community Module Store:** Self-hosted module catalog with multi-tag filtering, creator-approval removal policy (any module listed without its creator's permission is removed upon request), and per-module SHA-256 confirmation for untrusted code modules.
-- **Google Drive Cloud Backups:** Uses Google's Android custom-URI OAuth flow (no `127.0.0.1` loopback timeout or floating-window workaround needed) plus a one-tap **Delete old backups** button.
-- **Stability & 4 GB RAM Fixes:** Hardened backup restore (clears stale SQLite `-wal`/`-shm` journals and guards Room 43–45 migrations), safer `.zip` module importing, skippable battery optimization setup prompt + Settings recommendation, and fixed high-refresh VRR blur detection.
+- **Installs Side-by-Side:** Uses a separate package (`com.mochyy.mochymusic.ext`), so you can keep Official Mochy installed at the same time.
+- **Wallpaper-Matched UI & Live Wallpapers:** Automatically matches colors across Home, Library, Profile, Stats, Settings, Dev Space, Player menus, and the Module Store to your wallpaper, with optional 1080p live video wallpaper support and toggles to hide the top cover glow or bottom dark fade.
+- **System & Custom Fonts:** Switch between Mochy's default font, your phone's system font, or import your own `.ttf` / `.otf` font file in **Settings → Customisation**.
+- **Hide / Block Songs:** Use **Don't recommend** on any song (from the player or any 3-dot menu) to skip it automatically and keep it out of radios and recommendations. View and unhide tracks anytime in **Library → Hidden**.
+- **Lyrics Tools Everywhere:** Access **Lyrics provider**, **Lyrics offset**, **Lyrics translation**, and **Edit lyrics** from any built-in or module player menu.
+- **Community Module Store:** Browse and install community modules with category filters, safety prompts for code modules, and a creator-approval removal policy (any module listed without its creator's permission is removed upon request).
+- **Google Drive Cloud Backups:** Back up and restore your library directly with Google Drive, plus a one-tap **Delete old backups** option.
+- **Built-In Fork Updates:** In-app update popups download and install new Mochy Ext releases directly.
+- **Extra Stability & Low-RAM Care:** Smoother performance on 4 GB RAM devices and optional battery optimization prompts to help prevent background playback stops.
 
 ---
 
 ## How to Install
 
-1. Open the [**Releases**](https://github.com/Rizky088/Mochy-Music-Custom/releases/latest) page.
+1. Open the [**Latest Release**](https://github.com/Rizky088/Mochy-Music-Custom/releases/latest) page.
 2. Download the APK for your device:
-   - **`arm64` (Recommended):** Smaller and faster; works on almost all modern Android phones and tablets.
-   - **`universal`:** Larger APK that supports 32-bit ARM (`armeabi-v7a`), x86/x86_64 devices, and older hardware.
-3. Install the APK. Future Mochy Ext releases can be installed directly over the previous version to keep your library and settings.
+   - **`arm64` (Recommended):** Smaller file for almost all modern Android phones and tablets.
+   - **`universal`:** Larger file that works on older 32-bit Android devices and other architectures.
+3. Install the APK. Future Mochy Ext updates can be installed directly over your existing app without losing your library or settings.
 
 ---
 
-## License & Notice
+## License & Credits
 
-Mochy Ext is licensed under the **GNU General Public License v3.0** ([LICENSE](LICENSE)), the same license as upstream Mochy Music. All modifications are open source, free, and contain no paywalls or ads. See [CREDITS.md](CREDITS.md) for full attribution.
+Mochy Ext is licensed under the **GNU General Public License v3.0** ([LICENSE](LICENSE)), the same license as upstream Mochy Music. It is completely free, ad-free, and open source. See [CREDITS.md](CREDITS.md) for full attribution.
 
 ---
 
