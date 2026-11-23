@@ -517,7 +517,7 @@
     },
     {
       "id": "afterglow-mirror",
-      "name": "AURORA mirror",
+      "name": "AURORA MIRROR 1-2",
       "moduleId": "afterglow-mirror",
       "version": "3.1",
       "author": "claude",
@@ -535,7 +535,7 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/afterglow-mirror.zip",
       "size": 1679850,
-      "updated": 1795451264280,
+      "updated": 1795451348082,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1574226905736028180",
       "postUrl": "https://discord.com/channels/916351383341522994/1574226905736028180"
     }
