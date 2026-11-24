@@ -623,7 +623,7 @@
       "id": "nct-s1ncx",
       "name": "https://nct.s1ncx.site/",
       "moduleId": "nct-s1ncx",
-      "version": "1.0.0",
+      "version": "2.0",
       "author": "S1ncx",
       "description": "Stream/download songs with Lossless FLAC quality and synced lyrics from NhacCuaTui. No account needed.",
       "kind": "source",
@@ -638,7 +638,7 @@
       "previews": [],
       "install": "link",
       "link": "https://nct.s1ncx.site",
-      "updated": 1795555850536,
+      "updated": 1795555897499,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1569206675011936337",
       "postUrl": "https://discord.com/channels/916351383341522994/1569206675011936337"
     }
