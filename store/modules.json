@@ -44,30 +44,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1573357652115984504"
     },
     {
-      "id": "vitro-player",
-      "name": "VitroPlayer",
-      "moduleId": "vitro-player",
-      "version": "1.1",
-      "author": "alec",
-      "description": "Stylized player, with a clean look.",
-      "kind": "player",
-      "tags": [
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/vitro-player.jpg",
-      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/vitro-player.jpg",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/vitro-player.zip",
-      "size": 738081,
-      "updated": 1795544531018,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573599909163176006",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573599909163176006"
-    },
-    {
       "id": "edge-player",
       "name": "Edge Player",
       "moduleId": "edge-player",
@@ -597,6 +573,35 @@
       "updated": 1795551012016,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1574597784336732220",
       "postUrl": "https://discord.com/channels/916351383341522994/1574597784336732220"
+    },
+    {
+      "id": "vitro-player",
+      "name": "VitroPlayer",
+      "moduleId": "vitro-player",
+      "version": "1.1",
+      "author": "alec",
+      "description": "Stylized player, with a clean look.",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/vitro-player.jpg",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/vitro-player.jpg",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/vitro-player-1795551091-0.png",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/vitro-player-1795551091-1.png",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/vitro-player-1795551091-2.png",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/vitro-player-1795551091-3.png"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/vitro-player.zip",
+      "size": 738081,
+      "updated": 1795551091576,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573599909163176006",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573599909163176006"
     }
   ]
 }
