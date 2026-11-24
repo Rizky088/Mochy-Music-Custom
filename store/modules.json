@@ -44,30 +44,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1573357652115984504"
     },
     {
-      "id": "vinyl-wave-player",
-      "name": "Vinyl Wave Player",
-      "moduleId": "vinyl-wave-player",
-      "version": "1.9.51",
-      "author": "sahara",
-      "description": "Trình phát sáng/tối với ảnh bìa bo góc, đĩa than xoay, thanh bên mảnh và đường seek lượn sóng. Studio tùy biến (hàng mảnh ghép trong menu): xem trước trực tiếp, 8 bộ cài sẵn, kiểu nền Video bài hát/Sóng biển/Mưa/Tuyết rơi/Vụ nổ/Sao băng (hoặc tắt), lớp phủ và màu phủ nền, màu tên bài, nghệ sĩ, lời bài hát, màu đĩa than, màu rãnh, cỡ trình phát và cỡ lời. Tự động theo bìa: màu nền đổi theo từng bìa nhạc. Hiệu ứng theo bass, nốt nhạc bay, chế độ tĩnh, ẩn đĩa than, nút tim/shuffle/repeat có hiệu ứng. | Light and dark player with a rounded cover, spinning vinyl, a slim side rail and a wavy seek line. A Studio page (the puzzle-piece row in the menu) with a live preview, 8 presets, background styles Song video/Ocean waves/Rain/Snow/Explosion/Meteors (or off), background veil and tint, colours for title, artist, lyrics, vinyl and grooves, plus player and lyric size. Auto cover makes colours and background style follow each cover. Bass-reactive effects, floating notes, calm mode, hidden vinyl and animated heart, shuffle and repeat buttons.",
-      "kind": "player",
-      "tags": [
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/vinyl-wave-player.png",
-      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/vinyl-wave-player.webp",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/vinyl-wave-player.zip",
-      "size": 394747,
-      "updated": 1795544270079,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1572753661086539807",
-      "postUrl": "https://discord.com/channels/916351383341522994/1572753661086539807"
-    },
-    {
       "id": "sn-haze",
       "name": "Sn-Haze",
       "moduleId": "sn-haze",
@@ -579,6 +555,38 @@
       "updated": 1795550697804,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1574047132648869968",
       "postUrl": "https://discord.com/channels/916351383341522994/1574047132648869968"
+    },
+    {
+      "id": "vinyl-wave-player",
+      "name": "Vinyl Wave Player",
+      "moduleId": "vinyl-wave-player",
+      "version": "1.9.51",
+      "author": "sahara",
+      "description": "Trình phát sáng/tối với ảnh bìa bo góc, đĩa than xoay, thanh bên mảnh và đường seek lượn sóng. Studio tùy biến (hàng mảnh ghép trong menu): xem trước trực tiếp, 8 bộ cài sẵn, kiểu nền Video bài hát/Sóng biển/Mưa/Tuyết rơi/Vụ nổ/Sao băng (hoặc tắt), lớp phủ và màu phủ nền, màu tên bài, nghệ sĩ, lời bài hát, màu đĩa than, màu rãnh, cỡ trình phát và cỡ lời. Tự động theo bìa: màu nền đổi theo từng bìa nhạc. Hiệu ứng theo bass, nốt nhạc bay, chế độ tĩnh, ẩn đĩa than, nút tim/shuffle/repeat có hiệu ứng. | Light and dark player with a rounded cover, spinning vinyl, a slim side rail and a wavy seek line. A Studio page (the puzzle-piece row in the menu) with a live preview, 8 presets, background styles Song video/Ocean waves/Rain/Snow/Explosion/Meteors (or off), background veil and tint, colours for title, artist, lyrics, vinyl and grooves, plus player and lyric size. Auto cover makes colours and background style follow each cover. Bass-reactive effects, floating notes, calm mode, hidden vinyl and animated heart, shuffle and repeat buttons.",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/vinyl-wave-player.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/vinyl-wave-player.webp",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/vinyl-wave-player-1795550792-0.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/vinyl-wave-player-1795550792-1.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/vinyl-wave-player-1795550792-2.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/vinyl-wave-player-1795550792-3.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/vinyl-wave-player-1795550792-4.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/vinyl-wave-player-1795550792-5.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/vinyl-wave-player-1795550792-6.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/vinyl-wave-player.zip",
+      "size": 394747,
+      "updated": 1795550792108,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1572753661086539807",
+      "postUrl": "https://discord.com/channels/916351383341522994/1572753661086539807"
     }
   ]
 }
