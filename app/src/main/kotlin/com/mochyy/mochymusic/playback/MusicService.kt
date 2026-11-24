@@ -1304,13 +1304,9 @@ class MusicService :
 
         if (dataStore.get(PersistentQueueKey, true)) {
             val queueFile = filesDir.resolve(PERSISTENT_QUEUE_FILE)
-            if (queueFile.exists()) {
+            if (hasPersistedObject(queueFile)) {
                 runCatching {
-                    queueFile.inputStream().use { fis ->
-                        ObjectInputStream(fis).use { oos ->
-                            oos.readObject() as PersistQueue
-                        }
-                    }
+                    readObjectSafe<PersistQueue>(queueFile) ?: error("Empty persisted queue")
                 }.onSuccess { queue ->
                     runCatching {
 
@@ -1336,34 +1332,26 @@ class MusicService :
             }
 
             val automixFile = filesDir.resolve(PERSISTENT_AUTOMIX_FILE)
-            if (automixFile.exists()) {
+            if (hasPersistedObject(automixFile)) {
                 runCatching {
-                    automixFile.inputStream().use { fis ->
-                        ObjectInputStream(fis).use { oos ->
-                            oos.readObject() as PersistQueue
-                        }
-                    }
+                    readObjectSafe<PersistQueue>(automixFile) ?: error("Empty persisted automix")
                 }.onSuccess { queue ->
                     runCatching {
                         automixItems.value = queue.items.map { it.toMediaItem() }
                     }.onFailure { error ->
-                        Timber.tag(TAG).w(error, "Failed to restore automix queue, clearing data")
-                        clearPersistedQueueFiles()
+                        Timber.tag(TAG).w(error, "Failed to restore automix queue, clearing automix only")
+                        deletePersistedObject(automixFile)
                     }
                 }.onFailure { error ->
-                    Timber.tag(TAG).w(error, "Failed to read automix queue, clearing data")
-                    clearPersistedQueueFiles()
+                    Timber.tag(TAG).w(error, "Failed to read automix queue, clearing automix only")
+                    deletePersistedObject(automixFile)
                 }
             }
 
             val playerStateFile = filesDir.resolve(PERSISTENT_PLAYER_STATE_FILE)
-            if (playerStateFile.exists()) {
+            if (hasPersistedObject(playerStateFile)) {
                 runCatching {
-                    playerStateFile.inputStream().use { fis ->
-                        ObjectInputStream(fis).use { oos ->
-                            oos.readObject() as PersistPlayerState
-                        }
-                    }
+                    readObjectSafe<PersistPlayerState>(playerStateFile) ?: error("Empty persisted player state")
                 }.onSuccess { playerState ->
 
                     scope.launch {
@@ -1389,7 +1377,7 @@ class MusicService :
         scope.launch {
             while (isActive) {
                 isPlayingFlow.first { it }
-                delay(30.seconds)
+                delay(10.seconds)
                 if (dataStore.get(PersistentQueueKey, true) && player.isPlaying) {
                     saveQueueToDisk(onlyChanges = true)
                 }
@@ -1753,11 +1741,69 @@ class MusicService :
         )
     }
 
+    private val queueIoLock = Any()
+
+    private fun backupFileOf(file: java.io.File) = java.io.File(file.parentFile, "${file.name}.bak")
+    private fun tempFileOf(file: java.io.File) = java.io.File(file.parentFile, "${file.name}.tmp")
+
+    private fun hasPersistedObject(file: java.io.File): Boolean =
+        (file.exists() && file.length() > 0L) || (backupFileOf(file).let { it.exists() && it.length() > 0L })
+
+    private fun deletePersistedObject(file: java.io.File) {
+        synchronized(queueIoLock) {
+            runCatching { file.delete() }
+            runCatching { backupFileOf(file).delete() }
+            runCatching { tempFileOf(file).delete() }
+        }
+    }
+
+    private fun writeObjectAtomic(file: java.io.File, obj: Any) {
+        synchronized(queueIoLock) {
+            val tmp = tempFileOf(file)
+            val bak = backupFileOf(file)
+            tmp.outputStream().use { fos ->
+                ObjectOutputStream(fos).use { oos ->
+                    oos.writeObject(obj)
+                    oos.flush()
+                }
+                fos.flush()
+                runCatching { fos.fd.sync() }
+            }
+            if (file.exists() && file.length() > 0L) {
+                runCatching { file.copyTo(bak, overwrite = true) }
+            }
+            if (!tmp.renameTo(file)) {
+                tmp.copyTo(file, overwrite = true)
+                runCatching { tmp.delete() }
+            }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> readObjectSafe(file: java.io.File): T? {
+        val candidates = listOf(file, backupFileOf(file))
+        var lastError: Throwable? = null
+        for (candidate in candidates) {
+            if (!candidate.exists() || candidate.length() <= 0L) continue
+            val result = runCatching {
+                candidate.inputStream().use { fis ->
+                    ObjectInputStream(fis).use { oos ->
+                        oos.readObject() as T
+                    }
+                }
+            }
+            if (result.isSuccess) return result.getOrNull()
+            lastError = result.exceptionOrNull()
+        }
+        if (lastError != null) throw lastError
+        return null
+    }
+
     private fun clearPersistedQueueFiles() {
-        runCatching { filesDir.resolve(PERSISTENT_QUEUE_FILE).delete() }
-        runCatching { filesDir.resolve(PERSISTENT_AUTOMIX_FILE).delete() }
-        runCatching { filesDir.resolve(PERSISTENT_MANUAL_QUEUE_FILE).delete() }
-        runCatching { filesDir.resolve(PERSISTENT_PLAYER_STATE_FILE).delete() }
+        deletePersistedObject(filesDir.resolve(PERSISTENT_QUEUE_FILE))
+        deletePersistedObject(filesDir.resolve(PERSISTENT_AUTOMIX_FILE))
+        deletePersistedObject(filesDir.resolve(PERSISTENT_MANUAL_QUEUE_FILE))
+        deletePersistedObject(filesDir.resolve(PERSISTENT_PLAYER_STATE_FILE))
     }
 
     fun hasAudioFocusForPlayback(): Boolean {
@@ -4537,7 +4583,7 @@ class MusicService :
         return key
     }
 
-    private fun saveQueueToDisk(onlyChanges: Boolean = false) {
+    private fun saveQueueToDisk(onlyChanges: Boolean = false, sync: Boolean = false) {
         if (player.mediaItemCount == 0) {
             Timber.tag(TAG).d("Skipping queue save - no media items")
             return
@@ -4591,13 +4637,9 @@ class MusicService :
                 playbackState = player.playbackState
             )
 
-            scope.launch(Dispatchers.IO) {
+            val writeAll = {
                 if (persistQueue != null) runCatching {
-                    filesDir.resolve(PERSISTENT_QUEUE_FILE).outputStream().use { fos ->
-                        ObjectOutputStream(fos).use { oos ->
-                            oos.writeObject(persistQueue)
-                        }
-                    }
+                    writeObjectAtomic(filesDir.resolve(PERSISTENT_QUEUE_FILE), persistQueue)
                     Timber.tag(TAG).d("Queue saved successfully")
                 }.onFailure {
                     Timber.tag(TAG).e(it, "Failed to save queue")
@@ -4605,21 +4647,13 @@ class MusicService :
                 }
 
                 if (manualIndices != null) runCatching {
-                    filesDir.resolve(PERSISTENT_MANUAL_QUEUE_FILE).outputStream().use { fos ->
-                        ObjectOutputStream(fos).use { oos ->
-                            oos.writeObject(manualIndices)
-                        }
-                    }
+                    writeObjectAtomic(filesDir.resolve(PERSISTENT_MANUAL_QUEUE_FILE), manualIndices)
                 }.onFailure {
                     Timber.tag(TAG).e(it, "Failed to save manual queue marks")
                 }
 
                 if (persistAutomix != null) runCatching {
-                    filesDir.resolve(PERSISTENT_AUTOMIX_FILE).outputStream().use { fos ->
-                        ObjectOutputStream(fos).use { oos ->
-                            oos.writeObject(persistAutomix)
-                        }
-                    }
+                    writeObjectAtomic(filesDir.resolve(PERSISTENT_AUTOMIX_FILE), persistAutomix)
                     Timber.tag(TAG).d("Automix saved successfully")
                 }.onFailure {
                     Timber.tag(TAG).e(it, "Failed to save automix")
@@ -4627,16 +4661,18 @@ class MusicService :
                 }
 
                 runCatching {
-                    filesDir.resolve(PERSISTENT_PLAYER_STATE_FILE).outputStream().use { fos ->
-                        ObjectOutputStream(fos).use { oos ->
-                            oos.writeObject(persistPlayerState)
-                        }
-                    }
+                    writeObjectAtomic(filesDir.resolve(PERSISTENT_PLAYER_STATE_FILE), persistPlayerState)
                     Timber.tag(TAG).d("Player state saved successfully")
                 }.onFailure {
                     Timber.tag(TAG).e(it, "Failed to save player state")
                     reportException(it)
                 }
+            }
+
+            if (sync) {
+                writeAll()
+            } else {
+                scope.launch(Dispatchers.IO) { writeAll() }
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e, "Error during queue save operation")
@@ -4656,7 +4692,7 @@ class MusicService :
         audioPass.release()
         castConnectionHandler?.release()
         if (dataStore.get(PersistentQueueKey, true)) {
-            saveQueueToDisk()
+            saveQueueToDisk(sync = true)
         }
         discordPresence.update(null)
         // sends the last stretch of the song that was playing while the player can still say where it stopped
@@ -4706,6 +4742,9 @@ class MusicService :
     override fun onBind(intent: Intent?) = super.onBind(intent) ?: binder
 
     override fun onTaskRemoved(rootIntent: Intent?) {
+        if (dataStore.get(PersistentQueueKey, true)) {
+            saveQueueToDisk(sync = true)
+        }
         if (dataStore.get(StopPlaybackOnTaskRemovedKey, false)) {
             player.stop()
             stopSelf()
