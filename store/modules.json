@@ -621,7 +621,7 @@
     },
     {
       "id": "nct-s1ncx",
-      "name": "https://nct.s1ncx.site/",
+      "name": "NhacCuaTui",
       "moduleId": "nct-s1ncx",
       "version": "2.0",
       "author": "S1ncx",
@@ -638,7 +638,7 @@
       "previews": [],
       "install": "link",
       "link": "https://nct.s1ncx.site",
-      "updated": 1795555897499,
+      "updated": 1795555989449,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1569206675011936337",
       "postUrl": "https://discord.com/channels/916351383341522994/1569206675011936337"
     }
