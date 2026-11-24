@@ -251,6 +251,7 @@ private fun LyricsReadingToggles(modifier: Modifier = Modifier) {
     val languages = com.mochyy.mochymusic.ui.player.RomanizeLanguageKeys.map { rememberPreference(it, defaultValue = true) }
     val romanize = languages.any { it.value }
     val (asMain, onAsMain) = rememberPreference(com.mochyy.mochymusic.constants.LyricsRomanizeAsMainKey, defaultValue = false)
+    val (romanizeOnly, onRomanizeOnly) = rememberPreference(com.mochyy.mochymusic.constants.LyricsRomanizeOnlyKey, defaultValue = false)
     val (translate, onTranslate) = rememberPreference(com.mochyy.mochymusic.constants.TranslateLyricsKey, defaultValue = false)
     val (floating, onFloating) = com.mochyy.mochymusic.floating.rememberFloatingLyricsSwitch()
     com.mochyy.mochymusic.ui.screens.audiolab.LabCard(padding = 20.dp, modifier = modifier) {
@@ -265,6 +266,13 @@ private fun LyricsReadingToggles(modifier: Modifier = Modifier) {
             subtitle = stringResource(R.string.settings_romanize_as_main_desc),
             checked = asMain,
             onCheckedChange = onAsMain,
+            enabled = romanize,
+        )
+        com.mochyy.mochymusic.ui.screens.audiolab.LabToggleRow(
+            title = stringResource(R.string.settings_romanize_only),
+            subtitle = stringResource(R.string.settings_romanize_only_desc),
+            checked = romanizeOnly,
+            onCheckedChange = onRomanizeOnly,
             enabled = romanize,
         )
         com.mochyy.mochymusic.ui.screens.audiolab.LabToggleRow(

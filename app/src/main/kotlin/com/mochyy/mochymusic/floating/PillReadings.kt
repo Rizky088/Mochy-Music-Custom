@@ -5,6 +5,7 @@ package com.mochyy.mochymusic.floating
 import android.content.Context
 import androidx.datastore.preferences.core.Preferences
 import com.mochyy.mochymusic.constants.LyricsRomanizeAsMainKey
+import com.mochyy.mochymusic.constants.LyricsRomanizeOnlyKey
 import com.mochyy.mochymusic.constants.TranslateLanguageKey
 import com.mochyy.mochymusic.constants.TranslateModeKey
 import com.mochyy.mochymusic.constants.TranslateSourceLanguageKey
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.map
 internal data class ReadingSettings(
     val romanize: Map<Preferences.Key<Boolean>, Boolean>,
     val romanizedAsMain: Boolean,
+    val romanizeOnly: Boolean = false,
     val language: String,
     val sourceLanguage: String,
     val mode: String,
@@ -35,6 +37,7 @@ internal fun readingSettings(context: Context): Flow<ReadingSettings> = context.
         ReadingSettings(
             romanize = RomanizeLanguageKeys.associateWith { prefs[it] ?: true },
             romanizedAsMain = prefs[LyricsRomanizeAsMainKey] ?: false,
+            romanizeOnly = prefs[LyricsRomanizeOnlyKey] ?: false,
             language = prefs[TranslateLanguageKey]?.takeIf { it.isNotBlank() } ?: "en",
             sourceLanguage = prefs[TranslateSourceLanguageKey]?.takeIf { it.isNotBlank() } ?: "auto",
             mode = prefs[TranslateModeKey] ?: "line",

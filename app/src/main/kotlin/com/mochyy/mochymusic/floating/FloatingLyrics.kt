@@ -222,7 +222,7 @@ class FloatingLyrics(
         val settings = found.settings
         val withReadings: suspend (List<LineReading?>, List<String?>) -> PillScript = { romanized, translated ->
             withContext(Dispatchers.Default) {
-                PillScript.build(lines, title, artist, appRtl, PillReadings(romanized, translated, settings.romanizedAsMain))
+                PillScript.build(lines, title, artist, appRtl, PillReadings(romanized, translated, settings.romanizedAsMain, settings.romanizeOnly))
             }
         }
         val romanized = romanizedLines(lines, settings)

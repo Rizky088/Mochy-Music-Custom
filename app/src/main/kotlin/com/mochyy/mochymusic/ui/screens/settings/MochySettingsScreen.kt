@@ -207,6 +207,7 @@ private val SettingsIndex = listOf(
     SettingsEntry("Translations from YouTube", "Now playing", NowPlayingSettingsRoute, "captions translate lyrics language"),
     SettingsEntry("Sync lyrics to music videos", "Now playing", NowPlayingSettingsRoute, "lyrics video timing intro skit"),
     SettingsEntry("Romanisation as the main line", "Now playing", NowPlayingSettingsRoute, "romaji romanization pinyin latin lyrics japanese korean chinese", R.string.settings_romanize_as_main),
+    SettingsEntry("Romanisation only", "Now playing", NowPlayingSettingsRoute, "romaji romanization pinyin latin only hide original lyrics japanese korean chinese", R.string.settings_romanize_only),
     SettingsEntry("High quality bloom", "Now playing", NowPlayingSettingsRoute, "lyrics bloom quality extra soft pass glow"),
     SettingsEntry("Tinted lyrics", "Now playing", NowPlayingSettingsRoute, "lyrics soft light blend tint colour color cover inactive grey gray lines"),
     SettingsEntry("Floating lyrics overlay bubble", "Now playing", NowPlayingSettingsRoute, "floating lyrics overlay bubble pill other apps draw over", R.string.settings_floating_lyrics),

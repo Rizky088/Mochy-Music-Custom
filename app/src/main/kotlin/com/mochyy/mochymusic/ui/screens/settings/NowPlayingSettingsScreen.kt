@@ -31,6 +31,7 @@ import com.mochyy.mochymusic.constants.LyricsSoftLightKey
 import com.mochyy.mochymusic.constants.LyricsMotionStyle
 import com.mochyy.mochymusic.constants.LyricsMotionStyleKey
 import com.mochyy.mochymusic.constants.LyricsRomanizeAsMainKey
+import com.mochyy.mochymusic.constants.LyricsRomanizeOnlyKey
 import com.mochyy.mochymusic.constants.PlayVideoBackgroundKey
 import com.mochyy.mochymusic.constants.ShowFormatBadgeKey
 import com.mochyy.mochymusic.constants.ShowFormatSampleRateKey
@@ -110,6 +111,7 @@ private fun lyricsItems(): List<SettingsItem> {
     val (youtubeTranslations, onYoutubeTranslationsChange) = rememberPreference(YouTubeCaptionTranslationKey, defaultValue = true)
     val (syncLyricsToVideo, onSyncLyricsToVideoChange) = rememberPreference(SyncLyricsToVideoKey, defaultValue = true)
     val (romanizeAsMain, onRomanizeAsMainChange) = rememberPreference(LyricsRomanizeAsMainKey, defaultValue = false)
+    val (romanizeOnly, onRomanizeOnlyChange) = rememberPreference(LyricsRomanizeOnlyKey, defaultValue = false)
     val (highBloom, onHighBloomChange) = rememberPreference(LyricsHighBloomKey, defaultValue = true)
     val (softLight, onSoftLightChange) = rememberPreference(LyricsSoftLightKey, defaultValue = true)
     val (lyricsStyle) = rememberEnumPreference(LyricsMotionStyleKey, defaultValue = LyricsMotionStyle.MOTION)
@@ -140,6 +142,14 @@ private fun lyricsItems(): List<SettingsItem> {
             icon = painterResource(R.drawable.lyrics),
             checked = romanizeAsMain,
             onCheckedChange = onRomanizeAsMainChange,
+        ),
+        switchItem(
+            key = "Romanisation only",
+            title = stringResource(R.string.settings_romanize_only),
+            description = stringResource(R.string.settings_romanize_only_desc),
+            icon = painterResource(R.drawable.lyrics),
+            checked = romanizeOnly,
+            onCheckedChange = onRomanizeOnlyChange,
         ),
         // only the shaded lyric styles have a bloom to make softer
         switchItem(

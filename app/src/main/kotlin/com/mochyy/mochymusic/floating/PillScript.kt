@@ -57,6 +57,7 @@ internal class PillReadings(
     val translations: List<String?>,
     // the romanisation is sung as the line and the original goes under it
     val romanizedAsMain: Boolean,
+    val romanizeOnly: Boolean = false,
 )
 
 // from timeMs on, this row sits in the top slot; a break also says when its dots run, so they can light up through it
@@ -177,7 +178,8 @@ private fun groupLines(lines: List<LyricsEntry>, duet: Boolean, mirrored: Boolea
         }
         val side = alignmentFor(entry, useAgentAlignment = duet, mirrored = mirrored)
         val reading = readings?.romanized?.getOrNull(index)?.takeIf { !it.text.isNullOrBlank() }
-        val asMain = reading != null && readings?.romanizedAsMain == true
+        val romanizeOnly = reading != null && readings?.romanizeOnly == true
+        val asMain = reading != null && (readings?.romanizedAsMain == true || romanizeOnly)
         // with the romanisation as the line, it's sung in its own timed pieces and the original goes under it
         val text = if (asMain) reading?.text.orEmpty() else entry.text
         val words = if (asMain) reading?.words else entry.words
@@ -193,7 +195,7 @@ private fun groupLines(lines: List<LyricsEntry>, duet: Boolean, mirrored: Boolea
                 it.backing += PillRow(PillRowKind.BACKING, parts.backing, backingWords, backingStart, backingEnd, side)
             }
         }
-        if (reading != null) {
+        if (reading != null && !romanizeOnly) {
             group.reading = if (asMain) {
                 PillRow(PillRowKind.READING, entry.text, entry.words, entry.time, endMs, side)
             } else {

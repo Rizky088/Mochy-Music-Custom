@@ -314,16 +314,22 @@ class ShownLyric(
 @Composable
 fun rememberShownLyric(entry: LyricsEntry): ShownLyric {
     val (asMain) = rememberPreference(com.mochyy.mochymusic.constants.LyricsRomanizeAsMainKey, defaultValue = false)
+    val (romanizeOnly) = rememberPreference(com.mochyy.mochymusic.constants.LyricsRomanizeOnlyKey, defaultValue = false)
     val romanized by entry.romanizedTextFlow.collectAsState()
     val romanizedWords by entry.romanizedWordsFlow.collectAsState()
     val ruby by entry.rubyFlow.collectAsState()
     val translated by entry.translatedTextFlow.collectAsState()
     val translation = translated?.takeIf { it.isNotBlank() }
-    return remember(entry, asMain, romanized, romanizedWords, ruby, translation) {
+    return remember(entry, asMain, romanizeOnly, romanized, romanizedWords, ruby, translation) {
         val reading = romanized?.takeIf { it.isNotBlank() }
-        if (asMain && reading != null) {
+        if ((asMain || romanizeOnly) && reading != null) {
             // the romanised pieces carry the timing, so the line sings letter by letter the same way; without them it rises whole
-            ShownLyric(entry.copy(text = reading, words = romanizedWords, syllables = null), subLine = entry.text, ruby = null, translation = translation)
+            ShownLyric(
+                entry.copy(text = reading, words = romanizedWords, syllables = null),
+                subLine = if (romanizeOnly) null else entry.text,
+                ruby = null,
+                translation = translation,
+            )
         } else {
             // ruby carries the reading over the words, so a line under it would only say it twice
             ShownLyric(entry, subLine = if (ruby.isNullOrEmpty()) reading else null, ruby = ruby, translation = translation)

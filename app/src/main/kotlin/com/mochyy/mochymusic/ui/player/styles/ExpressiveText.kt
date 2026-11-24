@@ -829,16 +829,41 @@ fun ExpressiveLyrics(
         val heightPx = if (constraints.hasBoundedHeight) constraints.maxHeight.toFloat() else widthPx
         val basePx = with(density) { baseSize.toPx() }
         val stackGapPx = basePx * 0.28f
-        val cache = remember(lines, widthPx, heightPx, basePx, color, align) { LineCache() }
+        val (romanizeAsMain) = com.mochyy.mochymusic.utils.rememberPreference(
+            com.mochyy.mochymusic.constants.LyricsRomanizeAsMainKey,
+            defaultValue = false,
+        )
+        val (romanizeOnly) = com.mochyy.mochymusic.utils.rememberPreference(
+            com.mochyy.mochymusic.constants.LyricsRomanizeOnlyKey,
+            defaultValue = false,
+        )
+        val cache = remember(lines, widthPx, heightPx, basePx, color, align, romanizeAsMain, romanizeOnly) { LineCache() }
         // a line is dozens of text layouts, so it's always measured off the main thread, each time with a measurer of its own
         suspend fun measure(key: LineKey): LineCells = withContext(Dispatchers.Default) {
             val index = key.index
             // a line that shares the block with another gets half of it
             val shared = overlaps[index] || (index > 0 && overlaps[index - 1])
             val budget = if (shared) (heightPx * 0.94f - stackGapPx) / 2f else heightPx * 0.94f
+            val rawEntry = lines[index]
+            val readingText = key.reading?.takeIf { it.isNotBlank() }
+            val swapToRoman = (romanizeAsMain || romanizeOnly) && readingText != null
+            val displayEntry = if (swapToRoman && readingText != null) {
+                rawEntry.copy(
+                    text = readingText,
+                    words = rawEntry.romanizedWordsFlow.value,
+                    syllables = null,
+                )
+            } else {
+                rawEntry
+            }
+            val displayReading = when {
+                swapToRoman && romanizeOnly -> null
+                swapToRoman -> rawEntry.text
+                else -> key.reading
+            }
             measureLine(
-                TextMeasurer(fontFamilyResolver, density, layoutDirection, 128), lines[index], lines.getOrNull(index + 1)?.time,
-                widthPx, budget, basePx, density, color, resolveSide(lines[index], duet, rtl, align), key.reading, key.translation,
+                TextMeasurer(fontFamilyResolver, density, layoutDirection, 128), displayEntry, lines.getOrNull(index + 1)?.time,
+                widthPx, budget, basePx, density, color, resolveSide(rawEntry, duet, rtl, align), displayReading, key.translation,
             )
         }
         // the next line is measured a frame after this one lands, long before it's needed

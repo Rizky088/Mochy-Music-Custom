@@ -134,12 +134,19 @@ fun MetroLyricsLine(
 ) {
     val (appleMusicLyricsBlur) = rememberPreference(AppleMusicLyricsBlurKey, true)
     val (romanizeAsMain) = rememberPreference(LyricsRomanizeAsMainKey, false)
+    val (romanizeOnly) = rememberPreference(com.mochyy.mochymusic.constants.LyricsRomanizeOnlyKey, false)
 
     val romanizedTextState by entry.romanizedTextFlow.collectAsState()
     val isRomanizedAvailable = romanizedTextState != null
 
-    val mainTextRaw = if (showRomanized && romanizeAsMain && isRomanizedAvailable) romanizedTextState else entry.text
-    val subTextRaw = if (showRomanized && romanizeAsMain && isRomanizedAvailable) entry.text else if (showRomanized) romanizedTextState else null
+    val useRomanMain = showRomanized && (romanizeAsMain || romanizeOnly) && isRomanizedAvailable
+    val mainTextRaw = if (useRomanMain) romanizedTextState else entry.text
+    val subTextRaw = when {
+        useRomanMain && romanizeOnly -> null
+        useRomanMain -> entry.text
+        showRomanized -> romanizedTextState
+        else -> null
+    }
 
     val mainText = if (entry.isBackground) mainTextRaw?.removePrefix("(")?.removeSuffix(")") ?: "" else mainTextRaw ?: ""
     val subText = if (entry.isBackground) subTextRaw?.removePrefix("(")?.removeSuffix(")") else subTextRaw
@@ -248,7 +255,7 @@ fun MetroLyricsLine(
         horizontalAlignment = agentAlignment
     ) {
         val wordList = entry.words
-        val effectiveWords: List<MetroWordTimestamp> = if (wordList != null && wordList.isNotEmpty() && (!showRomanized || !romanizeAsMain || !isRomanizedAvailable || mainText == entry.text)) {
+        val effectiveWords: List<MetroWordTimestamp> = if (wordList != null && wordList.isNotEmpty() && (!useRomanMain || mainText == entry.text)) {
             wordList.mapIndexed { idx, word ->
                 MetroWordTimestamp(
                     text = word.text,

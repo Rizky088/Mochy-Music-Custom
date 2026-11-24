@@ -18,6 +18,8 @@ object LyricsProviderRegistry {
         "NetEase"         to NetEaseLyricsProvider,
         "QQMusic"         to QQMusicLyricsProvider,
         "Deezer"          to DeezerLyricsProvider,
+        "PetitLyrics"     to PetitLyricsProvider,
+        "Megalobiz"       to MegalobizLyricsProvider,
         "LrcRed"          to LrcRedLyricsProvider,
         "YouTubeSubtitle" to YouTubeSubtitleLyricsProvider,
         "YouTubeMusic"    to YouTubeLyricsProvider,
@@ -67,6 +69,8 @@ object LyricsProviderRegistry {
         "SimpMusic",
         "LrcLib",
         "Deezer",
+        "PetitLyrics",
+        "Megalobiz",
         "YouTubeSubtitle",
         "YouTubeMusic",
         "NetEase",
@@ -95,6 +99,8 @@ object LyricsProviderRegistry {
         "NetEase"         -> "NetEase"
         "QQMusic"         -> "QQ Music"
         "Deezer"          -> "Deezer"
+        "PetitLyrics"     -> "PetitLyrics"
+        "Megalobiz"       -> "Megalobiz"
         "LrcRed"          -> "lrc.red"
         "YouTubeSubtitle" -> "YouTube Subtitle"
         "YouTubeMusic"    -> "YouTube Music"
