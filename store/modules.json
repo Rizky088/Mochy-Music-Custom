@@ -44,30 +44,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1573357652115984504"
     },
     {
-      "id": "sn-float",
-      "name": "Sn-Float",
-      "moduleId": "sn-float",
-      "version": "1.55",
-      "author": "Azaraeth(Solora-N)",
-      "description": "A simple, minimalistic player with edge lyrics in 5 styles (including a word-by-word Focus karaoke), a visualizer with 9 selectable styles (bars, mirror, dots, wave, area, LED, capsules, needles, aurora) on the right edge, a seek bar in 4 styles (line, wave, dots, equalizer), a sharp album cover with an adjustable shadow in 4 positions, an optional minimal queue bar and clean floating controls with liquid glass bars. The side buttons can be shown, faded out or deleted.",
-      "kind": "player",
-      "tags": [
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/sn-float.png",
-      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/sn-float.webp",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/sn-float.zip",
-      "size": 184645,
-      "updated": 1795544412847,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573280525685231746",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573280525685231746"
-    },
-    {
       "id": "aero-glass",
       "name": "Aero Glass",
       "moduleId": "aero-glass",
@@ -590,6 +566,35 @@
       "updated": 1795550869850,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573928756387774615",
       "postUrl": "https://discord.com/channels/916351383341522994/1573928756387774615"
+    },
+    {
+      "id": "sn-float",
+      "name": "Sn-Float",
+      "moduleId": "sn-float",
+      "version": "1.55",
+      "author": "Azaraeth(Solora-N)",
+      "description": "A simple, minimalistic player with edge lyrics in 5 styles (including a word-by-word Focus karaoke), a visualizer with 9 selectable styles (bars, mirror, dots, wave, area, LED, capsules, needles, aurora) on the right edge, a seek bar in 4 styles (line, wave, dots, equalizer), a sharp album cover with an adjustable shadow in 4 positions, an optional minimal queue bar and clean floating controls with liquid glass bars. The side buttons can be shown, faded out or deleted.",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/sn-float.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/sn-float.webp",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/sn-float-1795550965-0.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/sn-float-1795550965-1.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/sn-float-1795550965-2.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/sn-float-1795550965-3.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/sn-float.zip",
+      "size": 184645,
+      "updated": 1795550965860,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573280525685231746",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573280525685231746"
     }
   ]
 }
