@@ -46,6 +46,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -463,10 +468,13 @@ private fun AboutCard(module: FeedModule) {
     }
 }
 
-/** the maker's screenshots, tall and side by side; bigger on a tablet */
+/** the maker's screenshots in their real portrait or landscape aspect ratio, tap any to view full screen */
 @Composable
 private fun StorePreviews(module: FeedModule, column: Modifier, wide: Boolean) {
-    val width: Dp = if (wide) 220.dp else 170.dp
+    val rowHeight: Dp = if (wide) 300.dp else 240.dp
+    val maxCardWidth: Dp = if (wide) 520.dp else 310.dp
+    var viewerIndex by remember { mutableStateOf<Int?>(null) }
+
     Text(stringResource(R.string.module_store_previews), color = Color.White, fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = 21.sp, letterSpacing = (-0.5).sp, modifier = column)
     Spacer(Modifier.height(12.dp))
     val description = stringResource(R.string.module_store_preview, module.name)
@@ -476,12 +484,98 @@ private fun StorePreviews(module: FeedModule, column: Modifier, wide: Boolean) {
         state = row,
         contentPadding = PaddingValues(horizontal = 24.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        items(module.previews, key = { it }, contentType = { "preview" }) { picture ->
+        itemsIndexed(module.previews, key = { idx, url -> "$idx:$url" }, contentType = { _, _ -> "preview" }) { idx, picture ->
+            var ratio by remember(picture) { mutableStateOf(1.25f) }
+            val cardWidth = (rowHeight * ratio).coerceAtMost(maxCardWidth)
+            val cardHeight = (cardWidth / ratio).coerceAtMost(rowHeight)
             AsyncImage(
-                model = picture, contentDescription = description, contentScale = ContentScale.Crop,
-                modifier = Modifier.width(width).height(width * 1.9f).clip(PreviewShape).background(storePageCardColor()),
+                model = picture,
+                contentDescription = description,
+                contentScale = ContentScale.Crop,
+                onSuccess = { state ->
+                    val sz = state.painter.intrinsicSize
+                    if (sz.width.isFinite() && sz.height.isFinite() && sz.width > 0f && sz.height > 0f) {
+                        ratio = (sz.width / sz.height).coerceIn(0.45f, 2.2f)
+                    }
+                },
+                modifier = Modifier
+                    .width(cardWidth)
+                    .height(cardHeight)
+                    .clip(PreviewShape)
+                    .background(storePageCardColor())
+                    .clickable { viewerIndex = idx },
             )
+        }
+    }
+
+    viewerIndex?.let { startIdx ->
+        PreviewLightboxDialog(
+            previews = module.previews,
+            initialIndex = startIdx,
+            description = description,
+            onDismiss = { viewerIndex = null },
+        )
+    }
+}
+
+@Composable
+private fun PreviewLightboxDialog(previews: List<String>, initialIndex: Int, description: String, onDismiss: () -> Unit) {
+    val pagerState = rememberPagerState(initialPage = initialIndex.coerceIn(0, (previews.size - 1).coerceAtLeast(0))) { previews.size }
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.92f))
+                .clickable(onClick = onDismiss),
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+            ) { page ->
+                Box(
+                    Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 56.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    AsyncImage(
+                        model = previews[page],
+                        contentDescription = description,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+            Box(
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 24.dp, end = 20.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.16f))
+                    .clickable(onClick = onDismiss),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(painterResource(R.drawable.close), contentDescription = "Close", tint = Color.White, modifier = Modifier.size(20.dp))
+            }
+            if (previews.size > 1) {
+                Text(
+                    "${pagerState.currentPage + 1} / ${previews.size}",
+                    color = Color.White,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 13.sp,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 28.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.16f))
+                        .padding(horizontal = 14.dp, vertical = 6.dp),
+                )
+            }
         }
     }
 }
