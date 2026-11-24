@@ -12,6 +12,7 @@
     "Tools"
   ],
   "chart": [
+    "nct-s1ncx",
     "yeno-orbit",
     "vitro-glass",
     "vinyl-wave-player",
@@ -618,6 +619,29 @@
       "updated": 1795551525510,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573357652115984504",
       "postUrl": "https://discord.com/channels/916351383341522994/1573357652115984504"
+    },
+    {
+      "id": "nct-s1ncx",
+      "name": "https://nct.s1ncx.site/",
+      "moduleId": "nct-s1ncx",
+      "version": "1.0.0",
+      "author": "S1ncx",
+      "description": "Stream/download songs with Lossless FLAC quality and synced lyrics from NhacCuaTui. No account needed.",
+      "kind": "source",
+      "tags": [
+        "Sources"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/nct-s1ncx.webp",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/nct-s1ncx.webp",
+      "previews": [],
+      "install": "link",
+      "link": "https://nct.s1ncx.site",
+      "updated": 1795555850536,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1569206675011936337",
+      "postUrl": "https://discord.com/channels/916351383341522994/1569206675011936337"
     }
   ]
 }
