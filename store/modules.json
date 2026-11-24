@@ -140,30 +140,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1573847246682849390"
     },
     {
-      "id": "tape-trader-chart",
-      "name": "Tape · Trader Chart",
-      "moduleId": "tape-trader-chart",
-      "version": "1.7.1",
-      "author": "ProfitableYeno",
-      "description": "MOCHY/STOCKS with a live price that moves with the music. Full-width candles, moving averages, Bollinger bands, volume and RSI, with the newest candle pulsing on every beat. Buy mochy stocks now!!11!!! Get rich Four indicator sets: Classic plus Trend, Levels and Flow packs (3 indicators each).",
-      "kind": "player",
-      "tags": [
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/tape-trader-chart.png",
-      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/tape-trader-chart.webp",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/tape-trader-chart.zip",
-      "size": 213820,
-      "updated": 1795544883235,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573293432766603395",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573293432766603395"
-    },
-    {
       "id": "cassette-queue",
       "name": "Cassette Queue",
       "moduleId": "cassette-queue",
@@ -613,6 +589,32 @@
       "updated": 1795551415481,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573592465653366834",
       "postUrl": "https://discord.com/channels/916351383341522994/1573592465653366834"
+    },
+    {
+      "id": "tape-trader-chart",
+      "name": "Tape · Trader Chart",
+      "moduleId": "tape-trader-chart",
+      "version": "1.7.1",
+      "author": "ProfitableYeno",
+      "description": "MOCHY/STOCKS with a live price that moves with the music. Full-width candles, moving averages, Bollinger bands, volume and RSI, with the newest candle pulsing on every beat. Buy mochy stocks now!!11!!! Get rich Four indicator sets: Classic plus Trend, Levels and Flow packs (3 indicators each).",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/tape-trader-chart.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/tape-trader-chart.webp",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/tape-trader-chart-1795551461-0.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/tape-trader-chart.zip",
+      "size": 213820,
+      "updated": 1795551461406,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573293432766603395",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573293432766603395"
     }
   ]
 }
