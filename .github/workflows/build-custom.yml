@@ -59,6 +59,8 @@ jobs:
         env:
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
           GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+          STORE_COUNTS_URL: ${{ secrets.STORE_COUNTS_URL }}
         run: ./gradlew assembleArm64FossRelease --build-cache --parallel --no-configuration-cache --console=plain --warning-mode summary
 
       - name: Upload APK

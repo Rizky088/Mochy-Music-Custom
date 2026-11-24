@@ -12,6 +12,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.mochyy.mochymusic.BuildConfig
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -61,6 +64,7 @@ data class FeedModule(
     /** where a linked module is added from, or the page a web one opens */
     val link: String?,
     val postUrl: String,
+    val downloads: Int = 0,
 )
 
 /** how the store gets a module: its post's zip, a link added like a pasted one, a web page it opens, or a pack of several */
@@ -111,6 +115,12 @@ class ModuleFeed @Inject constructor(
             .build()
     }
 
+    private val countsClient by lazy {
+        client.newBuilder()
+            .connectTimeout(4, TimeUnit.SECONDS)
+            .readTimeout(5, TimeUnit.SECONDS)
+            .build()
+    }
     private val zipUrls = ConcurrentHashMap<String, String>()
     private val _session = MutableStateFlow<String?>("custom_store_public")
 
@@ -132,25 +142,75 @@ class ModuleFeed @Inject constructor(
     suspend fun load(): FeedResult = withContext(Dispatchers.IO) {
         if (!isSetUp) return@withContext FeedResult.NotSetUp
         if (!isAllowed()) return@withContext FeedResult.Unofficial
-        val response = try {
-            val url = if (FeedUrl.endsWith(".json")) FeedUrl else "$FeedUrl/modules.json"
-            client.newCall(
-                Request.Builder()
-                    .url(url)
-                    .header("Cache-Control", "no-cache")
-                    .build()
-            ).execute()
-        } catch (e: IOException) {
-            return@withContext FeedResult.Offline
-        }
-        response.use {
-            val body = runCatching { JSONObject(it.body.string()) }.getOrNull() ?: JSONObject()
-            when (it.code) {
-                200 -> modulesPage(body)
-                503 -> FeedResult.WarmingUp
-                else -> FeedResult.Offline
+        coroutineScope {
+            val countsDeferred = async { fetchCounts() }
+            val response = try {
+                val url = if (FeedUrl.endsWith(".json")) FeedUrl else "$FeedUrl/modules.json"
+                client.newCall(
+                    Request.Builder()
+                        .url(url)
+                        .header("Cache-Control", "no-cache")
+                        .build()
+                ).execute()
+            } catch (e: IOException) {
+                countsDeferred.cancel()
+                return@coroutineScope FeedResult.Offline
+            }
+            response.use {
+                val body = runCatching { JSONObject(it.body.string()) }.getOrNull() ?: JSONObject()
+                when (it.code) {
+                    200 -> modulesPage(body, countsDeferred.await())
+                    503 -> {
+                        countsDeferred.cancel()
+                        FeedResult.WarmingUp
+                    }
+                    else -> {
+                        countsDeferred.cancel()
+                        FeedResult.Offline
+                    }
+                }
             }
         }
+    }
+
+    private fun fetchCounts(): Map<String, Int> {
+        val base = BuildConfig.STORE_COUNTS_URL.trim().trimEnd('/')
+        if (base.isEmpty()) return emptyMap()
+        return runCatching {
+            countsClient.newCall(
+                Request.Builder()
+                    .url("$base/counts")
+                    .header("Cache-Control", "no-cache")
+                    .build()
+            ).execute().use { res ->
+                if (!res.isSuccessful) return@use emptyMap()
+                val obj = JSONObject(res.body.string())
+                buildMap {
+                    val keys = obj.keys()
+                    while (keys.hasNext()) {
+                        val k = keys.next()
+                        val v = obj.optInt(k, 0)
+                        if (v >= 0) put(k, v)
+                    }
+                }
+            }
+        }.getOrDefault(emptyMap())
+    }
+
+    suspend fun recordDownload(postId: String): Int? = withContext(Dispatchers.IO) {
+        val base = BuildConfig.STORE_COUNTS_URL.trim().trimEnd('/')
+        if (base.isEmpty() || !PostIdPattern.matches(postId)) return@withContext null
+        runCatching {
+            countsClient.newCall(
+                Request.Builder()
+                    .url("$base/hit/$postId")
+                    .post("".toRequestBody(null))
+                    .build()
+            ).execute().use { res ->
+                if (!res.isSuccessful) return@use null
+                JSONObject(res.body.string()).optInt("count", -1).takeIf { it >= 0 }
+            }
+        }.getOrNull()
     }
 
     /** downloads the module's zip (or pack item zip) from its catalog zipUrl or store/zips/ folder */
@@ -190,8 +250,8 @@ class ModuleFeed @Inject constructor(
         FeedPerson(name, json.optString("avatar").takeIf { it.startsWith("https://") }, json.optBoolean("member"), json.optString("invite").takeIf { it.startsWith("https://") })
     }
 
-    private fun modulesPage(body: JSONObject): FeedResult.Modules {
-        val modules = modulesOf(body)
+    private fun modulesPage(body: JSONObject, counts: Map<String, Int> = emptyMap()): FeedResult.Modules {
+        val modules = modulesOf(body, counts)
         val byId = modules.associateBy { it.id }
         val chart = body.optJSONArray("chart")?.let { ids -> (0 until ids.length()).mapNotNull { byId[ids.optString(it)] } }.orEmpty()
         return FeedResult.Modules(
@@ -218,7 +278,7 @@ class ModuleFeed @Inject constructor(
         )
     }
 
-    private fun modulesOf(body: JSONObject): List<FeedModule> {
+    private fun modulesOf(body: JSONObject, counts: Map<String, Int> = emptyMap()): List<FeedModule> {
         val list = body.optJSONArray("modules") ?: return emptyList()
         return (0 until list.length()).mapNotNull { index ->
             val item = list.optJSONObject(index) ?: return@mapNotNull null
@@ -261,6 +321,7 @@ class ModuleFeed @Inject constructor(
                 postUrl = item.optString("discordPostUrl").takeIf { it.startsWith("https://") }
                     ?: item.optString("postUrl").takeIf { it.startsWith("https://") }
                     .orEmpty(),
+                downloads = counts[id] ?: item.optInt("downloads", 0).coerceAtLeast(0),
             )
         }
     }

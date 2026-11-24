@@ -38,7 +38,12 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.painterResource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -81,6 +86,7 @@ import com.mochyy.mochymusic.ui.utils.stableStatusBars
 import com.mochyy.mochymusic.utils.rememberPreference
 import com.mochyy.mochymusic.viewmodels.ModuleBrowserViewModel
 import com.mochyy.mochymusic.viewmodels.ModulesViewModel
+import com.mochyy.mochymusic.viewmodels.StoreSort
 import com.mochyy.mochymusic.viewmodels.matching
 import kotlinx.coroutines.launch
 
@@ -105,6 +111,7 @@ fun ModuleBrowserScreen(
     val entries by modules.entries.collectAsState()
     var query by rememberSaveable { mutableStateOf("") }
     var category by rememberSaveable { mutableStateOf<String?>(null) }
+    var sort by rememberSaveable { mutableStateOf(StoreSort.Default) }
     var searching by rememberSaveable { mutableStateOf(false) }
     var termsAccepted by rememberPreference(ModuleStoreTermsKey, 0)
     val (username) = rememberPreference(UsernameKey, "")
@@ -121,9 +128,7 @@ fun ModuleBrowserScreen(
         else -> 1
     }
     val store = page as? FeedResult.Modules
-    val rows = remember(store, query, category, columns) { store?.modules?.matching(query, category).orEmpty().chunked(columns) }
-    val chipsIndex = if (store?.chart.isNullOrEmpty()) 1 else 3
-    val stick = rememberStick(list, chipsIndex, statusTop)
+    val rows = remember(store, query, category, sort, columns) { store?.modules?.matching(query, category, sort).orEmpty().chunked(columns) }
     val veil = rememberVeil(list)
     val searchShown = animateFloatAsState(if (searching) 1f else 0f, tween(300, easing = FastOutSlowInEasing), label = "search")
     val closeSearch = {
@@ -180,9 +185,12 @@ fun ModuleBrowserScreen(
                         featuredWidth = min(pageWidth - StorePadding - FeaturedPeek, FeaturedMaxWidth),
                         added = added,
                         fetching = fetching,
+                        category = category,
+                        onCategory = { category = it },
+                        sort = sort,
+                        onSort = { sort = it },
                         onOpen = open,
                         onAction = act,
-                        titleAlpha = { 1f - searchShown.value * (1f - stick.value) },
                     )
                     else -> item(key = "note", contentType = "note") {
                         StoreMessage(current, onSignIn = { if (termsAccepted < StoreTermsVersion) welcome() else signIn() }, onRetry = viewModel::reload, onJoin = { link -> context.openDevUrl(link ?: DiscordUrl) })
@@ -209,15 +217,9 @@ fun ModuleBrowserScreen(
                 statusTop = statusTop,
                 person = person,
                 glass = glass,
-                list = list,
-                chipsIndex = chipsIndex,
                 veil = veil,
-                stick = stick,
                 searchShown = searchShown,
                 showStore = store != null,
-                categories = store?.categories.orEmpty(),
-                category = category,
-                onCategory = { category = it },
                 searching = searching,
                 query = query,
                 onQuery = { query = it },
@@ -237,9 +239,12 @@ private fun LazyListScope.storeItems(
     featuredWidth: Dp,
     added: AddedModules,
     fetching: String?,
+    category: String?,
+    onCategory: (String?) -> Unit,
+    sort: StoreSort,
+    onSort: (StoreSort) -> Unit,
     onOpen: (FeedModule) -> Unit,
     onAction: (FeedModule) -> Unit,
-    titleAlpha: () -> Float,
 ) {
     if (store.chart.isNotEmpty()) {
         item(key = "best-title", contentType = "title") {
@@ -250,15 +255,23 @@ private fun LazyListScope.storeItems(
         }
     }
     item(key = CategoriesKey, contentType = "title") {
-        Box(
-            Modifier.fillMaxWidth().height(StoreTitleHeight).padding(horizontal = StorePadding).graphicsLayer { alpha = titleAlpha() },
-            contentAlignment = Alignment.CenterStart,
+        Row(
+            Modifier.fillMaxWidth().padding(start = StorePadding, end = StorePadding, top = 4.dp, bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            BrowserSectionTitle(stringResource(R.string.module_store_categories), Modifier.padding(end = StoreButton + 12.dp))
+            BrowserSectionTitle(stringResource(R.string.module_store_categories), Modifier.weight(1f))
+            StoreSortButton(sort = sort, onSort = onSort)
         }
     }
-    // the chips themselves float over this gap, so they can stick under the bar once it reaches it
-    item(key = ChipsKey, contentType = "chips") { Spacer(Modifier.height(StoreChipsHeight + 18.dp)) }
+    item(key = ChipsKey, contentType = "chips") {
+        StoreChips(
+            categories = store.categories,
+            selected = category,
+            onSelect = onCategory,
+            modifier = Modifier.padding(bottom = 14.dp),
+        )
+    }
     item(key = "creator-policy", contentType = "policy") {
         val wp = LocalWallpaperPalette.current
         val policyContext = LocalContext.current
@@ -361,13 +374,17 @@ internal fun rememberStoreAdd(viewModel: ModuleBrowserViewModel, modules: Module
                 Toast.makeText(context, context.getString(R.string.module_browser_locked_note, module.name), Toast.LENGTH_LONG).show()
                 context.openDevUrl(module.postUrl)
             } else if (module.install == FeedInstall.Web) {
+                viewModel.recordDownload(module.id)
                 context.openDevUrl(module.link ?: module.postUrl)
             } else if (module.install == FeedInstall.Pack) {
                 navController.navigate(moduleStoreRoute(module.id))
             } else {
                 scope.launch {
                     when (val result = viewModel.fetch(module)) {
-                        is LinkCheck.Ready -> overlay.showAddCheckedSheet(result, modules) { id -> navController.navigate(moduleRoute(id)) }
+                        is LinkCheck.Ready -> overlay.showAddCheckedSheet(result, modules) { id ->
+                            viewModel.recordDownload(module.id)
+                            navController.navigate(moduleRoute(id))
+                        }
                         LinkCheck.Unreachable -> Toast.makeText(context, context.getString(R.string.module_browser_fetch_failed, module.name), Toast.LENGTH_LONG).show()
                         else -> linkProblem(context, result)?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }
                     }
@@ -391,7 +408,10 @@ internal fun rememberPackAdd(viewModel: ModuleBrowserViewModel, modules: Modules
             } else {
                 scope.launch {
                     when (val result = viewModel.fetchItem(module, item)) {
-                        is LinkCheck.Ready -> overlay.showAddCheckedSheet(result, modules) { id -> navController.navigate(moduleRoute(id)) }
+                        is LinkCheck.Ready -> overlay.showAddCheckedSheet(result, modules) { id ->
+                            viewModel.recordDownload(module.id)
+                            navController.navigate(moduleRoute(id))
+                        }
                         LinkCheck.Unreachable -> Toast.makeText(context, context.getString(R.string.module_browser_fetch_failed, item.name), Toast.LENGTH_LONG).show()
                         else -> linkProblem(context, result)?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }
                     }
@@ -472,4 +492,63 @@ private fun zipAction(entry: String?, version: String?, updated: Long?, added: A
     val installed = added.versions[entry]
     val newerVersion = version != null && !installed.isNullOrBlank() && version != installed
     return if (newerZip || newerVersion) BrowserAction.Update else BrowserAction.Added
+}
+
+
+@Composable
+private fun StoreSortButton(sort: StoreSort, onSort: (StoreSort) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        Row(
+            modifier = Modifier
+                .height(34.dp)
+                .clip(RoundedCornerShape(17.dp))
+                .background(if (sort == StoreSort.Default) browserCardColor() else browserChipOnColor())
+                .clickable { expanded = true }
+                .padding(start = 13.dp, end = 9.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                sort.label,
+                color = if (sort == StoreSort.Default) BrowserSoft else Color.White,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp,
+                maxLines = 1,
+            )
+            Icon(
+                painterResource(R.drawable.expand_more),
+                contentDescription = "Sort modules",
+                tint = if (sort == StoreSort.Default) BrowserSoft else Color.White,
+                modifier = Modifier.size(16.dp),
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(browserCardColor()),
+        ) {
+            StoreSort.entries.forEach { option ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            option.label,
+                            color = if (option == sort) Color.White else BrowserSoft,
+                            fontFamily = InterFontFamily,
+                            fontWeight = if (option == sort) FontWeight.Bold else FontWeight.Medium,
+                            fontSize = 13.sp,
+                        )
+                    },
+                    trailingIcon = if (option == sort) {
+                        { Icon(painterResource(R.drawable.check), null, tint = Color.White, modifier = Modifier.size(16.dp)) }
+                    } else null,
+                    onClick = {
+                        expanded = false
+                        onSort(option)
+                    },
+                )
+            }
+        }
+    }
 }

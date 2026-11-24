@@ -229,7 +229,42 @@ private fun ModuleRow(module: FeedModule, action: BrowserAction, fetching: Boole
             val by = module.author?.let { author ->
                 module.version?.let { stringResource(R.string.module_browser_by_version, author, it) } ?: stringResource(R.string.module_browser_by, author)
             }
-            by?.let { Text(it, color = BrowserSoft, fontFamily = InterFontFamily, fontWeight = FontWeight.Medium, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            val showDownloads = com.mochyy.mochymusic.BuildConfig.STORE_COUNTS_URL.isNotBlank() || module.downloads > 0
+            if (by != null || showDownloads) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    by?.let {
+                        Text(
+                            it,
+                            color = BrowserSoft,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 13.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                    }
+                    if (showDownloads) {
+                        if (by != null) {
+                            Text("·", color = BrowserSoft, fontFamily = InterFontFamily, fontSize = 13.sp)
+                        }
+                        androidx.compose.material3.Icon(
+                            painterResource(R.drawable.download),
+                            contentDescription = null,
+                            tint = BrowserSoft,
+                            modifier = Modifier.size(12.dp),
+                        )
+                        Text(
+                            formatDownloadCount(module.downloads),
+                            color = BrowserSoft,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
         }
         Spacer(Modifier.width(10.dp))
         ActionPill(action, fetching, getLabel = getLabel) { onAction(module) }
@@ -309,4 +344,11 @@ internal fun BrowserNote(
             PillButton(text = it, onClick = onSecondary)
         }
     }
+}
+
+
+internal fun formatDownloadCount(count: Int): String = when {
+    count >= 1_000_000 -> String.format(java.util.Locale.US, "%.1f", count / 1_000_000f).removeSuffix(".0") + "M"
+    count >= 1_000 -> String.format(java.util.Locale.US, "%.1f", count / 1_000f).removeSuffix(".0") + "K"
+    else -> count.toString()
 }

@@ -94,3 +94,4 @@ app/persistent-debug.keystore
 output-metadata.json
 vcs.xml
 lint/
+__pycache__/

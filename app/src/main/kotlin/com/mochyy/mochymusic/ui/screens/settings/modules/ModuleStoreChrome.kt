@@ -122,15 +122,9 @@ internal fun StoreChrome(
     statusTop: Dp,
     person: FeedPerson?,
     glass: GlassState,
-    list: LazyListState,
-    chipsIndex: Int,
     veil: State<Float>,
-    stick: State<Float>,
     searchShown: State<Float>,
     showStore: Boolean,
-    categories: List<String>,
-    category: String?,
-    onCategory: (String?) -> Unit,
     searching: Boolean,
     query: String,
     onQuery: (String) -> Unit,
@@ -138,30 +132,10 @@ internal fun StoreChrome(
     onCloseSearch: () -> Unit,
     onBack: () -> Unit,
 ) {
-    val density = LocalDensity.current
     val barTop = statusTop + StoreBarTop
     Box(Modifier.fillMaxSize()) {
         if (showStore) {
-            StoreBlur(glass, veil, height = stuckChipsTop(statusTop) + StoreChipsHeight + StoreBlurTail)
-            val stuckPx = with(density) { stuckChipsTop(statusTop).roundToPx() }
-            StoreChips(
-                categories = categories,
-                selected = category,
-                onSelect = onCategory,
-                // sits on its slot in the list until that reaches the bar, then stays put under it
-                modifier = Modifier.layout { measurable, constraints ->
-                    val placeable = measurable.measure(constraints.copy(minHeight = 0))
-                    layout(placeable.width, placeable.height) {
-                        val slot = list.topOf(ChipsKey)
-                        val y = when {
-                            list.scrolledPast(chipsIndex) -> stuckPx
-                            slot != null -> maxOf(slot, stuckPx)
-                            else -> constraints.maxHeight
-                        }
-                        placeable.place(0, y)
-                    }
-                },
-            )
+            StoreBlur(glass, veil, height = barTop + StoreButton + StoreBlurTail)
         }
         BarButton(R.drawable.arrow_back_ios, stringResource(R.string.back_content_desc), onBack, Modifier.padding(top = barTop, start = StorePadding))
         if (person != null && person.name.isNotBlank()) {
@@ -171,8 +145,7 @@ internal fun StoreChrome(
                     .align(Alignment.TopEnd)
                     .padding(top = barTop, end = StorePadding)
                     .graphicsLayer {
-                        // steps aside for the search circle when it comes up to the bar, and hides under the open search field
-                        val p = if (showStore) stick.value else 0f
+                        val p = if (showStore) 1f else 0f
                         translationX = -(StoreButton + StoreButtonGap).toPx() * p
                         alpha = 1f - searchShown.value * p
                     },
@@ -186,27 +159,22 @@ internal fun StoreChrome(
                 onOpen = onSearch,
                 onClose = onCloseSearch,
                 shown = searchShown,
-                modifier = Modifier.searchPlacement(list, stick, searchShown, barTop),
+                modifier = Modifier.searchPlacement(searchShown, barTop),
             )
         }
     }
 }
 
-// the circle rides beside the categories title, slides up into the bar as the chips stick, and widens into a field when open
-private fun Modifier.searchPlacement(list: LazyListState, stick: State<Float>, shown: State<Float>, barTop: Dp): Modifier = layout { measurable, constraints ->
-    val p = stick.value
+private fun Modifier.searchPlacement(shown: State<Float>, barTop: Dp): Modifier = layout { measurable, constraints ->
     val pad = StorePadding.toPx()
     val button = StoreButton.toPx()
     val screen = constraints.maxWidth.toFloat()
-    // open, it covers the title row, or the bar from the back button to the edge once it's up there
-    val wide = lerp(screen - pad * 2, screen - pad * 2 - button - StoreButtonGap.toPx(), p).coerceAtMost(StoreSearchMaxWidth.toPx())
+    val wide = (screen - pad * 2 - button - StoreButtonGap.toPx()).coerceAtMost(StoreSearchMaxWidth.toPx()).coerceAtLeast(button)
     val width = lerp(button, wide, shown.value).roundToInt()
     val placeable = measurable.measure(Constraints.fixed(width, button.roundToInt()))
     val barY = barTop.toPx()
-    val title = list.topOf(CategoriesKey)?.let { it + (StoreTitleHeight.toPx() - button) / 2f } ?: barY
-    val y = lerp(title.coerceAtLeast(barY), barY, p)
     layout(placeable.width, placeable.height) {
-        placeable.place(IntOffset((screen - pad - width).roundToInt(), y.roundToInt()))
+        placeable.place(IntOffset((screen - pad - width).roundToInt(), barY.roundToInt()))
     }
 }
 
@@ -245,7 +213,7 @@ private fun BarButton(icon: Int, description: String, onClick: () -> Unit, modif
 
 /** all, then every tag of the forum, the way discord's flair names them */
 @Composable
-private fun StoreChips(categories: List<String>, selected: String?, onSelect: (String?) -> Unit, modifier: Modifier) {
+internal fun StoreChips(categories: List<String>, selected: String?, onSelect: (String?) -> Unit, modifier: Modifier = Modifier) {
     val scroll = rememberScrollState()
     Row(
         modifier.fillMaxWidth().height(StoreChipsHeight).scrollEdgeFade(scroll, 28.dp).horizontalScroll(scroll).padding(horizontal = StorePadding),

@@ -30,7 +30,7 @@ extensions.configure<ApplicationExtension> {
         minSdk = 24
         targetSdk = 37
         versionCode = 81
-        versionName = "8.4.6.3 Ext"
+        versionName = "8.4.6.4 Ext"
 
         val gdriveClientIdForScheme = (localProperties.getProperty("GDRIVE_CLIENT_ID") ?: System.getenv("GDRIVE_CLIENT_ID") ?: "").trim()
         val gdriveRedirectScheme = gdriveClientIdForScheme
@@ -138,10 +138,13 @@ extensions.configure<ApplicationExtension> {
         // Without one, the Discord page says so instead of opening a login that can't come back.
         val discordClientId = localProperties.getProperty("DISCORD_CLIENT_ID")?.takeIf { it.isNotBlank() }
             ?: System.getenv("DISCORD_CLIENT_ID")?.takeIf { it.isNotBlank() }
-            ?: "1573945573239824384"
+            ?: ""
         buildConfigField("String", "DISCORD_CLIENT_ID", "\"$discordClientId\"")
         manifestPlaceholders["discordRedirectScheme"] =
             if (discordClientId.isNotBlank()) "discord-$discordClientId" else "mochy-discord-unset"
+
+        val storeCountsUrl = (localProperties.getProperty("STORE_COUNTS_URL") ?: System.getenv("STORE_COUNTS_URL") ?: "").trim().trimEnd('/')
+        buildConfigField("String", "STORE_COUNTS_URL", "\"$storeCountsUrl\"")
 
         // the dropbox and microsoft apps cloud backups sign in through (setup in docs/notes/backup.md), a blank one shows "not set up"
         val dropboxAppKey = localProperties.getProperty("DROPBOX_APP_KEY") ?: System.getenv("DROPBOX_APP_KEY") ?: ""

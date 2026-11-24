@@ -214,6 +214,27 @@ def inspect_zip(src: pathlib.Path) -> tuple[dict, bytes | None, str, list[str]]:
     return meta, icon_bytes, icon_ext, names
 
 
+def extract_zip_banner(src: pathlib.Path, meta: dict) -> tuple[bytes | None, str]:
+    banner_bytes = None
+    banner_ext = ".png"
+    with zipfile.ZipFile(src, "r") as zf:
+        names = zf.namelist()
+        player_meta = meta.get("player") if isinstance(meta.get("player"), dict) else {}
+        banner_hint = str(meta.get("banner") or player_meta.get("banner") or "").lstrip("./")
+        banner_match = None
+        if banner_hint:
+            banner_match = next((n for n in names if n.endswith(banner_hint) and not n.endswith("/")), None)
+        if not banner_match:
+            banner_match = next(
+                (n for n in names if re.search(r"(^|/)banner\.(png|jpe?g|webp)$", n, re.I)),
+                None,
+            )
+        if banner_match:
+            banner_bytes = zf.read(banner_match)
+            banner_ext = pathlib.Path(banner_match).suffix.lower() or ".png"
+    return banner_bytes, banner_ext
+
+
 def find_existing_module(mods: list[dict], slug: str = "", module_id: str = "", name: str = "") -> dict | None:
     cand_ids = {x.strip().lower() for x in (slug, module_id) if x and x.strip()}
     cand_name = name.strip().lower()
@@ -291,6 +312,16 @@ def apply_zip_update(cat: dict, m: dict, src: pathlib.Path) -> None:
             (ICONS_DIR / f"{slug}{icon_ext}").write_bytes(icon_bytes)
             m["icon"] = f"{RAW_BASE}/icons/{slug}{icon_ext}"
             print(f"  + Updated icon -> {m['icon']}")
+
+    banner_bytes, banner_ext = extract_zip_banner(src, meta)
+    if banner_bytes:
+        if not m.get("banner") or prompt_yes_no("Zip includes a banner. Refresh store banner too?", default=False):
+            BANNERS_DIR.mkdir(parents=True, exist_ok=True)
+            for old in BANNERS_DIR.glob(f"{slug}.*"):
+                old.unlink(missing_ok=True)
+            (BANNERS_DIR / f"{slug}{banner_ext}").write_bytes(banner_bytes)
+            m["banner"] = f"{RAW_BASE}/banners/{slug}{banner_ext}"
+            print(f"  + Updated banner -> {m['banner']}")
 
     save_catalog(cat)
     print(f"\nUpdated '{m['name']}' to v{version} (tags, Discord link, banner & visibility preserved).")
@@ -426,6 +457,14 @@ def sync_zips_metadata() -> None:
         if m.get("size") != real_size:
             changes.append(f"size -> {real_size // 1024} KB")
             m["size"] = real_size
+        slug = str(m.get("id") or "")
+        if slug and not m.get("banner"):
+            b_bytes, b_ext = extract_zip_banner(zp, meta)
+            if b_bytes:
+                BANNERS_DIR.mkdir(parents=True, exist_ok=True)
+                (BANNERS_DIR / f"{slug}{b_ext}").write_bytes(b_bytes)
+                m["banner"] = f"{RAW_BASE}/banners/{slug}{b_ext}"
+                changes.append(f"banner -> {slug}{b_ext}")
         if changes:
             m["updated"] = int(time.time() * 1000)
             fixed.append(f"{m.get('name')}: " + ", ".join(changes))
@@ -497,7 +536,16 @@ def add_zip_module() -> None:
         icon_url = f"{RAW_BASE}/icons/{slug}{icon_ext}"
         print(f"  + Extracted icon -> {icon_url}")
     icon_url = pick_optional_image("Icon", slug, ICONS_DIR, icon_url)
-    banner_url = pick_optional_image("Banner", slug, BANNERS_DIR, existing.get("banner", "") if existing else "")
+    banner_url = existing.get("banner", "") if existing else ""
+    banner_bytes, banner_ext = extract_zip_banner(src, meta)
+    if banner_bytes:
+        BANNERS_DIR.mkdir(parents=True, exist_ok=True)
+        for old in BANNERS_DIR.glob(f"{slug}.*"):
+            old.unlink(missing_ok=True)
+        (BANNERS_DIR / f"{slug}{banner_ext}").write_bytes(banner_bytes)
+        banner_url = f"{RAW_BASE}/banners/{slug}{banner_ext}"
+        print(f"  + Extracted banner -> {banner_url}")
+    banner_url = pick_optional_image("Banner", slug, BANNERS_DIR, banner_url)
     in_chart = slug in cat.get("chart", []) if existing else True
     featured = prompt_yes_no("Feature in 'Best from community'?", default=in_chart)
 

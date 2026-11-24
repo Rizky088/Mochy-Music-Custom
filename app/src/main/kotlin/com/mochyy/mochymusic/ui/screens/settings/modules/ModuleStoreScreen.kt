@@ -367,6 +367,10 @@ private fun StoreFacts(module: FeedModule) {
             FactLine()
         }
         BigFact(install)
+        if (com.mochyy.mochymusic.BuildConfig.STORE_COUNTS_URL.isNotBlank() || module.downloads > 0) {
+            FactLine()
+            DownloadsFact(formatDownloadCount(module.downloads))
+        }
         date?.let {
             FactLine()
             DateFact(it)
@@ -402,6 +406,14 @@ private fun DateFact(date: String) {
     Column {
         Text(stringResource(R.string.module_store_updated), color = PageSoft, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 10.sp)
         Text(date, color = PageInk, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 17.sp, maxLines = 1)
+    }
+}
+
+@Composable
+private fun DownloadsFact(count: String) {
+    Column {
+        Text("Downloads", color = PageSoft, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 10.sp)
+        Text(count, color = PageInk, fontFamily = InterFontFamily, fontWeight = FontWeight.Normal, fontSize = 17.sp, maxLines = 1)
     }
 }
 

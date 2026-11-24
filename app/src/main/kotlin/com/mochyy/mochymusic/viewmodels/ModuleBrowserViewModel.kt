@@ -88,21 +88,61 @@ class ModuleBrowserViewModel @Inject constructor(
         return result
     }
 
+    fun recordDownload(postId: String) {
+        bumpDownloadCount(postId, exact = null)
+        viewModelScope.launch {
+            val serverCount = feed.recordDownload(postId)
+            if (serverCount != null) bumpDownloadCount(postId, exact = serverCount)
+        }
+    }
+
+    private fun bumpDownloadCount(postId: String, exact: Int?) {
+        val current = _page.value as? FeedResult.Modules ?: return
+        fun update(m: FeedModule): FeedModule =
+            if (m.id == postId) m.copy(downloads = exact ?: (m.downloads + 1)) else m
+        _page.value = current.copy(
+            modules = current.modules.map(::update),
+            chart = current.chart.map(::update),
+        )
+    }
+
     private suspend fun checkZip(postId: String, item: String? = null): ModuleRegistry.LinkCheck {
         val file = feed.download(postId, item) ?: return ModuleRegistry.LinkCheck.Unreachable
         return registry.checkZip(Uri.fromFile(file))
     }
 }
 
+enum class StoreSort(val label: String) {
+    Default("Featured"),
+    Popular("Most downloaded"),
+    Newest("Recently updated"),
+    NameAsc("A – Z"),
+    NameDesc("Z – A"),
+}
+
 /** the modules a search and a category chip leave, in the order the feed gave them; a null category is all of them */
-fun List<FeedModule>.matching(query: String, category: String?): List<FeedModule> {
+fun List<FeedModule>.matching(query: String, category: String?, sort: StoreSort = StoreSort.Default): List<FeedModule> {
     val words = query.trim().lowercase().split(Regex("\\s+")).filter { it.isNotBlank() }
     // a paid forum's modules carry no paid tag of their own, so the paid chip goes by the module instead
     val paidChip = category != null && PaidWords.containsMatchIn(category)
-    return filter { module ->
+    val filtered = filter { module ->
         val fits = category == null || category in module.tags || (paidChip && module.paid)
         val text = "${module.name} ${module.author.orEmpty()} ${module.blurb} ${module.tags.joinToString(" ")}".lowercase()
         fits && words.all { it in text }
+    }
+    return when (sort) {
+        StoreSort.Default -> filtered
+        StoreSort.Popular -> filtered.sortedWith(
+            compareByDescending<FeedModule> { it.downloads }
+                .thenByDescending { it.updated ?: 0L }
+                .thenBy { it.name.lowercase() }
+        )
+        StoreSort.Newest -> filtered.sortedWith(
+            compareByDescending<FeedModule> { it.updated ?: 0L }
+                .thenBy { it.name.lowercase() }
+        )
+        StoreSort.NameAsc -> filtered.sortedBy { it.name.lowercase() }
+        StoreSort.NameDesc -> filtered.sortedByDescending { it.name.lowercase() }
     }
 }
 
