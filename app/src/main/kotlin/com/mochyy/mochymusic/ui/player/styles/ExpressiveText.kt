@@ -668,17 +668,24 @@ private fun enterTimes(lines: List<LyricsEntry>): LongArray = LongArray(lines.si
 /** an instrumental gap: the dots count down from [startMs] to [endMs], on the side of the voice to come */
 private class Interlude(val startMs: Long, val endMs: Long, val afterIndex: Int, val side: LineSide)
 
-private fun interludesOf(lines: List<LyricsEntry>, ends: LongArray, enterAts: LongArray, duet: Boolean, rtl: Boolean): List<Interlude> {
+private fun resolveSide(entry: LyricsEntry, duet: Boolean, rtl: Boolean, align: TextAlign?): LineSide = when (align) {
+    TextAlign.Center -> LineSide.CENTER
+    TextAlign.Right, TextAlign.End -> LineSide.RIGHT
+    TextAlign.Left, TextAlign.Start -> LineSide.LEFT
+    else -> sideOf(entry, duet, rtl)
+}
+
+private fun interludesOf(lines: List<LyricsEntry>, ends: LongArray, enterAts: LongArray, duet: Boolean, rtl: Boolean, align: TextAlign? = null): List<Interlude> {
     if (lines.isEmpty()) return emptyList()
     val gaps = ArrayList<Interlude>()
     if (lines[0].time >= MinInterludeGapMs) {
-        gaps += Interlude(300L, enterAts[0], -1, sideOf(lines[0], duet, rtl))
+        gaps += Interlude(300L, enterAts[0], -1, resolveSide(lines[0], duet, rtl, align))
     }
     for (i in 0 until lines.lastIndex) {
         val next = i + 1
         if (lines[next].time - ends[i] >= MinInterludeGapMs) {
             val start = ends[i] + GapExitDelayMs + 250L
-            if (enterAts[next] - start > 1_500L) gaps += Interlude(start, enterAts[next], i, sideOf(lines[next], duet, rtl))
+            if (enterAts[next] - start > 1_500L) gaps += Interlude(start, enterAts[next], i, resolveSide(lines[next], duet, rtl, align))
         }
     }
     return gaps
@@ -757,6 +764,7 @@ fun ExpressiveLyrics(
     baseSize: TextUnit,
     modifier: Modifier = Modifier,
     dimAlpha: Float = 0.32f,
+    align: TextAlign? = null,
 ) {
     val density = LocalDensity.current
     val fontFamilyResolver = LocalFontFamilyResolver.current
@@ -770,7 +778,7 @@ fun ExpressiveLyrics(
             timedWords(lines[i], lines.getOrNull(i + 1)?.time).lastOrNull()?.endMs ?: lines[i].time
         }
     }
-    val interludes = remember(lines, ends, enterAts, duet, rtl) { interludesOf(lines, ends, enterAts, duet, rtl) }
+    val interludes = remember(lines, ends, enterAts, duet, rtl, align) { interludesOf(lines, ends, enterAts, duet, rtl, align) }
     // a line still being sung when the next one comes in: the two show together, stacked
     val overlaps = remember(lines, ends, enterAts) {
         BooleanArray(lines.size) { i -> i < lines.lastIndex && ends[i] - 100L > enterAts[i + 1] }
@@ -821,7 +829,7 @@ fun ExpressiveLyrics(
         val heightPx = if (constraints.hasBoundedHeight) constraints.maxHeight.toFloat() else widthPx
         val basePx = with(density) { baseSize.toPx() }
         val stackGapPx = basePx * 0.28f
-        val cache = remember(lines, widthPx, heightPx, basePx, color) { LineCache() }
+        val cache = remember(lines, widthPx, heightPx, basePx, color, align) { LineCache() }
         // a line is dozens of text layouts, so it's always measured off the main thread, each time with a measurer of its own
         suspend fun measure(key: LineKey): LineCells = withContext(Dispatchers.Default) {
             val index = key.index
@@ -830,7 +838,7 @@ fun ExpressiveLyrics(
             val budget = if (shared) (heightPx * 0.94f - stackGapPx) / 2f else heightPx * 0.94f
             measureLine(
                 TextMeasurer(fontFamilyResolver, density, layoutDirection, 128), lines[index], lines.getOrNull(index + 1)?.time,
-                widthPx, budget, basePx, density, color, sideOf(lines[index], duet, rtl), key.reading, key.translation,
+                widthPx, budget, basePx, density, color, resolveSide(lines[index], duet, rtl, align), key.reading, key.translation,
             )
         }
         // the next line is measured a frame after this one lands, long before it's needed

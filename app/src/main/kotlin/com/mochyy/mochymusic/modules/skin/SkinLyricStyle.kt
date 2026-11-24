@@ -38,6 +38,4 @@ data class SkinLyricStyle(
     val scale: SkinSize,
     /** the line's translation under it, when the song has one */
     val translation: Boolean,
-    /** Style 3 per-word rise, swell, soft sweep, and glow on the active line */
-    val wordMotion: Boolean = false,
 )

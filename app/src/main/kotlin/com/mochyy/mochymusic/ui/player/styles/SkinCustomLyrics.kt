@@ -2,9 +2,6 @@
 
 package com.mochyy.mochymusic.ui.player.styles
 
-import android.graphics.BlurMaskFilter
-import android.graphics.Paint
-import android.graphics.Typeface
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Animatable
@@ -34,13 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asComposeRenderEffect
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.graphics.drawscope.withTransform
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
@@ -63,12 +54,7 @@ import com.mochyy.mochymusic.ui.component.setAgslColorUniform
 import com.mochyy.mochymusic.ui.component.setAgslUniform
 import kotlin.math.abs
 import kotlin.math.floor
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.exp
-import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sin
 
 @Composable
 internal fun SkinCustomLyrics(lines: List<LyricsEntry>, style: SkinLyricStyle, context: SkinContext, modifier: Modifier) {
@@ -150,13 +136,6 @@ private fun LyricRow(
     val place by remember(clock, index) { derivedStateOf { (index - clock.line()).coerceIn(-1, 1) } }
     val layout = remember { LayoutHolder() }
     val words = remember(line) { wordRanges(line) }
-    val wordSegments = remember(line, words) { style3WordSegments(line.text, words) }
-    val glowPaint = remember {
-        Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            setStyle(Paint.Style.FILL)
-            typeface = Typeface.DEFAULT_BOLD
-        }
-    }
     val pose = remember { PoseSum() }
     val origin = when (align) {
         SkinAlign.Start -> TransformOrigin(0f, 0.5f)
@@ -202,13 +181,6 @@ private fun LyricRow(
                 .drawWithContent {
                     if (fill != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         setRowUniforms(fill, style.fill, context, index - focus(), if (place < 0) 1f else if (place > 0) 0f else clock.lineProgress())
-                    }
-                    if (style.wordMotion && fill == null && place == 0) {
-                        val result = layout.result
-                        if (result != null) {
-                            drawStyle3Words(result, line.text, wordSegments, words.isNotEmpty(), clock, base, sung, textStyle, glowPaint)
-                            return@drawWithContent
-                        }
                     }
                     drawContent()
                     // only the sung row reads the clock, so the others never redraw for it
@@ -357,215 +329,4 @@ private fun commonUniforms(shader: Any, declared: Set<String>, context: SkinCont
 /** the row's last measured text, kept outside state so measuring never recomposes it */
 private class LayoutHolder {
     var result: TextLayoutResult? = null
-}
-
-
-private data class WordSegment(
-    val range: IntRange,
-    val wordIndex: Int,
-    val startFrac: Float,
-    val endFrac: Float,
-)
-
-private val NonSpaceRegex = Regex("""\S+""")
-
-private fun style3WordSegments(text: String, timedWords: List<IntRange>): List<WordSegment> {
-    if (text.isEmpty()) return emptyList()
-    val raw: List<Pair<IntRange, Int>> = if (timedWords.isNotEmpty()) {
-        buildList {
-            var cursor = 0
-            timedWords.forEachIndexed { idx, r ->
-                val s = r.first.coerceIn(0, text.length)
-                val e = (r.last + 1).coerceIn(s, text.length)
-                if (s > cursor) {
-                    for (m in NonSpaceRegex.findAll(text.substring(cursor, s))) {
-                        add((cursor + m.range.first until cursor + m.range.last + 1) to idx)
-                    }
-                }
-                if (e > s) {
-                    add((s until e) to idx)
-                    cursor = max(cursor, e)
-                }
-            }
-            if (cursor < text.length) {
-                val lastIdx = (timedWords.size - 1).coerceAtLeast(0)
-                for (m in NonSpaceRegex.findAll(text.substring(cursor))) {
-                    add((cursor + m.range.first until cursor + m.range.last + 1) to lastIdx)
-                }
-            }
-        }
-    } else {
-        NonSpaceRegex.findAll(text).mapIndexed { idx, m -> (m.range.first until m.range.last + 1) to idx }.toList()
-    }
-    if (raw.isEmpty()) return emptyList()
-    val totalChars = raw.sumOf { (r, _) -> (r.last - r.first + 1).coerceAtLeast(1) }.coerceAtLeast(1).toFloat()
-    var acc = 0f
-    return raw.map { (r, wIdx) ->
-        val len = (r.last - r.first + 1).coerceAtLeast(1).toFloat()
-        val sFrac = acc / totalChars
-        acc += len
-        val eFrac = acc / totalChars
-        WordSegment(r, wIdx, sFrac, eFrac)
-    }
-}
-
-private fun DrawScope.drawStyle3Words(
-    result: TextLayoutResult,
-    text: String,
-    segments: List<WordSegment>,
-    hasTimedWords: Boolean,
-    clock: LyricClock,
-    base: Color,
-    sung: Color,
-    textStyle: TextStyle,
-    glowPaint: Paint,
-) {
-    if (segments.isEmpty() || result.lineCount <= 0) {
-        drawText(result, color = sung)
-        return
-    }
-    val maxVisible = result.getLineEnd(result.lineCount - 1, visibleEnd = true).coerceIn(0, text.length)
-    if (maxVisible <= 0) return
-
-    val activeWord = if (hasTimedWords) clock.word() else -1
-    val wordProg = if (hasTimedWords && activeWord >= 0) clock.wordProgress().coerceIn(0f, 1f) else 0f
-    val lineProg = clock.lineProgress().coerceIn(0f, 1f)
-    val timedCursor = if (hasTimedWords && activeWord >= 0) activeWord + wordProg else -1f
-
-    val fontSizePx = if (textStyle.fontSize.isSp) textStyle.fontSize.toPx() else 18.dp.toPx()
-    val maxRisePx = 5.5.dp.toPx()
-    val maxGlowRadiusPx = 11.dp.toPx()
-
-    for (seg in segments) {
-        val p: Float
-        val settle: Float
-        if (timedCursor >= 0f) {
-            p = (timedCursor - seg.wordIndex).coerceIn(0f, 1f)
-            settle = (timedCursor - (seg.wordIndex + 1f)).coerceIn(0f, 1f)
-        } else {
-            val span = (seg.endFrac - seg.startFrac).coerceAtLeast(0.02f)
-            p = ((lineProg - seg.startFrac) / span).coerceIn(0f, 1f)
-            settle = ((lineProg - seg.endFrac) / 0.14f).coerceIn(0f, 1f)
-        }
-
-        val easeOut = 1f - (1f - p) * (1f - p)
-        val midPeak = if (p > 0f && p < 1f) sin(p * PI.toFloat()).coerceAtLeast(0f) else 0f
-        val riseFactor = if (settle > 0f) {
-            val damp = exp(-3.0f * settle) * (1f - settle)
-            0.35f + 0.65f * damp
-        } else {
-            (easeOut * 0.65f + midPeak * 0.55f).coerceAtMost(1.1f)
-        }
-        val riseY = if (p > 0f) -maxRisePx * riseFactor else 0f
-
-        val swell = when {
-            p <= 0f -> 0f
-            settle > 0f -> 0.09f * exp(-3.5f * settle) * cos(2.8f * settle * PI.toFloat()) * (1f - settle)
-            else -> 0.085f * easeOut + 0.065f * midPeak
-        }
-        val wordScaleX = 1f + swell * 0.85f
-        val wordScaleY = 1f + swell
-
-        val glowStrength = when {
-            p <= 0f -> 0f
-            settle > 0f -> (1f - settle / 0.85f).coerceIn(0f, 1f) * 0.75f
-            else -> (0.35f * easeOut + 0.65f * midPeak).coerceIn(0f, 1f)
-        }
-
-        var segPos = seg.range.first.coerceIn(0, maxVisible)
-        val segEndMax = (seg.range.last + 1).coerceIn(segPos, maxVisible)
-        while (segPos < segEndMax) {
-            val lineIdx = result.getLineForOffset(segPos)
-            val lineEnd = result.getLineEnd(lineIdx, visibleEnd = true).coerceIn(segPos, maxVisible)
-            val chunkEnd = min(segEndMax, lineEnd)
-            if (chunkEnd <= segPos) break
-
-            var left = Float.POSITIVE_INFINITY
-            var right = Float.NEGATIVE_INFINITY
-            for (c in segPos until chunkEnd) {
-                val box = result.getBoundingBox(c)
-                if (box.left < left) left = box.left
-                if (box.right > right) right = box.right
-            }
-            if (left.isFinite() && right.isFinite() && right > left) {
-                val top = result.getLineTop(lineIdx)
-                val bottom = result.getLineBottom(lineIdx)
-                val w = (right - left).coerceAtLeast(1f)
-                val h = (bottom - top).coerceAtLeast(1f)
-                val layoutOffset = Offset(-left, -top)
-                val rtl = result.getParagraphDirection(segPos) == ResolvedTextDirection.Rtl
-
-                withTransform({
-                    translate(left = left, top = top + riseY)
-                    if (swell != 0f) {
-                        scale(scaleX = wordScaleX, scaleY = wordScaleY, pivot = Offset(w / 2f, h * 0.82f))
-                    }
-                }) {
-                    if (glowStrength > 0.02f) {
-                        val glowRadius = (maxGlowRadiusPx * glowStrength).coerceAtLeast(1f)
-                        val glowAlpha = (0.55f * glowStrength).coerceIn(0f, 0.55f)
-                        val chunkText = text.substring(segPos, chunkEnd)
-                        val baseline = result.getLineBaseline(lineIdx) - top
-                        drawIntoCanvas { canvas ->
-                            glowPaint.maskFilter = BlurMaskFilter(glowRadius, BlurMaskFilter.Blur.NORMAL)
-                            glowPaint.color = sung.copy(alpha = glowAlpha).toArgb()
-                            glowPaint.textSize = fontSizePx
-                            canvas.nativeCanvas.drawText(chunkText, 0f, baseline, glowPaint)
-                        }
-                    }
-
-                    clipRect(left = 0f, top = 0f, right = w, bottom = h) {
-                        if (p >= 1f) {
-                            drawText(result, topLeft = layoutOffset, color = sung)
-                        } else if (p <= 0f) {
-                            drawText(result, topLeft = layoutOffset, color = base)
-                        } else {
-                            drawText(result, topLeft = layoutOffset, color = base)
-                            val edgeW = (w * 0.36f).coerceAtLeast(2f)
-                            if (!rtl) {
-                                val fillX = w * p
-                                val solidEnd = (fillX - edgeW).coerceAtLeast(0f)
-                                if (solidEnd > 0f) {
-                                    clipRect(left = 0f, top = 0f, right = solidEnd, bottom = h) {
-                                        drawText(result, topLeft = layoutOffset, color = sung)
-                                    }
-                                }
-                                val steps = 8
-                                for (s in 0 until steps) {
-                                    val s0 = solidEnd + (fillX - solidEnd) * (s.toFloat() / steps)
-                                    val s1 = (solidEnd + (fillX - solidEnd) * ((s + 1f) / steps) + 0.5f).coerceAtMost(fillX)
-                                    if (s1 > s0) {
-                                        val stepAlpha = 1f - (s + 0.5f) / steps
-                                        clipRect(left = s0, top = 0f, right = s1, bottom = h) {
-                                            drawText(result, topLeft = layoutOffset, color = sung.copy(alpha = sung.alpha * stepAlpha))
-                                        }
-                                    }
-                                }
-                            } else {
-                                val fillLeft = w * (1f - p)
-                                val solidStart = (fillLeft + edgeW).coerceAtMost(w)
-                                if (solidStart < w) {
-                                    clipRect(left = solidStart, top = 0f, right = w, bottom = h) {
-                                        drawText(result, topLeft = layoutOffset, color = sung)
-                                    }
-                                }
-                                val steps = 8
-                                for (s in 0 until steps) {
-                                    val s1 = solidStart - (solidStart - fillLeft) * (s.toFloat() / steps)
-                                    val s0 = (solidStart - (solidStart - fillLeft) * ((s + 1f) / steps) - 0.5f).coerceAtLeast(fillLeft)
-                                    if (s1 > s0) {
-                                        val stepAlpha = 1f - (s + 0.5f) / steps
-                                        clipRect(left = s0, top = 0f, right = s1, bottom = h) {
-                                            drawText(result, topLeft = layoutOffset, color = sung.copy(alpha = sung.alpha * stepAlpha))
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            segPos = chunkEnd
-        }
-    }
 }

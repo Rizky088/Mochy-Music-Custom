@@ -35,7 +35,6 @@ internal object SkinLyricsParser {
             // the player around them is already fitted to the screen, so the words only take a scale of their own
             scale = SkinSize.of(o, scaleName = "textScale").copy(designWidth = null),
             translation = o.bool("translation") ?: false,
-            wordMotion = o.bool("wordMotion") ?: (o.string("style")?.lowercase() == "style3" || o.string("animation")?.lowercase() in setOf("style3", "metro", "word", "rise")),
         )
     }
 

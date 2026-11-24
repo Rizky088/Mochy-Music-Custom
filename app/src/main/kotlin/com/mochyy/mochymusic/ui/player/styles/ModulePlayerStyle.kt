@@ -691,6 +691,7 @@ private fun SkinLyrics(block: SkinBlock.Lyrics, context: SkinContext, modifier: 
                     color = color,
                     baseSize = block.size,
                     modifier = Modifier.fillMaxSize().then(slotModifier),
+                    align = block.align?.textAlign,
                 )
             }
         }
