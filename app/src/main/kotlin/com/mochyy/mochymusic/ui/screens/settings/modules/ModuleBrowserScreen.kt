@@ -196,7 +196,7 @@ fun ModuleBrowserScreen(
                         StoreMessage(current, onSignIn = { if (termsAccepted < StoreTermsVersion) welcome() else signIn() }, onRetry = viewModel::reload, onJoin = { link -> context.openDevUrl(link ?: DiscordUrl) })
                     }
                 }
-                if (person != null) {
+                if (person != null && person.name.isNotBlank()) {
                     item(key = "sign-out", contentType = "footer") {
                         Text(
                             stringResource(R.string.module_browser_sign_out),

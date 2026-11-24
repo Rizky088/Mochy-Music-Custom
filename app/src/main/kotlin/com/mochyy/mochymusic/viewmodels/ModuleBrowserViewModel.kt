@@ -60,7 +60,22 @@ class ModuleBrowserViewModel @Inject constructor(
     /** asks the feed again; what's on screen stays while it does, so a refresh never blanks the list */
     fun reload() {
         loadJob?.cancel()
-        loadJob = viewModelScope.launch { _page.value = feed.load() }
+        loadJob = viewModelScope.launch {
+            if (_page.value is FeedResult.Offline || _page.value is FeedResult.WarmingUp) {
+                _page.value = null
+            }
+            if (_page.value == null) {
+                feed.loadCached()?.let { _page.value = it }
+            }
+            val result = feed.load()
+            if (result !is FeedResult.Offline || _page.value !is FeedResult.Modules) {
+                _page.value = result
+            }
+            if (_page.value is FeedResult.Modules) {
+                val counts = feed.loadCounts()
+                if (counts.isNotEmpty()) applyDownloadCounts(counts)
+            }
+        }
     }
 
     fun signInUri(): Uri? = feed.signInUri()
@@ -100,6 +115,18 @@ class ModuleBrowserViewModel @Inject constructor(
         val current = _page.value as? FeedResult.Modules ?: return
         fun update(m: FeedModule): FeedModule =
             if (m.id == postId) m.copy(downloads = exact ?: (m.downloads + 1)) else m
+        _page.value = current.copy(
+            modules = current.modules.map(::update),
+            chart = current.chart.map(::update),
+        )
+    }
+
+    private fun applyDownloadCounts(counts: Map<String, Int>) {
+        val current = _page.value as? FeedResult.Modules ?: return
+        fun update(m: FeedModule): FeedModule {
+            val server = counts[m.id] ?: return m
+            return if (server != m.downloads) m.copy(downloads = server) else m
+        }
         _page.value = current.copy(
             modules = current.modules.map(::update),
             chart = current.chart.map(::update),

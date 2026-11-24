@@ -1184,6 +1184,7 @@ fun HomeScreen(
                 }
             }
 
+            if (localPlaylists?.isNotEmpty() == true || accountPlaylists?.isNotEmpty() == true) list.add(HomeSection.AccountPlaylists)
             if (recentlyPlayed?.isNotEmpty() == true) list.add(HomeSection.RecentlyPlayed)
             if (pinnedItems.isNotEmpty()) list.add(HomeSection.Pinned)
             if (mostPlayedSongsForHome?.isNotEmpty() == true) list.add(HomeSection.MostPlayed)
@@ -1195,8 +1196,6 @@ fun HomeScreen(
             if (liveRow?.isNotEmpty() == true) list.add(HomeSection.LiveShows)
             addCategories()
             if (artistListItems?.isNotEmpty() == true) list.add(HomeSection.ArtistList)
-            addCategories()
-            if (accountPlaylists?.isNotEmpty() == true || localPlaylists?.isNotEmpty() == true) list.add(HomeSection.AccountPlaylists)
             addCategories()
             if (forgottenFavorites?.isNotEmpty() == true) list.add(HomeSection.DontForgetTheseSongs)
             addCategories()
@@ -1620,29 +1619,31 @@ fun HomeScreen(
                                 homeItem("account_playlists_title", revealSeen, "title") {
                                     Box {
                                         HomeSectionTitle(
-                                            label = stringResource(R.string.home_your_playlists),
-                                            title = accountName,
-                                            thumbnail = {
-                                                if (profileImageUrl != null) {
-                                                    AsyncImage(
-                                                        model = profileImageRequest,
-                                                        placeholder = painterResource(id = R.drawable.person),
-                                                        error = painterResource(id = R.drawable.person),
-                                                        contentDescription = null,
-                                                        contentScale = ContentScale.Crop,
-                                                        modifier = Modifier
-                                                            .size(30.dp)
-                                                            .clip(CircleShape)
-                                                    )
-                                                } else {
-                                                    Icon(
-                                                        painter = painterResource(id = R.drawable.person),
-                                                        contentDescription = null,
-                                                        tint = Color.White.copy(alpha = 0.69f),
-                                                        modifier = Modifier.size(30.dp)
-                                                    )
+                                            label = if (speedDialOwner != null) stringResource(R.string.home_your_playlists) else null,
+                                            title = speedDialOwner ?: stringResource(R.string.home_your_playlists),
+                                            thumbnail = if (speedDialOwner != null || profileImageUrl != null) {
+                                                {
+                                                    if (profileImageUrl != null) {
+                                                        AsyncImage(
+                                                            model = profileImageRequest,
+                                                            placeholder = painterResource(id = R.drawable.person),
+                                                            error = painterResource(id = R.drawable.person),
+                                                            contentDescription = null,
+                                                            contentScale = ContentScale.Crop,
+                                                            modifier = Modifier
+                                                                .size(30.dp)
+                                                                .clip(CircleShape)
+                                                        )
+                                                    } else {
+                                                        Icon(
+                                                            painter = painterResource(id = R.drawable.person),
+                                                            contentDescription = null,
+                                                            tint = Color.White.copy(alpha = 0.69f),
+                                                            modifier = Modifier.size(30.dp)
+                                                        )
+                                                    }
                                                 }
-                                            },
+                                            } else null,
                                         )
 
                                     }

@@ -115,10 +115,19 @@ class ModuleFeed @Inject constructor(
             .build()
     }
 
+    private val feedClient by lazy {
+        client.newBuilder()
+            .connectTimeout(8, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .callTimeout(14, TimeUnit.SECONDS)
+            .build()
+    }
+
     private val countsClient by lazy {
         client.newBuilder()
             .connectTimeout(4, TimeUnit.SECONDS)
             .readTimeout(5, TimeUnit.SECONDS)
+            .callTimeout(8, TimeUnit.SECONDS)
             .build()
     }
     private val zipUrls = ConcurrentHashMap<String, String>()
@@ -139,39 +148,63 @@ class ModuleFeed @Inject constructor(
         Unit
     }
 
+    private fun feedCacheFile(): File =
+        File(File(context.cacheDir, "module_browser").apply { mkdirs() }, "modules_cache.json")
+
+    private fun readCachedJson(): JSONObject? = runCatching {
+        val file = feedCacheFile()
+        if (!file.isFile) return@runCatching null
+        JSONObject(file.readText(Charsets.UTF_8)).takeIf { it.optJSONArray("modules") != null }
+    }.getOrNull()
+
+    suspend fun loadCached(): FeedResult.Modules? = withContext(Dispatchers.IO) {
+        if (!isSetUp || !isAllowed()) return@withContext null
+        readCachedJson()?.let { modulesPage(it) }?.takeIf { it.modules.isNotEmpty() }
+    }
+
     suspend fun load(): FeedResult = withContext(Dispatchers.IO) {
         if (!isSetUp) return@withContext FeedResult.NotSetUp
         if (!isAllowed()) return@withContext FeedResult.Unofficial
-        coroutineScope {
-            val countsDeferred = async { fetchCounts() }
-            val response = try {
-                val url = if (FeedUrl.endsWith(".json")) FeedUrl else "$FeedUrl/modules.json"
-                client.newCall(
+
+        val primaryUrl = if (FeedUrl.endsWith(".json")) FeedUrl else "$FeedUrl/modules.json"
+        val fallbackUrl = "$FallbackFeedUrl/modules.json"
+        val urls = listOf(primaryUrl, fallbackUrl).distinct()
+
+        var sawWarmingUp = false
+        for (url in urls) {
+            val raw = try {
+                feedClient.newCall(
                     Request.Builder()
                         .url(url)
                         .header("Cache-Control", "no-cache")
                         .build()
-                ).execute()
-            } catch (e: IOException) {
-                countsDeferred.cancel()
-                return@coroutineScope FeedResult.Offline
+                ).execute().use { res ->
+                    when (res.code) {
+                        200 -> res.body.string()
+                        503 -> {
+                            sawWarmingUp = true
+                            null
+                        }
+                        else -> null
+                    }
+                }
+            } catch (_: IOException) {
+                null
             }
-            response.use {
-                val body = runCatching { JSONObject(it.body.string()) }.getOrNull() ?: JSONObject()
-                when (it.code) {
-                    200 -> modulesPage(body, countsDeferred.await())
-                    503 -> {
-                        countsDeferred.cancel()
-                        FeedResult.WarmingUp
-                    }
-                    else -> {
-                        countsDeferred.cancel()
-                        FeedResult.Offline
-                    }
+            if (raw != null) {
+                val body = runCatching { JSONObject(raw) }.getOrNull()
+                if (body != null && body.optJSONArray("modules") != null) {
+                    runCatching { feedCacheFile().writeText(raw, Charsets.UTF_8) }
+                    return@withContext modulesPage(body)
                 }
             }
         }
+
+        readCachedJson()?.let { return@withContext modulesPage(it) }
+        if (sawWarmingUp) FeedResult.WarmingUp else FeedResult.Offline
     }
+
+    suspend fun loadCounts(): Map<String, Int> = withContext(Dispatchers.IO) { fetchCounts() }
 
     private fun fetchCounts(): Map<String, Int> {
         val base = BuildConfig.STORE_COUNTS_URL.trim().trimEnd('/')
@@ -223,13 +256,21 @@ class ModuleFeed @Inject constructor(
         val base = FeedUrl.removeSuffix("/modules.json").trimEnd('/')
         val url = zipUrls[key]
             ?: if (item != null) "$base/zips/$postId-$item.zip" else "$base/zips/$postId.zip"
-        runCatching {
-            client.newCall(Request.Builder().url(url).build()).execute().use { res ->
-                if (!res.isSuccessful) return@use null
-                file.outputStream().use { out -> res.body.byteStream().copyTo(out) }
-                file
-            }
-        }.getOrNull()
+        val candidates = buildList {
+            add(url)
+            if (url.startsWith(FeedUrl)) add(url.replaceFirst(FeedUrl, FallbackFeedUrl))
+        }.distinct()
+        for (candidate in candidates) {
+            val saved = runCatching {
+                client.newCall(Request.Builder().url(candidate).build()).execute().use { res ->
+                    if (!res.isSuccessful) return@use null
+                    file.outputStream().use { out -> res.body.byteStream().copyTo(out) }
+                    file
+                }
+            }.getOrNull()
+            if (saved != null) return@withContext saved
+        }
+        null
     }
 
     // every call carries the build's native signature over what it asks for, and never goes out unsigned
@@ -329,6 +370,7 @@ class ModuleFeed @Inject constructor(
     companion object {
         // the worker's address (see the mochy-module-feed project); blank makes the browser say it isn't set up
         const val FeedUrl = "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store"
+        private const val FallbackFeedUrl = "https://cdn.jsdelivr.net/gh/Rizky088/Mochy-Music-Custom@main/store"
 
         private const val SessionKey = "session"
         private const val PrefsName = "module_browser"
