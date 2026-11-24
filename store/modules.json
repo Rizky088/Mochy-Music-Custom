@@ -587,6 +587,30 @@
       "updated": 1795456291159,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1574429562434093117",
       "postUrl": "https://discord.com/channels/916351383341522994/1574429562434093117"
+    },
+    {
+      "id": "web-red",
+      "name": "Web Red",
+      "moduleId": "web-red",
+      "version": "6.2",
+      "author": "queasoh",
+      "description": "Paper sleeve, 3D shattering vinyl with web cartridge, peeking & seated Spider-Man, swinging Spider-Man background, web seekbar, 2 palettes",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/web-red.png",
+      "banner": "",
+      "previews": [],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/web-red.zip",
+      "size": 3924793,
+      "updated": 1795537932690,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1574745718319747203",
+      "postUrl": "https://discord.com/channels/916351383341522994/1574745718319747203"
     }
   ]
 }
