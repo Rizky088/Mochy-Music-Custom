@@ -345,8 +345,9 @@ internal object SkinPlayerParser {
             )
             "lyrics" -> {
                 // a flowing list is small words, the sung-through kind needs room for its big ones
-                val flow = o.string("style")?.lowercase() == "flow"
-                val custom = if (o.string("style")?.lowercase() == "custom") SkinLyricsParser.style(o, library, ::lyricShader) else null
+                val styleKind = o.string("style")?.lowercase()
+                val flow = styleKind == "flow"
+                val custom = if (styleKind == "custom" || styleKind == "style3") SkinLyricsParser.style(o, library, ::lyricShader) else null
                 SkinBlock.Lyrics(
                     height = (o.float("height") ?: if (flow) 72f else if (custom != null) 260f else 160f).coerceIn(if (flow) 16f else 60f, 800f).dp,
                     size = (o.float("size") ?: if (flow) 14f else 28f).coerceIn(if (flow) 8f else 14f, 60f).sp,
