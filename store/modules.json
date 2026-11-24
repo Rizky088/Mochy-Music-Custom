@@ -44,30 +44,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1573357652115984504"
     },
     {
-      "id": "afterglow-mirror",
-      "name": "AURORA MIRROR",
-      "moduleId": "afterglow-mirror",
-      "version": "3",
-      "author": "claude",
-      "description": "FOR THOSE WHO PREFER CLEAN MUSIC PLAYER",
-      "kind": "player",
-      "tags": [
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/afterglow-mirror.png",
-      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/afterglow-mirror.png",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/afterglow-mirror.zip",
-      "size": 1042075,
-      "updated": 1795544107630,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1574226905736028180",
-      "postUrl": "https://discord.com/channels/916351383341522994/1574226905736028180"
-    },
-    {
       "id": "web-red",
       "name": "Web Red",
       "moduleId": "web-red",
@@ -570,6 +546,32 @@
       "updated": 1795550514453,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
       "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
+    },
+    {
+      "id": "afterglow-mirror",
+      "name": "AURORA MIRROR",
+      "moduleId": "afterglow-mirror",
+      "version": "3",
+      "author": "claude",
+      "description": "FOR THOSE WHO PREFER CLEAN MUSIC PLAYER",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/afterglow-mirror.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/afterglow-mirror.png",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/afterglow-mirror-1795550573-0.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/afterglow-mirror.zip",
+      "size": 1042075,
+      "updated": 1795550573207,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1574226905736028180",
+      "postUrl": "https://discord.com/channels/916351383341522994/1574226905736028180"
     }
   ]
 }
