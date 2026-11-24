@@ -284,30 +284,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1573280525685231746"
     },
     {
-      "id": "cassette-queue",
-      "name": "Cassette Queue",
-      "moduleId": "cassette-queue",
-      "version": "2.9.7",
-      "author": "you",
-      "description": "Vertical cassette with the next songs as cassette spines. Styles: classic, closed case and cassette with an info insert. Immersive mode animates the cassette swap (eject, tilt, click into place). Plastic textures: micro-scratches, friction wear, aging, fingerprint smudges and holographic sheen. Players: Cassette Queue; Pixel Deck (pixel-art or realistic skin, uses the cassette options); Cassette Shelf (a shelf of spines around the current cassette, closed cases behind it, portrait column of spines with a 'peek' option, bigger shelf in landscape); Cassette Stage (landscape: big cassette, deck keys and a rack with the playing, previous and next spines). In landscape the cassette lies horizontally in every style. Backgrounds: Adaptive color and Wood. Player size, vertical position and shelf cassette size sliders. 2.9.5-2.9.7: new option 'Animated cover art' that plays the song's animated cover over the album art on every cassette and case, (including the closed case behind it in Cassette Shelf landscape), and on the playing spine in Cassette Shelf portrait (which now also shows its cover).",
-      "kind": "player",
-      "tags": [
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/cassette-queue.png",
-      "banner": "",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/cassette-queue.zip",
-      "size": 8702334,
-      "updated": 1795544455786,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1574429562434093117",
-      "postUrl": "https://discord.com/channels/916351383341522994/1574429562434093117"
-    },
-    {
       "id": "aero-glass",
       "name": "Aero Glass",
       "moduleId": "aero-glass",
@@ -556,6 +532,36 @@
       "updated": 1795548899249,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
       "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
+    },
+    {
+      "id": "cassette-queue",
+      "name": "Cassette Queue",
+      "moduleId": "cassette-queue",
+      "version": "2.9.7",
+      "author": "you",
+      "description": "Vertical cassette with the next songs as cassette spines. Styles: classic, closed case and cassette with an info insert. Immersive mode animates the cassette swap (eject, tilt, click into place). Plastic textures: micro-scratches, friction wear, aging, fingerprint smudges and holographic sheen. Players: Cassette Queue; Pixel Deck (pixel-art or realistic skin, uses the cassette options); Cassette Shelf (a shelf of spines around the current cassette, closed cases behind it, portrait column of spines with a 'peek' option, bigger shelf in landscape); Cassette Stage (landscape: big cassette, deck keys and a rack with the playing, previous and next spines). In landscape the cassette lies horizontally in every style. Backgrounds: Adaptive color and Wood. Player size, vertical position and shelf cassette size sliders. 2.9.5-2.9.7: new option 'Animated cover art' that plays the song's animated cover over the album art on every cassette and case, (including the closed case behind it in Cassette Shelf landscape), and on the playing spine in Cassette Shelf portrait (which now also shows its cover).",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/cassette-queue.png",
+      "banner": "",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/cassette-queue-1795549292-0.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/cassette-queue-1795549292-1.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/cassette-queue-1795549292-2.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/cassette-queue-1795549292-3.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/cassette-queue-1795549292-4.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/cassette-queue.zip",
+      "size": 8702334,
+      "updated": 1795549292188,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1574429562434093117",
+      "postUrl": "https://discord.com/channels/916351383341522994/1574429562434093117"
     }
   ]
 }
