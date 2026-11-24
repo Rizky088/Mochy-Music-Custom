@@ -44,30 +44,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1573357652115984504"
     },
     {
-      "id": "web-red",
-      "name": "Web Red",
-      "moduleId": "web-red",
-      "version": "6.2",
-      "author": "queasoh",
-      "description": "Paper sleeve, 3D shattering vinyl with web cartridge, peeking & seated Spider-Man, swinging Spider-Man background, web seekbar, 2 palettes",
-      "kind": "player",
-      "tags": [
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/web-red.png",
-      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/web-red.webp",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/web-red.zip",
-      "size": 3924793,
-      "updated": 1795544154690,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1574745718319747203",
-      "postUrl": "https://discord.com/channels/916351383341522994/1574745718319747203"
-    },
-    {
       "id": "terminal-vintage",
       "name": "Terminal Vintage",
       "moduleId": "terminal-vintage",
@@ -572,6 +548,34 @@
       "updated": 1795550573207,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1574226905736028180",
       "postUrl": "https://discord.com/channels/916351383341522994/1574226905736028180"
+    },
+    {
+      "id": "web-red",
+      "name": "Web Red",
+      "moduleId": "web-red",
+      "version": "6.2",
+      "author": "queasoh",
+      "description": "Paper sleeve, 3D shattering vinyl with web cartridge, peeking & seated Spider-Man, swinging Spider-Man background, web seekbar, 2 palettes",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/web-red.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/web-red.webp",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/web-red-1795550624-0.png",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/web-red-1795550624-1.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/web-red-1795550624-2.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/web-red.zip",
+      "size": 3924793,
+      "updated": 1795550624010,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1574745718319747203",
+      "postUrl": "https://discord.com/channels/916351383341522994/1574745718319747203"
     }
   ]
 }
