@@ -12,16 +12,16 @@
     "Tools"
   ],
   "chart": [
-    "miku-player",
-    "cassette-queue",
-    "vinyl-wave-player",
+    "yeno-orbit",
     "vitro-glass",
-    "yeno-orbit"
+    "vinyl-wave-player",
+    "cassette-queue",
+    "miku-player"
   ],
   "modules": [
     {
       "id": "yeno-orbit",
-      "name": "Yeno\u2019s Orbit",
+      "name": "Yeno’s Orbit",
       "moduleId": "yeno-orbit",
       "version": "1.10.26",
       "author": "Yeno",
@@ -45,7 +45,7 @@
     },
     {
       "id": "yeno-orbit-lite",
-      "name": "Yeno\u2019s Orbit Lite",
+      "name": "Yeno’s Orbit Lite",
       "moduleId": "yeno-orbit-lite",
       "version": "1.6.4",
       "author": "Yeno",
@@ -241,7 +241,7 @@
       "moduleId": "vinyl-wave-player",
       "version": "1.9.51",
       "author": "sahara",
-      "description": "Tr\u00ecnh ph\u00e1t s\u00e1ng/t\u1ed1i v\u1edbi \u1ea3nh b\u00eca bo g\u00f3c, \u0111\u0129a than xoay, thanh b\u00ean m\u1ea3nh v\u00e0 \u0111\u01b0\u1eddng seek l\u01b0\u1ee3n s\u00f3ng. Studio t\u00f9y bi\u1ebfn (h\u00e0ng m\u1ea3nh gh\u00e9p trong menu): xem tr\u01b0\u1edbc tr\u1ef1c ti\u1ebfp, 8 b\u1ed9 c\u00e0i s\u1eb5n, ki\u1ec3u n\u1ec1n Video b\u00e0i h\u00e1t/S\u00f3ng bi\u1ec3n/M\u01b0a/Tuy\u1ebft r\u01a1i/V\u1ee5 n\u1ed5/Sao b\u0103ng (ho\u1eb7c t\u1eaft), l\u1edbp ph\u1ee7 v\u00e0 m\u00e0u ph\u1ee7 n\u1ec1n, m\u00e0u t\u00ean b\u00e0i, ngh\u1ec7 s\u0129, l\u1eddi b\u00e0i h\u00e1t, m\u00e0u \u0111\u0129a than, m\u00e0u r\u00e3nh, c\u1ee1 tr\u00ecnh ph\u00e1t v\u00e0 c\u1ee1 l\u1eddi. T\u1ef1 \u0111\u1ed9ng theo b\u00eca: m\u00e0u n\u1ec1n \u0111\u1ed5i theo t\u1eebng b\u00eca nh\u1ea1c. Hi\u1ec7u \u1ee9ng theo bass, n\u1ed1t nh\u1ea1c bay, ch\u1ebf \u0111\u1ed9 t\u0129nh, \u1ea9n \u0111\u0129a than, n\u00fat tim/shuffle/repeat c\u00f3 hi\u1ec7u \u1ee9ng. | Light and dark player with a rounded cover, spinning vinyl, a slim side rail and a wavy seek line. A Studio page (the puzzle-piece row in the menu) with a live preview, 8 presets, background styles Song video/Ocean waves/Rain/Snow/Explosion/Meteors (or off), background veil and tint, colours for title, artist, lyrics, vinyl and grooves, plus player and lyric size. Auto cover makes colours and background style follow each cover. Bass-reactive effects, floating notes, calm mode, hidden vinyl and animated heart, shuffle and repeat buttons.",
+      "description": "Trình phát sáng/tối với ảnh bìa bo góc, đĩa than xoay, thanh bên mảnh và đường seek lượn sóng. Studio tùy biến (hàng mảnh ghép trong menu): xem trước trực tiếp, 8 bộ cài sẵn, kiểu nền Video bài hát/Sóng biển/Mưa/Tuyết rơi/Vụ nổ/Sao băng (hoặc tắt), lớp phủ và màu phủ nền, màu tên bài, nghệ sĩ, lời bài hát, màu đĩa than, màu rãnh, cỡ trình phát và cỡ lời. Tự động theo bìa: màu nền đổi theo từng bìa nhạc. Hiệu ứng theo bass, nốt nhạc bay, chế độ tĩnh, ẩn đĩa than, nút tim/shuffle/repeat có hiệu ứng. | Light and dark player with a rounded cover, spinning vinyl, a slim side rail and a wavy seek line. A Studio page (the puzzle-piece row in the menu) with a live preview, 8 presets, background styles Song video/Ocean waves/Rain/Snow/Explosion/Meteors (or off), background veil and tint, colours for title, artist, lyrics, vinyl and grooves, plus player and lyric size. Auto cover makes colours and background style follow each cover. Bass-reactive effects, floating notes, calm mode, hidden vinyl and animated heart, shuffle and repeat buttons.",
       "kind": "player",
       "tags": [
         "Players"
@@ -429,7 +429,7 @@
     },
     {
       "id": "qtide-tidal",
-      "name": "Qtide \u2014 Tidal",
+      "name": "Qtide — Tidal",
       "moduleId": "qtide-tidal",
       "version": "1.4",
       "author": "geisselgottes",
@@ -453,7 +453,7 @@
     },
     {
       "id": "qtide-qobuz",
-      "name": "Qtide \u2014 Qobuz",
+      "name": "Qtide — Qobuz",
       "moduleId": "qtide-qobuz",
       "version": "1.4",
       "author": "geisselgottes",
@@ -477,7 +477,7 @@
     },
     {
       "id": "qtide-deezer",
-      "name": "Qtide \u2014 Deezer",
+      "name": "Qtide — Deezer",
       "moduleId": "qtide-deezer",
       "version": "1.4",
       "author": "geisselgottes",
@@ -525,7 +525,7 @@
     },
     {
       "id": "tape-trader-chart",
-      "name": "Tape \u00b7 Trader Chart",
+      "name": "Tape · Trader Chart",
       "moduleId": "tape-trader-chart",
       "version": "1.7.1",
       "author": "ProfitableYeno",
