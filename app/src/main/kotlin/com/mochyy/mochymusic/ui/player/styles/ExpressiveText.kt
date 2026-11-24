@@ -581,7 +581,7 @@ private fun measureLine(
             style = style,
             maxLines = 2,
             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-            constraints = Constraints(maxWidth = subWidth),
+            constraints = Constraints(minWidth = subWidth, maxWidth = subWidth),
         )
         SubCell(layout, alpha, with(density) { 14.dp.toPx() })
     }
@@ -858,18 +858,20 @@ fun ExpressiveLyrics(
 
         gap?.let { interlude ->
             androidx.compose.runtime.key(interlude.startMs) {
-                InterludeRow(interlude, position, baseSize)
+                InterludeRow(
+                    interlude,
+                    position,
+                    baseSize,
+                    modifier = if (align == TextAlign.Center) Modifier.align(Alignment.Center) else Modifier,
+                )
             }
         }
 
         if (shown in lines.indices) {
-            // each line on screen, top first, and how far down the lines still above it push it:
-            // an overlapping line above holds its place while it's sung, then gives it back as it
-            // flies off, so the line under it glides up into the top spot
-            val above = ArrayList<LineCells>()
-            val aboveExits = ArrayList<Long>()
+            val centerV = align == TextAlign.Center
+            val visible = ArrayList<Pair<Int, LineCells>>(4)
             for (index in first.coerceAtLeast(0)..shown) {
-                androidx.compose.runtime.key(index) {
+                androidx.compose.runtime.key("m", index) {
                     val entry = lines[index]
                     val roman by entry.romanizedTextFlow.collectAsState()
                     val ruby by entry.rubyFlow.collectAsState()
@@ -883,34 +885,61 @@ fun ExpressiveLyrics(
                     if (!cache.has(key)) {
                         androidx.compose.runtime.LaunchedEffect(key, cache) { cache.put(key, measure(key), shows = true) }
                     }
-                    val cells = cache.cellsFor(key)
-                    if (cells != null) {
-                        val pushers = above.toList()
-                        val pusherExits = aboveExits.toList()
-                        LyricLine(
-                            cells = cells,
-                            enterAt = enterAts[index],
-                            exitAt = exitAts[index],
-                            position = position,
-                            color = color,
-                            dimAlpha = dimAlpha,
-                            offsetY = { t ->
-                                var y = 0f
-                                for (k in pushers.indices) {
-                                    val holder = pushers[k]
-                                    holder.frameAt(t)
-                                    val hold = 1f - smootherstep((t - pusherExits[k]) / ExitMs)
-                                    y += (holder.totalHeight + stackGapPx) * hold
-                                }
-                                y
-                            },
-                        )
-                        val exit = exitAts[index]
-                        if (overlaps[index] && exit != null) {
-                            above += cells
-                            aboveExits += exit
-                        }
+                    cache.cellsFor(key)?.let { visible += index to it }
+                }
+            }
+            val above = ArrayList<LineCells>()
+            val aboveExits = ArrayList<Long>()
+            for (pos in visible.indices) {
+                val (index, cells) = visible[pos]
+                val pushers = above.toList()
+                val pusherExits = aboveExits.toList()
+                val followers = ArrayList<LineCells>()
+                val followerEnters = ArrayList<Long>()
+                if (centerV && overlaps[index] && exitAts[index] != null) {
+                    for (q in (pos + 1) until visible.size) {
+                        val (fIdx, fCells) = visible[q]
+                        followers += fCells
+                        followerEnters += enterAts[fIdx]
+                        if (!overlaps[fIdx] || exitAts[fIdx] == null) break
                     }
+                }
+                androidx.compose.runtime.key(index) {
+                    LyricLine(
+                        cells = cells,
+                        enterAt = enterAts[index],
+                        exitAt = exitAts[index],
+                        position = position,
+                        color = color,
+                        dimAlpha = dimAlpha,
+                        offsetY = { t ->
+                            var aboveH = 0f
+                            for (k in pushers.indices) {
+                                val holder = pushers[k]
+                                holder.frameAt(t)
+                                val hold = 1f - smootherstep((t - pusherExits[k]) / ExitMs)
+                                aboveH += (holder.totalHeight + stackGapPx) * hold
+                            }
+                            if (!centerV) {
+                                aboveH
+                            } else {
+                                cells.frameAt(t)
+                                var belowH = 0f
+                                for (m in followers.indices) {
+                                    val f = followers[m]
+                                    f.frameAt(t)
+                                    val enterW = smootherstep((t - followerEnters[m]) / EnterMs)
+                                    belowH += (stackGapPx + f.totalHeight) * enterW
+                                }
+                                (heightPx - cells.totalHeight - belowH + aboveH) / 2f
+                            }
+                        },
+                    )
+                }
+                val exit = exitAts[index]
+                if (overlaps[index] && exit != null) {
+                    above += cells
+                    aboveExits += exit
                 }
             }
         }
@@ -922,7 +951,7 @@ fun ExpressiveLyrics(
  * side of the voice that sings next and sized up to sit with the big type.
  */
 @Composable
-private fun InterludeRow(gap: Interlude, position: LivePosition, baseSize: TextUnit) {
+private fun InterludeRow(gap: Interlude, position: LivePosition, baseSize: TextUnit, modifier: Modifier = Modifier) {
     val visible by remember(gap, position) {
         derivedStateOf {
             val t = position.positionMs()
@@ -946,11 +975,11 @@ private fun InterludeRow(gap: Interlude, position: LivePosition, baseSize: TextU
             LineSide.CENTER -> com.mochyy.mochymusic.ui.player.LyricsAlignment.CENTER
             LineSide.RIGHT -> com.mochyy.mochymusic.ui.player.LyricsAlignment.END
         },
-        modifier = Modifier
+        modifier = modifier
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
-                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(origin, 0f)
+                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(origin, if (gap.side == LineSide.CENTER) 0.5f else 0f)
             }
             // the row pads itself for the lyrics page; here the dots line up with the words' edge
             .layout { measurable, constraints ->
@@ -1069,7 +1098,12 @@ private fun LyricLine(
                             val t = position.positionMs()
                             cells.frameAt(t)
                             // they come in just after the words, and go with them
-                            motion(order, t, sub.layout.size.height * 1.6f, 0f, cells.subY[k], sub.bleed, mayGlow = false)
+                            val subX = when (cells.side) {
+                                LineSide.LEFT -> 0f
+                                LineSide.CENTER -> (cells.maxWidth - sub.layout.size.width) / 2f
+                                LineSide.RIGHT -> cells.maxWidth - sub.layout.size.width
+                            }
+                            motion(order, t, sub.layout.size.height * 1.6f, subX, cells.subY[k], sub.bleed, mayGlow = false)
                         }
                     }
                 }
