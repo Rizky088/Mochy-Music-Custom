@@ -79,7 +79,7 @@
       "paid": false,
       "locked": false,
       "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/yeno-orbit-tablet.png",
-      "banner": "",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/banner.webp",
       "previews": [],
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/yeno-orbit-tablet.zip",
