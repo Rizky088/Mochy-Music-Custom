@@ -44,30 +44,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1573357652115984504"
     },
     {
-      "id": "terminal-vintage",
-      "name": "Terminal Vintage",
-      "moduleId": "terminal-vintage",
-      "version": "1.00",
-      "author": "Adi",
-      "description": "A modern terminal-inspired music player look for Mochy, with a clean TUI layout, customizable themes, synced lyrics, audio visualizers and queue details.",
-      "kind": "player",
-      "tags": [
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/terminal-vintage.png",
-      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/terminal-vintage.webp",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/terminal-vintage.zip",
-      "size": 3541085,
-      "updated": 1795544206901,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1574047132648869968",
-      "postUrl": "https://discord.com/channels/916351383341522994/1574047132648869968"
-    },
-    {
       "id": "vinyl-wave-player",
       "name": "Vinyl Wave Player",
       "moduleId": "vinyl-wave-player",
@@ -576,6 +552,32 @@
       "updated": 1795550624010,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1574745718319747203",
       "postUrl": "https://discord.com/channels/916351383341522994/1574745718319747203"
+    },
+    {
+      "id": "terminal-vintage",
+      "name": "Terminal Vintage",
+      "moduleId": "terminal-vintage",
+      "version": "1.00",
+      "author": "Adi",
+      "description": "A modern terminal-inspired music player look for Mochy, with a clean TUI layout, customizable themes, synced lyrics, audio visualizers and queue details.",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/terminal-vintage.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/terminal-vintage.webp",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/terminal-vintage-1795550671-0.webp"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/terminal-vintage.zip",
+      "size": 3541085,
+      "updated": 1795550671974,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1574047132648869968",
+      "postUrl": "https://discord.com/channels/916351383341522994/1574047132648869968"
     }
   ]
 }
