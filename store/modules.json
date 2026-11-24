@@ -44,30 +44,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
     },
     {
-      "id": "yeno-orbit-tablet",
-      "name": "Yeno's Orbit Tablet",
-      "moduleId": "yeno-orbit-tablet",
-      "version": "1.10.17",
-      "author": "Yeno",
-      "description": "Official tablet edition: the whole player is drawn larger and the sky is stretched so it reaches the top and bottom edges of the screen, in landscape and portrait. Your music in orbit. A circular cover ringed by a visualizer that glows brighter as the song plays, a progress arc with a glowing moon, a twinkling starfield, a live seek bar and controls on frosted glass. v1.3: make it yours - 6 colour themes, 4 visualizer rings, sky, seek bar, controls, title and lyrics styles, spinning cover, song change animations, background variants, plus the queue bar and audio format badge. New: four more space backgrounds - pulsar, eclipse, solar system and constellations - each in its own corner of the sky, on top of the galaxy, black hole, deep nebula and aurora. Tap the artist name or the song title to open their page. Top and bottom padding sliders fit the player to any screen. Tablet edition: everything enlarged to fill a tablet screen, and the volume bar sits clear of the play button. A DPI fix slider scales the whole player up further. Update (cover no longer dims when lyrics are off): Spinning cover is now a speed menu (Very slow to Fast), Lyrics style has an Off choice that keeps lyrics off the album cover, and the unused 'Lyric line under the title' option is gone. In the Solar system sky the sun is small and sits at the left of the sky with the planets circling it. The planets are now round and lit by the sun, with fading orbit trails, banded Jupiter, a ringed Saturn and a softer sun glow.",
-      "kind": "player",
-      "tags": [
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/yeno-orbit-tablet.png",
-      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/yeno-orbit-tablet.webp",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/yeno-orbit-tablet.zip",
-      "size": 598356,
-      "updated": 1795543902409,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
-    },
-    {
       "id": "yeno-orbit-tablet-lite",
       "name": "Yeno's Orbit Tablet Lite",
       "moduleId": "yeno-orbit-tablet-lite",
@@ -564,6 +540,33 @@
       "updated": 1795550385210,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573799711545229495",
       "postUrl": "https://discord.com/channels/916351383341522994/1573799711545229495"
+    },
+    {
+      "id": "yeno-orbit-tablet",
+      "name": "Yeno's Orbit Tablet",
+      "moduleId": "yeno-orbit-tablet",
+      "version": "1.10.17",
+      "author": "Yeno",
+      "description": "Official tablet edition: the whole player is drawn larger and the sky is stretched so it reaches the top and bottom edges of the screen, in landscape and portrait. Your music in orbit. A circular cover ringed by a visualizer that glows brighter as the song plays, a progress arc with a glowing moon, a twinkling starfield, a live seek bar and controls on frosted glass. v1.3: make it yours - 6 colour themes, 4 visualizer rings, sky, seek bar, controls, title and lyrics styles, spinning cover, song change animations, background variants, plus the queue bar and audio format badge. New: four more space backgrounds - pulsar, eclipse, solar system and constellations - each in its own corner of the sky, on top of the galaxy, black hole, deep nebula and aurora. Tap the artist name or the song title to open their page. Top and bottom padding sliders fit the player to any screen. Tablet edition: everything enlarged to fill a tablet screen, and the volume bar sits clear of the play button. A DPI fix slider scales the whole player up further. Update (cover no longer dims when lyrics are off): Spinning cover is now a speed menu (Very slow to Fast), Lyrics style has an Off choice that keeps lyrics off the album cover, and the unused 'Lyric line under the title' option is gone. In the Solar system sky the sun is small and sits at the left of the sky with the planets circling it. The planets are now round and lit by the sun, with fading orbit trails, banded Jupiter, a ringed Saturn and a softer sun glow.",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/yeno-orbit-tablet.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/yeno-orbit-tablet.webp",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-tablet-1795550452-0.png",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-tablet-1795550452-1.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/yeno-orbit-tablet.zip",
+      "size": 598356,
+      "updated": 1795550452458,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
     }
   ]
 }
