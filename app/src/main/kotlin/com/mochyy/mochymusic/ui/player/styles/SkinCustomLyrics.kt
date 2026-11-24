@@ -153,7 +153,7 @@ private fun LyricRow(
     val wordSegments = remember(line, words) { style3WordSegments(line.text, words) }
     val glowPaint = remember {
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.FILL
+            setStyle(Paint.Style.FILL)
             typeface = Typeface.DEFAULT_BOLD
         }
     }
