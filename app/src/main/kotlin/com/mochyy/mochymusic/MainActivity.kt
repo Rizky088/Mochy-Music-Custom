@@ -428,10 +428,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen().handOffToLaunchIntro { introPlays }
         super.onCreate(savedInstanceState)
-        if (intent?.hasExtra(com.mochyy.mochymusic.launcher.BaseIconSplashLauncher.EXTRA_SPLASH_BG_COLOR) == true) {
-            val splashBg = intent.getIntExtra(com.mochyy.mochymusic.launcher.BaseIconSplashLauncher.EXTRA_SPLASH_BG_COLOR, android.graphics.Color.BLACK)
-            window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(splashBg))
-        }
         // a tv that opens the phone app from an old shortcut gets the big-screen one instead
         if (savedInstanceState == null && intent?.action == Intent.ACTION_MAIN && isTelevision()) {
             startActivity(Intent(this, com.mochyy.mochymusic.ui.tv.TvActivity::class.java))
@@ -684,7 +680,7 @@ class MainActivity : ComponentActivity() {
                     introPlays = plays
                     if (introRequested && !plays) LaunchGate.skip()
                     // an anime icon's splash shows the icon itself, so the intro bounces out of it; every other launch starts from the bare mark
-                    val icon = com.mochyy.mochymusic.utils.AppIcons.launchedFrom(intent)?.takeIf(com.mochyy.mochymusic.utils.AppIcons::splashShows)
+                    val icon = (com.mochyy.mochymusic.utils.AppIcons.launchedFrom(intent) ?: com.mochyy.mochymusic.utils.AppIcons.current(this@MainActivity)).takeIf(com.mochyy.mochymusic.utils.AppIcons::splashShows)
                     LaunchIntroState(plays, icon)
                 }
 
