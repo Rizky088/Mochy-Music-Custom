@@ -453,39 +453,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1572060423400980641"
     },
     {
-      "id": "yeno-orbit",
-      "name": "Yeno’s Orbit",
-      "moduleId": "yeno-orbit",
-      "version": "1.10.26",
-      "author": "Yeno",
-      "description": "Your music in orbit. A circular cover ringed by a visualizer that glows brighter as the song plays, a progress arc with a glowing moon, a twinkling starfield, a live seek bar and controls on frosted glass. v1.3: make it yours - 6 colour themes, 4 visualizer rings, sky, seek bar, controls, title and lyrics styles, spinning cover, song change animations, background variants, plus the queue bar and audio format badge. New: four more space backgrounds - pulsar, eclipse, solar system and constellations - each in its own corner of the sky, on top of the galaxy, black hole, deep nebula and aurora. Tap the artist name or the song title to open their page. DPI fix slider: makes the whole player bigger so it fills tall and large screens (1.0x = original size, 1.5x = largest), in portrait and landscape. Update (cover no longer dims when lyrics are off): Spinning cover is now a speed menu (Very slow to Fast), Lyrics style has an Off choice that keeps lyrics off the album cover, and the unused 'Lyric line under the title' option is gone. In the Solar system sky the sun is small and sits at the left of the sky with the planets circling it. The planets are now round and lit by the sun, with fading orbit trails, banded Jupiter, a ringed Saturn and a softer sun glow.",
-      "kind": "player",
-      "tags": [
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/yeno-orbit.png",
-      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/yeno-orbit.webp",
-      "previews": [
-        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-0.png",
-        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-1.jpg",
-        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-2.jpg",
-        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-3.jpg",
-        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-4.jpg",
-        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-5.jpg",
-        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-6.jpg",
-        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-7.jpg"
-      ],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/yeno-orbit.zip",
-      "size": 677578,
-      "updated": 1795548899249,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
-    },
-    {
       "id": "cassette-queue",
       "name": "Cassette Queue",
       "moduleId": "cassette-queue",
@@ -565,6 +532,38 @@
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/yeno-orbit-tablet.zip",
       "size": 598356,
       "updated": 1795550452458,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
+    },
+    {
+      "id": "yeno-orbit",
+      "name": "Yeno’s Orbit",
+      "moduleId": "yeno-orbit",
+      "version": "1.10.26",
+      "author": "Yeno",
+      "description": "Your music in orbit. A circular cover ringed by a visualizer that glows brighter as the song plays, a progress arc with a glowing moon, a twinkling starfield, a live seek bar and controls on frosted glass. v1.3: make it yours - 6 colour themes, 4 visualizer rings, sky, seek bar, controls, title and lyrics styles, spinning cover, song change animations, background variants, plus the queue bar and audio format badge. New: four more space backgrounds - pulsar, eclipse, solar system and constellations - each in its own corner of the sky, on top of the galaxy, black hole, deep nebula and aurora. Tap the artist name or the song title to open their page. DPI fix slider: makes the whole player bigger so it fills tall and large screens (1.0x = original size, 1.5x = largest), in portrait and landscape. Update (cover no longer dims when lyrics are off): Spinning cover is now a speed menu (Very slow to Fast), Lyrics style has an Off choice that keeps lyrics off the album cover, and the unused 'Lyric line under the title' option is gone. In the Solar system sky the sun is small and sits at the left of the sky with the planets circling it. The planets are now round and lit by the sun, with fading orbit trails, banded Jupiter, a ringed Saturn and a softer sun glow.",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/yeno-orbit.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/yeno-orbit.webp",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-0.png",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-1.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-2.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-3.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-4.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-5.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/yeno-orbit-1795548899-6.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/yeno-orbit.zip",
+      "size": 677578,
+      "updated": 1795550476123,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573682060886020196",
       "postUrl": "https://discord.com/channels/916351383341522994/1573682060886020196"
     }
