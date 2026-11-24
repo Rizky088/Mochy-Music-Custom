@@ -265,7 +265,11 @@ fun CaptureWebContent(
         settings.setSupportZoom(true)
         settings.builtInZoomControls = true
         settings.displayZoomControls = false
-        settings.userAgentString = if (desktopSite) DESKTOP_USER_AGENT else chromeUserAgent(settings.userAgentString)
+        val rawAgent = settings.userAgentString
+        val mobileAgent = chromeUserAgent(rawAgent)
+        val desktopAgent = desktopUserAgent(rawAgent)
+        settings.databaseEnabled = true
+        settings.userAgentString = if (desktopSite) desktopAgent else mobileAgent
         disableForcedDarkening()
         hideAppIdentity()
         CookieManager.getInstance().setAcceptCookie(true)
@@ -277,6 +281,28 @@ fun CaptureWebContent(
         }
 
         webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                if (desktopSite && request.isForMainFrame && request.method.equals("GET", ignoreCase = true)) {
+                    val targetUrl = request.url?.toString().orEmpty()
+                    val host = request.url?.host.orEmpty().lowercase()
+                    val isTidalAuth = host == "login.tidal.com" || host == "tidal.com" || host == "www.tidal.com"
+                    if (isTidalAuth && view.settings.userAgentString != mobileAgent) {
+                        // Match real Android Chrome fingerprint on Tidal's DataDome login pages
+                        view.settings.userAgentString = mobileAgent
+                        view.settings.loadWithOverviewMode = false
+                        view.loadUrl(targetUrl)
+                        return true
+                    }
+                    if (!isTidalAuth && isPlayerPage(targetUrl, playerOrigins) && view.settings.userAgentString != desktopAgent) {
+                        view.settings.userAgentString = desktopAgent
+                        view.settings.loadWithOverviewMode = true
+                        view.loadUrl(targetUrl)
+                        return true
+                    }
+                }
+                return false
+            }
+
             override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
                 if (!isPopup) {
                     currentOnLoadingChange(true)
@@ -444,12 +470,23 @@ private const val LOG_TAG = "SignInWeb"
 internal fun chromeUserAgent(webViewAgent: String): String =
     webViewAgent.replace("; wv", "").replace(Regex("""\s?Version/\d+(\.\d+)*"""), "")
 
+/** desktop Chrome user agent matching this WebView's real Chrome version so anti-bot checks don't flag a stale build */
+internal fun desktopUserAgent(webViewAgent: String): String {
+    val chrome = Regex("""Chrome/\d+\.\d+\.\d+\.\d+""").find(webViewAgent)?.value
+    return if (chrome != null) {
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) $chrome Safari/537.36"
+    } else {
+        DESKTOP_USER_AGENT
+    }
+}
+
 /** true once this view shows desktop sites, from the start or after useDesktopSite */
-internal fun WebView.isDesktopSite(): Boolean = settings.userAgentString == DESKTOP_USER_AGENT
+internal fun WebView.isDesktopSite(): Boolean =
+    settings.userAgentString == DESKTOP_USER_AGENT || settings.userAgentString.contains("X11; Linux x86_64")
 
 /** switches a phone-site view to desktop sites from its next page load on, zoomed out to fit */
 internal fun WebView.useDesktopSite() {
-    settings.userAgentString = DESKTOP_USER_AGENT
+    settings.userAgentString = desktopUserAgent(settings.userAgentString)
     settings.loadWithOverviewMode = true
 }
 
