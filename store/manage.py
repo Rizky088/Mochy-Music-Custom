@@ -745,6 +745,7 @@ def main() -> None:
         print("  6. Remove module")
         print("  7. Push pending store changes to GitHub")
         print("  8. Sync all .zip manifest metadata")
+        print("  9. Dump all module versions")
         print("  0. Exit")
         choice = input("Choose: ").strip()
         if choice == "1":
@@ -763,9 +764,98 @@ def main() -> None:
             push_changes("Store: update catalog")
         elif choice == "8":
             sync_zips_metadata()
+        elif choice == "9":
+            cmd_versions()
         elif choice == "0":
             break
 
 
+
+
+def cmd_versions(args=None):
+    """Dump current versions of all modules in store/modules.json."""
+    import json as _json
+    from pathlib import Path as _Path
+
+    args = list(args or [])
+    store_json = _Path(__file__).resolve().parent / "modules.json"
+    if not store_json.exists():
+        print(f"[ERR] {store_json} not found")
+        return
+
+    raw = _json.loads(store_json.read_text(encoding="utf-8"))
+    if isinstance(raw, list):
+        mods = raw
+    elif isinstance(raw, dict):
+        mods = raw.get("modules") or raw.get("items") or raw.get("entries") or []
+    else:
+        mods = []
+
+    if not mods:
+        print("No modules found in store/modules.json.")
+        return
+
+    as_json = any(a in ("--json", "-j") for a in args)
+    as_plain = any(a in ("--plain", "-p") for a in args)
+    save_path = None
+    for idx, a in enumerate(args):
+        if a in ("--save", "-s"):
+            if idx + 1 < len(args) and not args[idx + 1].startswith("-"):
+                save_path = _Path(args[idx + 1])
+            else:
+                save_path = _Path("/sdcard/Download/mochy-store-versions.txt")
+
+    if as_json:
+        out_map = {str(m.get("id", "")): str(m.get("version", "?")) for m in mods}
+        output = _json.dumps(out_map, indent=2, ensure_ascii=False)
+    elif as_plain:
+        lines = []
+        for m in mods:
+            mid = str(m.get("id", "?"))
+            ver = str(m.get("version", "?"))
+            flag = " [hidden]" if m.get("hidden") else ""
+            lines.append(f"{mid}: {ver}{flag}")
+        output = "\n".join(lines)
+    else:
+        rows = []
+        for i, m in enumerate(mods, 1):
+            mid = str(m.get("id", "?"))
+            name = str(m.get("name", mid))
+            ver = str(m.get("version", "?"))
+            tags = []
+            if m.get("hidden"):
+                tags.append("hidden")
+            if m.get("featured"):
+                tags.append("featured")
+            status = ", ".join(tags) if tags else "visible"
+            rows.append((str(i), mid, name, ver, status))
+
+        w_i = max(len("#"), max(len(r[0]) for r in rows))
+        w_id = max(len("ID"), max(len(r[1]) for r in rows))
+        w_name = max(len("NAME"), max(len(r[2]) for r in rows))
+        w_ver = max(len("VERSION"), max(len(r[3]) for r in rows))
+        w_st = max(len("STATUS"), max(len(r[4]) for r in rows))
+
+        hdr = f"{'#':>{w_i}}  {'ID':<{w_id}}  {'NAME':<{w_name}}  {'VERSION':<{w_ver}}  {'STATUS':<{w_st}}"
+        sep = "-" * len(hdr)
+        lines = [hdr, sep]
+        for r in rows:
+            lines.append(f"{r[0]:>{w_i}}  {r[1]:<{w_id}}  {r[2]:<{w_name}}  {r[3]:<{w_ver}}  {r[4]:<{w_st}}")
+        lines.append(sep)
+        lines.append(f"Total: {len(rows)} modules")
+        output = "\n".join(lines)
+
+    print(output)
+    if save_path is not None:
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        save_path.write_text(output + "\n", encoding="utf-8")
+        print(f"\n[OK] Saved version dump to {save_path}")
+
+
 if __name__ == "__main__":
+    import sys as _sys
+    if len(_sys.argv) > 1 and _sys.argv[1].lower() in ("versions", "version", "dump", "v"):
+        cmd_versions(_sys.argv[2:])
+        _sys.exit(0)
+
     main()

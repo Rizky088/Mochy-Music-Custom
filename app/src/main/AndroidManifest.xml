@@ -210,6 +210,310 @@
         </activity>
 
         <!-- the launcher icons: exactly one is enabled at a time (utils/AppIcons.kt), the default until another is picked -->
+        
+        <!-- MOCHY_EXT_SPLASH_START -->
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconDefault"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconDefault" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkWhite"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkWhite" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkBlack"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkBlack" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkMaterial"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkMaterial" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkTransparent"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkTransparent" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutline"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutline" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineWhite"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineWhite" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineBlack"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineBlack" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineMaterial"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineMaterial" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineTransparent"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineTransparent" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeWhite"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeWhite" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeDark"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeDark" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeMaterial"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeMaterial" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeTransparent"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeTransparent" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkRed"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkRed" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkOrange"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkOrange" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkYellow"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkYellow" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkGreen"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkGreen" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkTeal"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkTeal" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkSky"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkSky" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkBlue"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkBlue" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkIndigo"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkIndigo" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkPurple"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkPurple" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkPink"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkPink" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkGraphite"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkGraphite" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkCream"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconMarkCream" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineRed"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineRed" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineOrange"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineOrange" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineYellow"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineYellow" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineGreen"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineGreen" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineTeal"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineTeal" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineSky"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineSky" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineBlue"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineBlue" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineIndigo"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineIndigo" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlinePurple"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlinePurple" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlinePink"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlinePink" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineGraphite"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineGraphite" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineCream"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconOutlineCream" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeRed"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeRed" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeOrange"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeOrange" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeYellow"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeYellow" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeGreen"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeGreen" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeTeal"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeTeal" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeSky"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeSky" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeBlue"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeBlue" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeIndigo"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeIndigo" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimePurple"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimePurple" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimePink"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimePink" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeGraphite"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeGraphite" />
+        <activity
+            android:name="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeCream"
+            android:exported="false"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Mochy.Splash.IconAnimeCream" />
+        <!-- MOCHY_EXT_SPLASH_END -->
+
         <activity-alias
             android:name=".IconDefault"
             android:enabled="true"
@@ -217,7 +521,7 @@
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_round"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconDefault">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -233,7 +537,7 @@
             android:icon="@mipmap/app_icon_mark_white"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_white"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkWhite">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -249,7 +553,7 @@
             android:icon="@mipmap/app_icon_mark_black"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_black"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkBlack">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -265,7 +569,7 @@
             android:icon="@mipmap/app_icon_mark_material"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_material"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkMaterial">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -281,7 +585,7 @@
             android:icon="@mipmap/app_icon_mark_transparent"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_transparent"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkTransparent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -297,7 +601,7 @@
             android:icon="@mipmap/app_icon_outline"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutline">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -313,7 +617,7 @@
             android:icon="@mipmap/app_icon_outline_white"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_white"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineWhite">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -329,7 +633,7 @@
             android:icon="@mipmap/app_icon_outline_black"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_black"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineBlack">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -345,7 +649,7 @@
             android:icon="@mipmap/app_icon_outline_material"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_material"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineMaterial">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -361,7 +665,7 @@
             android:icon="@mipmap/app_icon_outline_transparent"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_transparent"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineTransparent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -377,7 +681,7 @@
             android:icon="@mipmap/app_icon_anime_white"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_white"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeWhite">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -393,7 +697,7 @@
             android:icon="@mipmap/app_icon_anime_dark"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_dark"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeDark">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -409,7 +713,7 @@
             android:icon="@mipmap/app_icon_anime_material"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_material"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeMaterial">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -425,7 +729,7 @@
             android:icon="@mipmap/app_icon_anime_transparent"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_transparent"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeTransparent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -442,7 +746,7 @@
             android:icon="@mipmap/app_icon_mark_custom_red"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_custom_red"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkRed">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -458,7 +762,7 @@
             android:icon="@mipmap/app_icon_mark_custom_orange"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_custom_orange"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkOrange">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -474,7 +778,7 @@
             android:icon="@mipmap/app_icon_mark_custom_yellow"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_custom_yellow"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkYellow">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -490,7 +794,7 @@
             android:icon="@mipmap/app_icon_mark_custom_green"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_custom_green"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkGreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -506,7 +810,7 @@
             android:icon="@mipmap/app_icon_mark_custom_teal"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_custom_teal"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkTeal">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -522,7 +826,7 @@
             android:icon="@mipmap/app_icon_mark_custom_sky"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_custom_sky"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkSky">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -538,7 +842,7 @@
             android:icon="@mipmap/app_icon_mark_custom_blue"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_custom_blue"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkBlue">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -554,7 +858,7 @@
             android:icon="@mipmap/app_icon_mark_custom_indigo"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_custom_indigo"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkIndigo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -570,7 +874,7 @@
             android:icon="@mipmap/app_icon_mark_custom_purple"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_custom_purple"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkPurple">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -586,7 +890,7 @@
             android:icon="@mipmap/app_icon_mark_custom_pink"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_custom_pink"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkPink">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -602,7 +906,7 @@
             android:icon="@mipmap/app_icon_mark_custom_graphite"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_custom_graphite"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkGraphite">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -618,7 +922,7 @@
             android:icon="@mipmap/app_icon_mark_custom_cream"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_mark_custom_cream"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconMarkCream">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -634,7 +938,7 @@
             android:icon="@mipmap/app_icon_outline_custom_red"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_custom_red"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineRed">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -650,7 +954,7 @@
             android:icon="@mipmap/app_icon_outline_custom_orange"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_custom_orange"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineOrange">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -666,7 +970,7 @@
             android:icon="@mipmap/app_icon_outline_custom_yellow"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_custom_yellow"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineYellow">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -682,7 +986,7 @@
             android:icon="@mipmap/app_icon_outline_custom_green"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_custom_green"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineGreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -698,7 +1002,7 @@
             android:icon="@mipmap/app_icon_outline_custom_teal"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_custom_teal"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineTeal">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -714,7 +1018,7 @@
             android:icon="@mipmap/app_icon_outline_custom_sky"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_custom_sky"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineSky">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -730,7 +1034,7 @@
             android:icon="@mipmap/app_icon_outline_custom_blue"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_custom_blue"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineBlue">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -746,7 +1050,7 @@
             android:icon="@mipmap/app_icon_outline_custom_indigo"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_custom_indigo"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineIndigo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -762,7 +1066,7 @@
             android:icon="@mipmap/app_icon_outline_custom_purple"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_custom_purple"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlinePurple">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -778,7 +1082,7 @@
             android:icon="@mipmap/app_icon_outline_custom_pink"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_custom_pink"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlinePink">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -794,7 +1098,7 @@
             android:icon="@mipmap/app_icon_outline_custom_graphite"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_custom_graphite"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineGraphite">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -810,7 +1114,7 @@
             android:icon="@mipmap/app_icon_outline_custom_cream"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_outline_custom_cream"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconOutlineCream">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -826,7 +1130,7 @@
             android:icon="@mipmap/app_icon_anime_custom_red"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_custom_red"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeRed">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -842,7 +1146,7 @@
             android:icon="@mipmap/app_icon_anime_custom_orange"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_custom_orange"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeOrange">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -858,7 +1162,7 @@
             android:icon="@mipmap/app_icon_anime_custom_yellow"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_custom_yellow"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeYellow">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -874,7 +1178,7 @@
             android:icon="@mipmap/app_icon_anime_custom_green"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_custom_green"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeGreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -890,7 +1194,7 @@
             android:icon="@mipmap/app_icon_anime_custom_teal"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_custom_teal"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeTeal">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -906,7 +1210,7 @@
             android:icon="@mipmap/app_icon_anime_custom_sky"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_custom_sky"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeSky">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -922,7 +1226,7 @@
             android:icon="@mipmap/app_icon_anime_custom_blue"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_custom_blue"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeBlue">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -938,7 +1242,7 @@
             android:icon="@mipmap/app_icon_anime_custom_indigo"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_custom_indigo"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeIndigo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -954,7 +1258,7 @@
             android:icon="@mipmap/app_icon_anime_custom_purple"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_custom_purple"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimePurple">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -970,7 +1274,7 @@
             android:icon="@mipmap/app_icon_anime_custom_pink"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_custom_pink"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimePink">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -986,7 +1290,7 @@
             android:icon="@mipmap/app_icon_anime_custom_graphite"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_custom_graphite"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeGraphite">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -1002,7 +1306,7 @@
             android:icon="@mipmap/app_icon_anime_custom_cream"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/app_icon_anime_custom_cream"
-            android:targetActivity=".MainActivity">
+            android:targetActivity="com.mochyy.mochymusic.launcher.SplashLauncher_IconAnimeCream">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
