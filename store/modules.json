@@ -380,30 +380,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1573599909163176006"
     },
     {
-      "id": "crystal-glass",
-      "name": "BitGlass",
-      "moduleId": "crystal-glass",
-      "version": "5.7",
-      "author": "cannavis",
-      "description": "Liquid glass bars + a full-bleed cover player",
-      "kind": "look",
-      "tags": [
-        "Looks"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/crystal-glass.png",
-      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/crystal-glass.png",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/crystal-glass.zip",
-      "size": 286864,
-      "updated": 1795544587081,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1572060423400980641",
-      "postUrl": "https://discord.com/channels/916351383341522994/1572060423400980641"
-    },
-    {
       "id": "edge-player",
       "name": "Edge Player",
       "moduleId": "edge-player",
@@ -546,6 +522,31 @@
       "updated": 1795544883235,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573293432766603395",
       "postUrl": "https://discord.com/channels/916351383341522994/1573293432766603395"
+    },
+    {
+      "id": "crystal-glass",
+      "name": "BitGlass",
+      "moduleId": "crystal-glass",
+      "version": "5.7",
+      "author": "cannavis",
+      "description": "Liquid glass bars + a full-bleed cover player",
+      "kind": "look",
+      "tags": [
+        "Looks",
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/crystal-glass.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/crystal-glass.png",
+      "previews": [],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/crystal-glass.zip",
+      "size": 286864,
+      "updated": 1795547616775,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1572060423400980641",
+      "postUrl": "https://discord.com/channels/916351383341522994/1572060423400980641"
     }
   ]
 }
