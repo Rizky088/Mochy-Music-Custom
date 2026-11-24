@@ -140,30 +140,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1573847246682849390"
     },
     {
-      "id": "miku-player",
-      "name": "Miku Player",
-      "moduleId": "miku-player",
-      "version": "3.47",
-      "author": "you",
-      "description": "Immersive card with edge progress, a spinning vinyl, 3 lyric styles (Classic, Kinetic, Karaoke), 5 seek bars, 7 song-change animations, 8 vinyl styles (Classic, Colored, Splatter, Smoke, Heart-shaped, Split color, Liquid-filled, Glitter), 4 cover plastics (Glossy shrink-wrap, PVC sleeve, Hype sticker, Worn sleeve), a second player 'Miku Vinyl' (big translucent vinyl over the cover with a tonearm, portrait and landscape) a third player 'Miku Home' (same layout as Miku on a wooden table with a turntable) and backgrounds (Aurora, Ambient Pulse, Matrix Spectrum, Adaptive solid colour) Lyrics icon button and an optional queue bar. A fourth player 'Mivinyls' (only the vinyl disc and the tonearm, portrait and landscape). Miku v2: glass card with the cover in the middle and a spinning vinyl behind it. Every player can show the audio quality.",
-      "kind": "player",
-      "tags": [
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/miku-player.png",
-      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/miku-player.png",
-      "previews": [],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/miku-player.zip",
-      "size": 3812832,
-      "updated": 1795544840582,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573592465653366834",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573592465653366834"
-    },
-    {
       "id": "tape-trader-chart",
       "name": "Tape · Trader Chart",
       "moduleId": "tape-trader-chart",
@@ -607,6 +583,36 @@
       "updated": 1795551194490,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1572060423400980641",
       "postUrl": "https://discord.com/channels/916351383341522994/1572060423400980641"
+    },
+    {
+      "id": "miku-player",
+      "name": "Immersive Vinyls",
+      "moduleId": "miku-player",
+      "version": "3.47",
+      "author": "you",
+      "description": "Immersive card with edge progress, a spinning vinyl, 3 lyric styles (Classic, Kinetic, Karaoke), 5 seek bars, 7 song-change animations, 8 vinyl styles (Classic, Colored, Splatter, Smoke, Heart-shaped, Split color, Liquid-filled, Glitter), 4 cover plastics (Glossy shrink-wrap, PVC sleeve, Hype sticker, Worn sleeve), a second player 'Miku Vinyl' (big translucent vinyl over the cover with a tonearm, portrait and landscape) a third player 'Miku Home' (same layout as Miku on a wooden table with a turntable) and backgrounds (Aurora, Ambient Pulse, Matrix Spectrum, Adaptive solid colour) Lyrics icon button and an optional queue bar. A fourth player 'Mivinyls' (only the vinyl disc and the tonearm, portrait and landscape). Miku v2: glass card with the cover in the middle and a spinning vinyl behind it. Every player can show the audio quality.",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/miku-player.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/miku-player.png",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/miku-player-1795551415-0.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/miku-player-1795551415-1.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/miku-player-1795551415-2.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/miku-player-1795551415-3.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/miku-player-1795551415-4.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/miku-player.zip",
+      "size": 3812832,
+      "updated": 1795551415481,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573592465653366834",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573592465653366834"
     }
   ]
 }
