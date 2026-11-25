@@ -512,14 +512,6 @@ private val HomeTopBarRise = 16.dp
 @Composable
 private fun HomeShell() {
     val homeStyle by rememberEnumPreference(HomeStyleKey, defaultValue = HomeStyle.MOCHYY)
-    val (customHomeOrderRaw, onCustomHomeOrderChange) = rememberPreference(CustomHomeOrderKey, defaultValue = "")
-    val (customHomeHiddenRaw, onCustomHomeHiddenChange) = rememberPreference(CustomHomeHiddenKey, defaultValue = "")
-    var isEditingCustomHome by remember { mutableStateOf(false) }
-    var customOrderDraft by remember { mutableStateOf<List<String>>(emptyList()) }
-    val customHiddenSet = remember(customHomeHiddenRaw) { parseCustomHomeHidden(customHomeHiddenRaw) }
-    LaunchedEffect(customHomeOrderRaw) { customOrderDraft = parseCustomHomeOrder(customHomeOrderRaw) }
-    LaunchedEffect(homeStyle) { if (homeStyle != HomeStyle.CUSTOM) isEditingCustomHome = false }
-    BackHandler(enabled = isEditingCustomHome) { isEditingCustomHome = false }
     val profilePicUri by rememberPreference(ProfilePicUriKey, "")
     val profileImageUrl = profilePicUri
         .takeIf { it.isNotBlank() }
@@ -739,6 +731,14 @@ fun HomeScreen(
     val quickPicksLazyGridState = rememberTrackGridState()
     val forgottenFavoritesLazyGridState = rememberTrackGridState()
     val homeStyle by rememberEnumPreference(HomeStyleKey, defaultValue = HomeStyle.MOCHYY)
+    val (customHomeOrderRaw, onCustomHomeOrderChange) = rememberPreference(CustomHomeOrderKey, defaultValue = "")
+    val (customHomeHiddenRaw, onCustomHomeHiddenChange) = rememberPreference(CustomHomeHiddenKey, defaultValue = "")
+    var isEditingCustomHome by remember { mutableStateOf(false) }
+    var customOrderDraft by remember { mutableStateOf<List<String>>(emptyList()) }
+    val customHiddenSet = remember(customHomeHiddenRaw) { parseCustomHomeHidden(customHomeHiddenRaw) }
+    LaunchedEffect(customHomeOrderRaw) { customOrderDraft = parseCustomHomeOrder(customHomeOrderRaw) }
+    LaunchedEffect(homeStyle) { if (homeStyle != HomeStyle.CUSTOM) isEditingCustomHome = false }
+    BackHandler(enabled = isEditingCustomHome) { isEditingCustomHome = false }
 
     val startListeningSongs = remember(keepListening, recentHistorySongs, mostPlayedSongsForHome, forgottenFavorites) {
         buildList<Song> {
