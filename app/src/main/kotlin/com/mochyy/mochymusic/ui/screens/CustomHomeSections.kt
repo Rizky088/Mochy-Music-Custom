@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -503,6 +505,165 @@ internal fun CustomHomeAddSectionSheet(
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
                 color = Color.Black,
+            )
+        }
+    }
+}
+
+@Composable
+internal fun ReorderableCollectionItemScope.CustomHomeCompactEditCard(
+    title: String,
+    subtitle: String,
+    thumbnails: List<String>,
+    isFirst: Boolean,
+    isDragging: Boolean,
+    onMoveToTop: () -> Unit,
+    onPickUp: () -> Unit,
+    onDrop: () -> Unit,
+) {
+    val lift by animateFloatAsState(
+        targetValue = if (isDragging) 1f else 0f,
+        animationSpec = spring(dampingRatio = 0.72f, stiffness = 520f),
+        label = "customHomeCompactLift",
+    )
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 5.dp)
+            .graphicsLayer {
+                val scale = 1f + 0.025f * lift
+                scaleX = scale
+                scaleY = scale
+                shadowElevation = 18.dp.toPx() * lift
+                shape = EditCardShape
+                clip = false
+            }
+            .clip(EditCardShape)
+            .background(
+                if (isDragging) DragGlowFill.copy(alpha = 0.18f)
+                else Color.White.copy(alpha = 0.075f)
+            )
+            .drawWithContent {
+                drawContent()
+                val radius = CornerRadius(22.dp.toPx(), 22.dp.toPx())
+                if (isDragging) {
+                    drawRoundRect(
+                        color = DragGlowBorder.copy(alpha = 0.95f),
+                        cornerRadius = radius,
+                        style = Stroke(width = 2.dp.toPx()),
+                    )
+                } else {
+                    drawRoundRect(
+                        color = Color.White.copy(alpha = 0.28f),
+                        cornerRadius = radius,
+                        style = Stroke(
+                            width = 1.25.dp.toPx(),
+                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(14f, 10f), 0f),
+                        ),
+                    )
+                }
+            }
+            .longPressDraggableHandle(
+                onDragStarted = { onPickUp() },
+                onDragStopped = { onDrop() },
+            )
+            .padding(start = 14.dp, end = 10.dp, top = 12.dp, bottom = 12.dp),
+    ) {
+        if (thumbnails.isNotEmpty()) {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                thumbnails.take(2).forEach { url ->
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color.White.copy(alpha = 0.12f)),
+                    ) {
+                        AsyncImage(
+                            model = url,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.width(12.dp))
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp,
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (subtitle.isNotBlank()) {
+                Text(
+                    text = subtitle,
+                    fontFamily = InterFontFamily,
+                    fontSize = 12.sp,
+                    color = Color.White.copy(alpha = 0.62f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+
+        if (!isFirst) {
+            Spacer(Modifier.width(8.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                modifier = Modifier
+                    .height(34.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.10f))
+                    .clickable(onClick = onMoveToTop)
+                    .padding(horizontal = 10.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.KeyboardArrowUp,
+                    contentDescription = "Move to top",
+                    tint = Color.White.copy(alpha = 0.9f),
+                    modifier = Modifier.size(16.dp),
+                )
+                Text(
+                    text = "Top",
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 12.sp,
+                    color = Color.White.copy(alpha = 0.9f),
+                )
+            }
+        }
+
+        Spacer(Modifier.width(8.dp))
+
+        // 3-line drag handle shown ONLY in edit mode — immediate drag without waiting for long press
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(42.dp)
+                .clip(CircleShape)
+                .background(
+                    if (isDragging) Color.White.copy(alpha = 0.26f)
+                    else Color.White.copy(alpha = 0.12f)
+                )
+                .draggableHandle(
+                    onDragStarted = { onPickUp() },
+                    onDragStopped = { onDrop() },
+                ),
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.queue_drag_handle),
+                contentDescription = "Drag section",
+                tint = Color.White.copy(alpha = if (isDragging) 1f else 0.82f),
+                modifier = Modifier.size(20.dp),
             )
         }
     }

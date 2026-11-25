@@ -1258,7 +1258,13 @@ fun HomeScreen(
         }
     }
 
-    val customReorderState = rememberReorderableLazyListState(lazylistState) { from, to ->
+    val editTopThresholdPad = WindowInsets.stableSystemBars.asPaddingValues().calculateTopPadding() + 96.dp
+    val editBottomThresholdPad = LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateBottomPadding() + 24.dp
+    val customReorderState = rememberReorderableLazyListState(
+        lazyListState = lazylistState,
+        scrollThresholdPadding = PaddingValues(top = editTopThresholdPad, bottom = editBottomThresholdPad),
+        scrollThreshold = 96.dp,
+    ) { from, to ->
         if (!isEditingCustomHome) return@rememberReorderableLazyListState
         val fromKey = from.key as? String ?: return@rememberReorderableLazyListState
         val toKey = to.key as? String ?: return@rememberReorderableLazyListState
@@ -1514,7 +1520,7 @@ fun HomeScreen(
                         if (isEditingCustomHome) {
                             item(key = "custom_edit_hint", contentType = "hint") {
                                 Text(
-                                    text = "Press and drag to reorder your homepage sections",
+                                    text = "Drag the 3-line handle to reorder, or tap Top to pin a section first",
                                     fontFamily = InterFontFamily,
                                     fontSize = 14.sp,
                                     color = Color.White.copy(alpha = 0.72f),
@@ -1523,12 +1529,145 @@ fun HomeScreen(
                             }
                         }
                         if (!launchHold) {
-                            items(
+                            itemsIndexed(
                                 items = visibleCustomBlocks,
-                                key = { it.id },
-                                contentType = { "custom_block" },
-                            ) { block ->
+                                key = { _, it -> it.id },
+                                contentType = { _, _ -> if (isEditingCustomHome) "custom_edit_card" else "custom_block" },
+                            ) { blockIndex, block ->
                                 ReorderableItem(customReorderState, key = block.id) { isDragging ->
+                                    if (isEditingCustomHome) {
+                                        val (editTitle, editSubtitle, editThumbs) = when (block) {
+                                            CustomHomeBlock.Hero -> {
+                                                val heroSong = mediaMetadataState.value ?: lastPlayedSong
+                                                Triple(
+                                                    "Hero Carousel",
+                                                    heroSong?.title?.takeIf { it.isNotBlank() } ?: "Featured banner",
+                                                    listOfNotNull(heroSong?.thumbnailUrl),
+                                                )
+                                            }
+                                            CustomHomeBlock.StartListening -> Triple(
+                                                stringResource(R.string.home_start_listening),
+                                                "${startListeningSongs.size} songs",
+                                                startListeningSongs.mapNotNull { it.thumbnailUrl }.take(2),
+                                            )
+                                            CustomHomeBlock.HopIn -> Triple(
+                                                stringResource(R.string.home_hop_in),
+                                                "${hopInLocalItems.size} items",
+                                                hopInLocalItems.mapNotNull { (it as? Playlist)?.thumbnails?.firstOrNull() ?: it.thumbnailUrl }.take(2),
+                                            )
+                                            is CustomHomeBlock.Standard -> when (val section = block.section) {
+                                                HomeSection.Pinned -> Triple(
+                                                    stringResource(R.string.library_pinned),
+                                                    "${pinnedItems.size} pinned",
+                                                    pinnedItems.mapNotNull { it.thumbnail }.take(2),
+                                                )
+                                                HomeSection.RecentlyPlayed -> Triple(
+                                                    stringResource(R.string.recently_played),
+                                                    "${recentlyPlayed.orEmpty().size} items",
+                                                    recentlyPlayed.orEmpty().mapNotNull { (it as? Playlist)?.thumbnails?.firstOrNull() ?: it.thumbnailUrl }.take(2),
+                                                )
+                                                HomeSection.MostPlayed -> Triple(
+                                                    stringResource(R.string.home_most_played),
+                                                    "${mostPlayedSongsForHome.orEmpty().size} songs",
+                                                    mostPlayedSongsForHome.orEmpty().mapNotNull { it.song.thumbnailUrl }.take(2),
+                                                )
+                                                HomeSection.History -> Triple(
+                                                    stringResource(R.string.home_history),
+                                                    "${recentHistorySongs.orEmpty().size} songs",
+                                                    recentHistorySongs.orEmpty().mapNotNull { it.song.thumbnailUrl }.take(2),
+                                                )
+                                                HomeSection.FromTheCommunity -> Triple(
+                                                    stringResource(R.string.from_the_community),
+                                                    "${communityPlaylists.orEmpty().size} playlists",
+                                                    communityPlaylists.orEmpty().mapNotNull { it.playlist.thumbnail }.take(2),
+                                                )
+                                                HomeSection.ArtistList -> Triple(
+                                                    stringResource(R.string.artist_list),
+                                                    "${artistListItems.orEmpty().size} artists",
+                                                    artistListItems.orEmpty().mapNotNull { it.artistThumbnailUrl ?: it.items.firstOrNull()?.thumbnail }.take(2),
+                                                )
+                                                HomeSection.AllTimeHits -> Triple(
+                                                    stringResource(R.string.all_time_hits),
+                                                    "${allTimeHits.orEmpty().size} items",
+                                                    allTimeHits.orEmpty().mapNotNull { it.thumbnail }.take(2),
+                                                )
+                                                HomeSection.LiveShows -> Triple(
+                                                    stringResource(R.string.live_shows),
+                                                    "${liveRow.orEmpty().size} videos",
+                                                    liveRow.orEmpty().mapNotNull { it.item.thumbnail }.take(2),
+                                                )
+                                                HomeSection.MusicVideos -> Triple(
+                                                    stringResource(R.string.music_videos_for_you),
+                                                    "${musicVideoRow.orEmpty().size} videos",
+                                                    musicVideoRow.orEmpty().mapNotNull { it.item.thumbnail }.take(2),
+                                                )
+                                                is HomeSection.Category -> {
+                                                    val cat = homeCategories?.firstOrNull { it.id == section.categoryId }
+                                                    val catTitle = if (cat?.kind == HomeCategory.Kind.NewFromArtists) {
+                                                        stringResource(R.string.home_new_from_your_artists)
+                                                    } else {
+                                                        cat?.title ?: "Recommended"
+                                                    }
+                                                    Triple(
+                                                        catTitle,
+                                                        "${cat?.items.orEmpty().size} items",
+                                                        cat?.items.orEmpty().mapNotNull { it.thumbnail }.take(2),
+                                                    )
+                                                }
+                                                HomeSection.AccountPlaylists -> {
+                                                    val count = localPlaylists.orEmpty().size + accountPlaylists.orEmpty().size
+                                                    val thumbs = (
+                                                        localPlaylists.orEmpty().mapNotNull { it.thumbnails.firstOrNull() } +
+                                                            accountPlaylists.orEmpty().mapNotNull { it.thumbnail }
+                                                        ).take(2)
+                                                    Triple(
+                                                        stringResource(R.string.home_your_playlists),
+                                                        "$count playlists",
+                                                        thumbs,
+                                                    )
+                                                }
+                                                HomeSection.DontForgetTheseSongs -> Triple(
+                                                    stringResource(R.string.dont_forget_these_songs),
+                                                    "${forgottenFavorites.orEmpty().size} songs",
+                                                    forgottenFavorites.orEmpty().mapNotNull { it.song.thumbnailUrl }.take(2),
+                                                )
+                                                is HomeSection.HomePageSection -> {
+                                                    val sec = homePage?.sections?.getOrNull(section.index)
+                                                    Triple(
+                                                        sec?.title ?: section.title,
+                                                        "${sec?.items.orEmpty().size} items",
+                                                        sec?.items.orEmpty().mapNotNull { it.thumbnail }.take(2),
+                                                    )
+                                                }
+                                            }
+                                        }
+                                        CustomHomeCompactEditCard(
+                                            title = editTitle,
+                                            subtitle = editSubtitle,
+                                            thumbnails = editThumbs,
+                                            isFirst = blockIndex == 0,
+                                            isDragging = isDragging,
+                                            onMoveToTop = {
+                                                val currentIds = visibleCustomBlocks.map { it.id }.toMutableList()
+                                                if (currentIds.remove(block.id)) {
+                                                    currentIds.add(0, block.id)
+                                                    val rest = customOrderDraft.filter { it !in currentIds }
+                                                    val updated = currentIds + rest
+                                                    customOrderDraft = updated
+                                                    onCustomHomeOrderChange(serializeCustomHomeOrder(updated))
+                                                    haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                                    scope.launch { lazylistState.animateScrollToItem(0) }
+                                                }
+                                            },
+                                            onPickUp = {
+                                                haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                            },
+                                            onDrop = {
+                                                haptic.performHapticFeedback(HapticFeedbackType.GestureEnd)
+                                                onCustomHomeOrderChange(serializeCustomHomeOrder(customOrderDraft))
+                                            },
+                                        )
+                                    } else {
                                     val blockContent: @Composable () -> Unit = {
                                         when (block) {
                                             CustomHomeBlock.Hero -> {
@@ -1855,19 +1994,6 @@ fun HomeScreen(
                                         }
                                     }
 
-                                    if (isEditingCustomHome) {
-                                        CustomHomeEditCard(
-                                            isDragging = isDragging,
-                                            onPickUp = {
-                                                haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                                            },
-                                            onDrop = {
-                                                haptic.performHapticFeedback(HapticFeedbackType.GestureEnd)
-                                                onCustomHomeOrderChange(serializeCustomHomeOrder(customOrderDraft))
-                                            },
-                                            content = blockContent,
-                                        )
-                                    } else {
                                         Column(modifier = Modifier.fillMaxWidth()) {
                                             blockContent()
                                             if (block !is CustomHomeBlock.Hero) {
