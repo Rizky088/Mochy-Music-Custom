@@ -39,13 +39,28 @@ jobs:
           SDK_ROOT="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
           SDKMANAGER="$(command -v sdkmanager || echo "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager")"
           if [ ! -d "$SDK_ROOT/platforms/android-37" ] && [ -x "$SDKMANAGER" ]; then
-            yes | "$SDKMANAGER" --licenses >/dev/null || true
+            yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
             if [ ! -d "$SDK_ROOT/platforms/android-37.0" ]; then
-              "$SDKMANAGER" "platforms;android-37.0" || "$SDKMANAGER" "platforms;android-37"
+              ("$SDKMANAGER" "platforms;android-37.0" || "$SDKMANAGER" "platforms;android-37") | tr '\r' '\n' | grep -vE '^\[[= ]+\]' || true
             fi
             if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
               ln -sfn android-37.0 "$SDK_ROOT/platforms/android-37"
             fi
+          fi
+
+      - name: Ensure Debug Keystore
+        run: |
+          mkdir -p "$HOME/.android"
+          if [ ! -f "$HOME/.android/debug.keystore" ]; then
+            keytool -genkeypair -noprompt \
+              -keystore "$HOME/.android/debug.keystore" \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
           fi
 
       - name: Setup Gradle
@@ -59,9 +74,9 @@ jobs:
       - name: Build ARM64 FOSS Debug
         run: |
           if [ "${{ inputs.mode }}" = "kotlin-only" ]; then
-            ./gradlew :app:compileArm64FossDebugKotlin --build-cache --parallel -x lint -x test
+            ./gradlew :app:compileArm64FossDebugKotlin --build-cache --parallel --console=plain -x lint -x test
           else
-            ./gradlew :app:assembleArm64FossDebug --build-cache --parallel -x lint -x test
+            ./gradlew :app:assembleArm64FossDebug --build-cache --parallel --console=plain -x lint -x test
           fi
 
       - name: Upload Debug APK
