@@ -115,6 +115,11 @@ import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.models.YTItem
 import com.mochyy.mochymusic.constants.HomeStyle
 import com.mochyy.mochymusic.constants.HomeStyleKey
+import androidx.activity.compose.BackHandler
+import com.mochyy.mochymusic.constants.CustomHomeHiddenKey
+import com.mochyy.mochymusic.constants.CustomHomeOrderKey
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 import com.mochyy.mochymusic.constants.ProfilePicUriKey
 import com.mochyy.mochymusic.constants.ThumbnailCornerRadius
 import com.mochyy.mochymusic.db.entities.Album
@@ -507,6 +512,14 @@ private val HomeTopBarRise = 16.dp
 @Composable
 private fun HomeShell() {
     val homeStyle by rememberEnumPreference(HomeStyleKey, defaultValue = HomeStyle.MOCHYY)
+    val (customHomeOrderRaw, onCustomHomeOrderChange) = rememberPreference(CustomHomeOrderKey, defaultValue = "")
+    val (customHomeHiddenRaw, onCustomHomeHiddenChange) = rememberPreference(CustomHomeHiddenKey, defaultValue = "")
+    var isEditingCustomHome by remember { mutableStateOf(false) }
+    var customOrderDraft by remember { mutableStateOf<List<String>>(emptyList()) }
+    val customHiddenSet = remember(customHomeHiddenRaw) { parseCustomHomeHidden(customHomeHiddenRaw) }
+    LaunchedEffect(customHomeOrderRaw) { customOrderDraft = parseCustomHomeOrder(customHomeOrderRaw) }
+    LaunchedEffect(homeStyle) { if (homeStyle != HomeStyle.CUSTOM) isEditingCustomHome = false }
+    BackHandler(enabled = isEditingCustomHome) { isEditingCustomHome = false }
     val profilePicUri by rememberPreference(ProfilePicUriKey, "")
     val profileImageUrl = profilePicUri
         .takeIf { it.isNotBlank() }
@@ -1184,7 +1197,6 @@ fun HomeScreen(
                 }
             }
 
-            if (localPlaylists?.isNotEmpty() == true || accountPlaylists?.isNotEmpty() == true) list.add(HomeSection.AccountPlaylists)
             if (recentlyPlayed?.isNotEmpty() == true) list.add(HomeSection.RecentlyPlayed)
             if (pinnedItems.isNotEmpty()) list.add(HomeSection.Pinned)
             if (mostPlayedSongsForHome?.isNotEmpty() == true) list.add(HomeSection.MostPlayed)
@@ -1196,6 +1208,8 @@ fun HomeScreen(
             if (liveRow?.isNotEmpty() == true) list.add(HomeSection.LiveShows)
             addCategories()
             if (artistListItems?.isNotEmpty() == true) list.add(HomeSection.ArtistList)
+            addCategories()
+            if (localPlaylists?.isNotEmpty() == true || accountPlaylists?.isNotEmpty() == true) list.add(HomeSection.AccountPlaylists)
             addCategories()
             if (forgottenFavorites?.isNotEmpty() == true) list.add(HomeSection.DontForgetTheseSongs)
             addCategories()
@@ -1217,6 +1231,45 @@ fun HomeScreen(
 
             list
         }
+    }
+
+    val visibleCustomBlocks = remember(
+        homeStyle,
+        homeSections,
+        customOrderDraft,
+        customHiddenSet,
+        startListeningSongs,
+        hopInLocalItems,
+        isFirstLoad,
+        launchHold,
+    ) {
+        if (homeStyle != HomeStyle.CUSTOM) {
+            emptyList()
+        } else {
+            val available = buildList<CustomHomeBlock> {
+                add(CustomHomeBlock.Hero)
+                if (startListeningSongs.isNotEmpty() || isFirstLoad) add(CustomHomeBlock.StartListening)
+                if (hopInLocalItems.isNotEmpty() || isFirstLoad) add(CustomHomeBlock.HopIn)
+                homeSections.forEach { add(CustomHomeBlock.Standard(it)) }
+            }
+            orderCustomHomeBlocks(available, customOrderDraft, customHiddenSet)
+        }
+    }
+
+    val customReorderState = rememberReorderableLazyListState(lazylistState) { from, to ->
+        if (!isEditingCustomHome) return@rememberReorderableLazyListState
+        val fromKey = from.key as? String ?: return@rememberReorderableLazyListState
+        val toKey = to.key as? String ?: return@rememberReorderableLazyListState
+        val currentIds = visibleCustomBlocks.map { it.id }.toMutableList()
+        val fromIndex = currentIds.indexOf(fromKey)
+        val toIndex = currentIds.indexOf(toKey)
+        if (fromIndex < 0 || toIndex < 0 || fromIndex == toIndex) return@rememberReorderableLazyListState
+        val moved = currentIds.removeAt(fromIndex)
+        currentIds.add(toIndex, moved)
+        // keep any currently-unavailable saved ids after the visible ones so nothing is forgotten
+        val rest = customOrderDraft.filter { it !in currentIds }
+        customOrderDraft = currentIds + rest
+        haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
     }
 
     LaunchedEffect(mostPlayedSongsForHome) {
@@ -1445,10 +1498,389 @@ fun HomeScreen(
                             }
                         }
                     }
+                    HomeStyle.CUSTOM -> {
+                        val firstIsHero = visibleCustomBlocks.firstOrNull() is CustomHomeBlock.Hero
+                        if (isEditingCustomHome || !firstIsHero) {
+                            item(key = "custom_top_spacer", contentType = "spacer") {
+                                Spacer(
+                                    Modifier.height(
+                                        WindowInsets.stableSystemBars.asPaddingValues().calculateTopPadding() + 82.dp
+                                    )
+                                )
+                            }
+                        }
+                        if (isEditingCustomHome) {
+                            item(key = "custom_edit_hint", contentType = "hint") {
+                                Text(
+                                    text = "Press and drag to reorder your homepage sections",
+                                    fontFamily = InterFontFamily,
+                                    fontSize = 14.sp,
+                                    color = Color.White.copy(alpha = 0.72f),
+                                    modifier = Modifier.padding(start = HomeContentInset, end = 24.dp, bottom = 12.dp),
+                                )
+                            }
+                        }
+                        if (!launchHold) {
+                            items(
+                                items = visibleCustomBlocks,
+                                key = { it.id },
+                                contentType = { "custom_block" },
+                            ) { block ->
+                                ReorderableItem(customReorderState, key = block.id) { isDragging ->
+                                    val blockContent: @Composable () -> Unit = {
+                                        when (block) {
+                                            CustomHomeBlock.Hero -> {
+                                                if (isEditingCustomHome) {
+                                                    val heroSong = mediaMetadataState.value ?: lastPlayedSong
+                                                    CustomHeroEditPreview(
+                                                        title = heroSong?.title.orEmpty(),
+                                                        subtitle = heroSong?.artists?.joinToString(", ") { it.name },
+                                                        thumbnailUrl = heroSong?.thumbnailUrl,
+                                                    )
+                                                } else {
+                                                    HeroCarousel(
+                                                        keepListening = keepListening,
+                                                        lastPlayedSong = mediaMetadataState.value ?: lastPlayedSong,
+                                                        dailyDiscover = dailyDiscover,
+                                                        playerConnection = playerConnection,
+                                                        navController = navController,
+                                                        heroScrollProgressProvider = heroScrollProgressProvider,
+                                                        isLoading = isFirstLoad || starterSongs == null,
+                                                        hold = launchHold,
+                                                        gachaPool = gachaPool,
+                                                        starterItems = starterItems,
+                                                        playlistPicks = playlistPicks,
+                                                        similarRecommendations = similarRecommendations,
+                                                        onRepeat = mostPlayedSongsForHome,
+                                                        forgottenFavorites = forgottenFavorites,
+                                                        speedDialCovers = speedDialCovers,
+                                                        onSummonSpeedDial = openSpeedDial,
+                                                        modifier = Modifier.launchRise(order = 1),
+                                                    )
+                                                }
+                                            }
+                                            CustomHomeBlock.StartListening -> {
+                                                Column(modifier = Modifier.fillMaxWidth()) {
+                                                    if (startListeningSongs.isNotEmpty()) {
+                                                        HomeSectionTitle(title = stringResource(R.string.home_start_listening))
+                                                        HomeTrackGrid(
+                                                            items = startListeningSongs,
+                                                            state = startListeningGridState,
+                                                            rowSpacing = 6.dp,
+                                                            columnWidth = trackColumnWidth,
+                                                            key = { _, song -> "custom_listen_${song.id}" },
+                                                            content = trackRow,
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                            CustomHomeBlock.HopIn -> {
+                                                Column(modifier = Modifier.fillMaxWidth()) {
+                                                    if (hopInLocalItems.isNotEmpty()) {
+                                                        HomeSectionTitle(title = stringResource(R.string.home_hop_in))
+                                                        val visibleItems = hopInLocalItems.take(hopInColumns * 2)
+                                                        Column(
+                                                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .padding(horizontal = HomeContentInset),
+                                                        ) {
+                                                            visibleItems.chunked(hopInColumns).forEach { rowItems ->
+                                                                Row(
+                                                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                                                    modifier = Modifier.fillMaxWidth(),
+                                                                ) {
+                                                                    rowItems.forEach { item ->
+                                                                        hopInCard(item, Modifier.weight(1f))
+                                                                    }
+                                                                    repeat(hopInColumns - rowItems.size) {
+                                                                        Spacer(Modifier.weight(1f))
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            is CustomHomeBlock.Standard -> {
+                                                Column(modifier = Modifier.fillMaxWidth()) {
+                                                    when (val section = block.section) {
+                                                        HomeSection.Pinned -> {
+                                                            pinnedItems.takeIf { it.isNotEmpty() }?.let { items ->
+                                                                HomeSectionTitle(title = stringResource(R.string.library_pinned))
+                                                                HomeCardRow("pinned", items, revealSeen, key = { it.id }, content = ytItemCard)
+                                                            }
+                                                        }
+                                                        HomeSection.RecentlyPlayed -> {
+                                                            recentlyPlayed?.takeIf { it.isNotEmpty() }?.let { items ->
+                                                                HomeSectionTitle(
+                                                                    title = stringResource(R.string.recently_played),
+                                                                    onClick = if (isEditingCustomHome) null else {
+                                                                        { navController.navigate("section_detail/recently_played") }
+                                                                    },
+                                                                )
+                                                                HomeCardRow("recently_played", items, revealSeen, key = { it.id }, content = localItemCard)
+                                                            }
+                                                        }
+                                                        HomeSection.MostPlayed -> {
+                                                            mostPlayedSongsForHome?.takeIf { it.isNotEmpty() }?.let { mostPlayed ->
+                                                                HomeSectionTitle(
+                                                                    title = stringResource(R.string.home_most_played),
+                                                                    onClick = if (isEditingCustomHome) null else {
+                                                                        { navController.navigate("section_detail/most_played") }
+                                                                    },
+                                                                )
+                                                                HomeTrackGrid(
+                                                                    items = mostPlayed,
+                                                                    state = quickPicksLazyGridState,
+                                                                    rowSpacing = 6.dp,
+                                                                    columnWidth = trackColumnWidth,
+                                                                    key = { _, song -> song.id },
+                                                                    content = rankedTrackRow,
+                                                                )
+                                                            }
+                                                        }
+                                                        HomeSection.History -> {
+                                                            recentHistorySongs?.takeIf { it.isNotEmpty() }?.let { history ->
+                                                                HomeSectionTitle(
+                                                                    title = stringResource(R.string.home_history),
+                                                                    onClick = if (isEditingCustomHome) null else {
+                                                                        { navController.navigate("history") }
+                                                                    },
+                                                                )
+                                                                HomeTrackGrid(
+                                                                    items = history,
+                                                                    state = rememberTrackGridState(),
+                                                                    rowSpacing = 6.dp,
+                                                                    columnWidth = trackColumnWidth,
+                                                                    key = { index, song -> "history_${index}_${song.id}" },
+                                                                    content = trackRow,
+                                                                )
+                                                            }
+                                                        }
+                                                        HomeSection.FromTheCommunity -> {
+                                                            communityPlaylists?.takeIf { it.isNotEmpty() }?.let { playlists ->
+                                                                HomeSectionTitle(
+                                                                    title = stringResource(R.string.from_the_community),
+                                                                    onClick = if (isEditingCustomHome) null else {
+                                                                        { navController.navigate("section_detail/from_the_community") }
+                                                                    },
+                                                                )
+                                                                HomeCardRow("community_playlists", playlists, revealSeen, key = { it.playlist.id }, content = communityCard)
+                                                            }
+                                                        }
+                                                        HomeSection.ArtistList -> {
+                                                            artistListItems?.takeIf { it.isNotEmpty() }?.let { items ->
+                                                                HomeSectionTitle(title = stringResource(R.string.artist_list))
+                                                                HomeCardRow("artist_list", items, revealSeen, key = { "${it.artistId}_${it.artistName}" }, content = artistGroupCard)
+                                                            }
+                                                        }
+                                                        HomeSection.AllTimeHits -> {
+                                                            allTimeHits?.takeIf { it.isNotEmpty() }?.let { hits ->
+                                                                HomeSectionTitle(
+                                                                    title = stringResource(R.string.all_time_hits),
+                                                                    onClick = if (isEditingCustomHome) null else {
+                                                                        { navController.navigate("section_detail/all_time_hits") }
+                                                                    },
+                                                                )
+                                                                HomeCardRow("all_time_hits", hits, revealSeen, key = { it.id }, content = hitsCard)
+                                                            }
+                                                        }
+                                                        HomeSection.LiveShows, HomeSection.MusicVideos -> {
+                                                            val isLive = section == HomeSection.LiveShows
+                                                            (if (isLive) liveRow else musicVideoRow)?.takeIf { it.isNotEmpty() }?.let { videos ->
+                                                                HomeSectionTitle(
+                                                                    title = stringResource(if (isLive) R.string.live_shows else R.string.music_videos_for_you),
+                                                                    onClick = if (isEditingCustomHome) null else {
+                                                                        { navController.navigate("section_detail/${section.id}") }
+                                                                    },
+                                                                )
+                                                                HomeCardRow(section.id, videos, revealSeen, key = { it.item.id }, content = videoRowCard)
+                                                            }
+                                                        }
+                                                        is HomeSection.Category -> {
+                                                            homeCategories?.firstOrNull { it.id == section.categoryId }?.let { category ->
+                                                                val title = when (category.kind) {
+                                                                    HomeCategory.Kind.NewFromArtists -> stringResource(R.string.home_new_from_your_artists)
+                                                                    else -> category.title
+                                                                }
+                                                                HomeSectionTitle(
+                                                                    label = when (category.kind) {
+                                                                        HomeCategory.Kind.BecauseYouLike -> stringResource(R.string.home_because_you_like)
+                                                                        HomeCategory.Kind.MoreLikeArtist -> stringResource(R.string.home_more_like)
+                                                                        HomeCategory.Kind.YourGenre -> stringResource(R.string.home_because_you_listen_to)
+                                                                        HomeCategory.Kind.NewGenre -> stringResource(R.string.home_try_something_new)
+                                                                        HomeCategory.Kind.NewFromArtists -> null
+                                                                    },
+                                                                    title = title,
+                                                                    thumbnail = category.thumbnailUrl?.let { thumbnailUrl ->
+                                                                        {
+                                                                            AsyncImage(
+                                                                                model = thumbnailUrl.resize(90, 90),
+                                                                                contentDescription = null,
+                                                                                contentScale = ContentScale.Crop,
+                                                                                modifier = Modifier
+                                                                                    .size(30.dp)
+                                                                                    .clip(
+                                                                                        if (category.kind == HomeCategory.Kind.MoreLikeArtist) CircleShape
+                                                                                        else RoundedCornerShape(ThumbnailCornerRadius)
+                                                                                    ),
+                                                                            )
+                                                                        }
+                                                                    },
+                                                                    onClick = if (isEditingCustomHome) null else category.endpoint?.let { endpoint ->
+                                                                        {
+                                                                            if (category.kind == HomeCategory.Kind.MoreLikeArtist) {
+                                                                                navController.navigate("artist/${endpoint.browseId}")
+                                                                            } else {
+                                                                                navController.navigate("genre/${endpoint.browseId}?params=${endpoint.params}")
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                )
+                                                                HomeCardRow(section.id, category.items, revealSeen, key = { it.id }, content = ytItemCard)
+                                                            }
+                                                        }
+                                                        HomeSection.AccountPlaylists -> {
+                                                            if (!localPlaylists.isNullOrEmpty() || !accountPlaylists.isNullOrEmpty()) {
+                                                                HomeSectionTitle(
+                                                                    label = if (speedDialOwner != null) stringResource(R.string.home_your_playlists) else null,
+                                                                    title = speedDialOwner ?: stringResource(R.string.home_your_playlists),
+                                                                    thumbnail = if (speedDialOwner != null || profileImageUrl != null) {
+                                                                        {
+                                                                            if (profileImageUrl != null) {
+                                                                                AsyncImage(
+                                                                                    model = profileImageRequest,
+                                                                                    placeholder = painterResource(id = R.drawable.person),
+                                                                                    error = painterResource(id = R.drawable.person),
+                                                                                    contentDescription = null,
+                                                                                    contentScale = ContentScale.Crop,
+                                                                                    modifier = Modifier.size(30.dp).clip(CircleShape),
+                                                                                )
+                                                                            } else {
+                                                                                Icon(
+                                                                                    painter = painterResource(id = R.drawable.person),
+                                                                                    contentDescription = null,
+                                                                                    tint = Color.White.copy(alpha = 0.69f),
+                                                                                    modifier = Modifier.size(30.dp),
+                                                                                )
+                                                                            }
+                                                                        }
+                                                                    } else null,
+                                                                )
+                                                                LazyRow(
+                                                                    state = rememberCardRowState(),
+                                                                    contentPadding = PaddingValues(horizontal = HomeContentInset),
+                                                                    horizontalArrangement = Arrangement.spacedBy(HomeCardSpacing),
+                                                                ) {
+                                                                    localPlaylists?.let { items ->
+                                                                        items(items = items, key = { it.id }) { item ->
+                                                                            localItemCard(item)
+                                                                        }
+                                                                    }
+                                                                    accountPlaylists?.let { items ->
+                                                                        items(items = items, key = { it.id }) { item ->
+                                                                            ytItemCard(item)
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        HomeSection.DontForgetTheseSongs -> {
+                                                            forgottenFavorites?.takeIf { it.isNotEmpty() }?.let { forgottenFavorites ->
+                                                                HomeSectionTitle(
+                                                                    title = stringResource(R.string.dont_forget_these_songs),
+                                                                    onClick = if (isEditingCustomHome) null else {
+                                                                        { navController.navigate("section_detail/forgotten_favorites") }
+                                                                    },
+                                                                )
+                                                                HomeTrackGrid(
+                                                                    items = forgottenFavorites,
+                                                                    state = forgottenFavoritesLazyGridState,
+                                                                    rowSpacing = 6.dp,
+                                                                    columnWidth = trackColumnWidth,
+                                                                    key = { _, song -> song.id },
+                                                                    content = trackRow,
+                                                                )
+                                                            }
+                                                        }
+                                                        is HomeSection.HomePageSection -> {
+                                                            homePage?.sections?.getOrNull(section.index)?.let { sectionData ->
+                                                                HomeSectionTitle(
+                                                                    title = sectionData.title,
+                                                                    label = sectionData.label,
+                                                                    thumbnail = sectionData.thumbnail?.let { thumbnailUrl ->
+                                                                        {
+                                                                            val shape = if (sectionData.endpoint?.isArtistEndpoint == true) CircleShape
+                                                                            else RoundedCornerShape(ThumbnailCornerRadius)
+                                                                            AsyncImage(
+                                                                                model = thumbnailUrl,
+                                                                                contentDescription = null,
+                                                                                modifier = Modifier.size(30.dp).clip(shape),
+                                                                            )
+                                                                        }
+                                                                    },
+                                                                    onClick = if (isEditingCustomHome) null else sectionData.endpoint?.let { endpoint ->
+                                                                        {
+                                                                            when {
+                                                                                endpoint.browseId == "FEmusic_moods_and_genres" ->
+                                                                                    navController.navigate("mood_and_genres")
+                                                                                endpoint.params != null ->
+                                                                                    navController.navigate("youtube_browse/${endpoint.browseId}?params=${endpoint.params}")
+                                                                                else ->
+                                                                                    navController.navigate("browse/${endpoint.browseId}")
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                )
+                                                                val videos = feedVideoRows[section.index]
+                                                                if (videos != null) {
+                                                                    HomeCardRow(
+                                                                        "home_section_${section.id}",
+                                                                        videos,
+                                                                        revealSeen,
+                                                                        key = { it.item.id },
+                                                                        content = videoRowCard,
+                                                                    )
+                                                                } else {
+                                                                    HomeCardRow("home_section_${section.id}", sectionData.items, revealSeen, key = { it.id }, content = ytItemCard)
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (isEditingCustomHome) {
+                                        CustomHomeEditCard(
+                                            isDragging = isDragging,
+                                            onPickUp = {
+                                                haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                            },
+                                            onDrop = {
+                                                haptic.performHapticFeedback(HapticFeedbackType.GestureEnd)
+                                                onCustomHomeOrderChange(serializeCustomHomeOrder(customOrderDraft))
+                                            },
+                                            content = blockContent,
+                                        )
+                                    } else {
+                                        Column(modifier = Modifier.fillMaxWidth()) {
+                                            blockContent()
+                                            if (block !is CustomHomeBlock.Hero) {
+                                                Spacer(modifier = Modifier.height(34.dp))
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // nothing but bones while the launch intro plays; the rows reveal once it lands
-                if (!launchHold) homeSections.forEach { section ->
+                if (!launchHold && homeStyle != HomeStyle.CUSTOM) homeSections.forEach { section ->
                     when (section) {
                         HomeSection.Pinned -> {
                             pinnedItems.takeIf { it.isNotEmpty() }?.let { items ->
@@ -1781,12 +2213,12 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
 
-                val showHeroOverlay by remember { derivedStateOf { heroScrollProgressProvider() > 0.01f } }
+                val showHeroOverlay by remember { derivedStateOf { isEditingCustomHome || heroScrollProgressProvider() > 0.01f } }
                 if (showHeroOverlay) {
                     Box(
                         modifier = Modifier
                             .matchParentSize()
-                            .graphicsLayer { alpha = heroScrollProgressProvider().coerceIn(0f, 1f) }
+                            .graphicsLayer { alpha = if (isEditingCustomHome) 1f else heroScrollProgressProvider().coerceIn(0f, 1f) }
                     ) {
                         ProgressiveGlassBackground(
                             state = homeGlassState,
@@ -1819,7 +2251,7 @@ fun HomeScreen(
                                     androidx.compose.ui.graphics.SolidColor(backgroundColor.copy(alpha = com.mochyy.mochymusic.ui.component.FlatBarScrimAlpha))
                                 }
                                 onDrawBehind {
-                                    drawRect(brush = fade, alpha = heroScrollProgressProvider().coerceIn(0f, 1f))
+                                    drawRect(brush = fade, alpha = if (isEditingCustomHome) 1f else heroScrollProgressProvider().coerceIn(0f, 1f))
                                 }
                             }
                     )
@@ -1837,7 +2269,7 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val isScrolled by remember { derivedStateOf { heroScrollProgress > 0.5f } }
+                    val isScrolled by remember { derivedStateOf { isEditingCustomHome || heroScrollProgress > 0.5f } }
                     val topBarProgress by animateFloatAsState(
                         targetValue = if (isScrolled) 1f else 0f,
                         animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
@@ -1881,20 +2313,53 @@ fun HomeScreen(
                         )
                     }
 
-                    Box(
-                        modifier = Modifier
-                            .launchRise(order = 0, distance = HomeTopBarRise)
-                            .graphicsLayer {
-                                val scale = 1f - (topBarProgress * 0.1f)
-                                scaleX = scale
-                                scaleY = scale
-                                transformOrigin = TransformOrigin(1f, 0.5f)
-                            }
-                            .height(44.dp)
-                            .clip(RoundedCornerShape(50))
-                            .clickable { navController.navigateToTab("settings") },
-                        contentAlignment = Alignment.CenterEnd
+                    if (homeStyle == HomeStyle.CUSTOM && isEditingCustomHome) {
+                        CustomHomeEditTopActions(
+                            onDone = {
+                                onCustomHomeOrderChange(serializeCustomHomeOrder(customOrderDraft))
+                                isEditingCustomHome = false
+                            },
+                            onAddSection = {
+                                menuState.show {
+                                    val liveHiddenRaw by rememberPreference(CustomHomeHiddenKey, defaultValue = "")
+                                    val liveHidden = remember(liveHiddenRaw) { parseCustomHomeHidden(liveHiddenRaw) }
+                                    CustomHomeAddSectionSheet(
+                                        hidden = liveHidden,
+                                        onToggle = { id, enabled ->
+                                            val next = if (enabled) liveHidden - id else liveHidden + id
+                                            onCustomHomeHiddenChange(serializeCustomHomeHidden(next))
+                                        },
+                                        onReset = {
+                                            customOrderDraft = emptyList()
+                                            onCustomHomeOrderChange("")
+                                            onCustomHomeHiddenChange("")
+                                        },
+                                        onDismiss = menuState::dismiss,
+                                    )
+                                }
+                            },
+                        )
+                    } else Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
+                        if (homeStyle == HomeStyle.CUSTOM) {
+                            CustomHomeEditChip(onClick = { isEditingCustomHome = true })
+                        }
+                        Box(
+                            modifier = Modifier
+                                .launchRise(order = 0, distance = HomeTopBarRise)
+                                .graphicsLayer {
+                                    val scale = 1f - (topBarProgress * 0.1f)
+                                    scaleX = scale
+                                    scaleY = scale
+                                    transformOrigin = TransformOrigin(1f, 0.5f)
+                                }
+                                .height(44.dp)
+                                .clip(RoundedCornerShape(50))
+                                .clickable { navController.navigateToTab("settings") },
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(vertical = 4.dp)
@@ -1927,6 +2392,7 @@ fun HomeScreen(
                                     )
                                 }
                             }
+                        }
                         }
                     }
                 }

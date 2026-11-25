@@ -3,6 +3,7 @@
 package com.mochyy.mochymusic.ui.screens.gesture
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -217,6 +218,38 @@ internal fun HomeStylePreview(style: HomeStyle, coverRadius: Dp) {
             Bar(44.dp, 5.dp)
             Spacer(Modifier.height(6.dp))
             Shelf(radius)
+        }
+        HomeStyle.CUSTOM -> Column(Modifier.fillMaxSize().padding(start = 10.dp, end = 10.dp, top = 14.dp)) {
+            repeat(2) { idx ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (idx == 0) Color.White.copy(alpha = 0.08f) else BoneDim)
+                        .border(1.dp, if (idx == 0) Color.White.copy(alpha = 0.45f) else Bone, RoundedCornerShape(8.dp))
+                        .padding(horizontal = 7.dp, vertical = 6.dp),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Bar(if (idx == 0) 44.dp else 36.dp, 5.dp)
+                        Column(verticalArrangement = Arrangement.spacedBy(1.5.dp)) {
+                            repeat(3) { Box(Modifier.width(9.dp).height(1.dp).background(Ink.copy(alpha = 0.7f))) }
+                        }
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    if (idx == 0) {
+                        Shelf(radius)
+                    } else {
+                        ListenRow(radius)
+                        Spacer(Modifier.height(4.dp))
+                        ListenRow(radius)
+                    }
+                }
+                Spacer(Modifier.height(6.dp))
+            }
         }
     }
 }

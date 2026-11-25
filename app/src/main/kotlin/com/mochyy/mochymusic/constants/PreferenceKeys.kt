@@ -58,9 +58,12 @@ enum class HomeStyle(val displayName: String) {
     MOCHYY("Mochyy"),
     LISTEN_NOW("Listen now"),
     HOP_IN("Hop in"),
+    CUSTOM("Custom"),
 }
 
 val HomeStyleKey = stringPreferencesKey("homeStyle")
+val CustomHomeOrderKey = stringPreferencesKey("customHomeOrder")
+val CustomHomeHiddenKey = stringPreferencesKey("customHomeHidden")
 
 // how playlist and album headers are laid out at the top of the page
 enum class PlaylistStyle(val displayName: String) {
