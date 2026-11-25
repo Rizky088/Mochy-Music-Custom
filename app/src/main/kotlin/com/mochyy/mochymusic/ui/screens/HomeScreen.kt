@@ -1268,15 +1268,19 @@ fun HomeScreen(
         if (!isEditingCustomHome) return@rememberReorderableLazyListState
         val fromKey = from.key as? String ?: return@rememberReorderableLazyListState
         val toKey = to.key as? String ?: return@rememberReorderableLazyListState
-        val currentIds = visibleCustomBlocks.map { it.id }.toMutableList()
+        if (fromKey == CustomHomeBlock.Hero.id || toKey == CustomHomeBlock.Hero.id) return@rememberReorderableLazyListState
+        val currentIds = visibleCustomBlocks
+            .filterNot { it is CustomHomeBlock.Hero }
+            .map { it.id }
+            .toMutableList()
         val fromIndex = currentIds.indexOf(fromKey)
         val toIndex = currentIds.indexOf(toKey)
         if (fromIndex < 0 || toIndex < 0 || fromIndex == toIndex) return@rememberReorderableLazyListState
         val moved = currentIds.removeAt(fromIndex)
         currentIds.add(toIndex, moved)
-        // keep any currently-unavailable saved ids after the visible ones so nothing is forgotten
-        val rest = customOrderDraft.filter { it !in currentIds }
-        customOrderDraft = currentIds + rest
+        // keep Hero pinned first and preserve any currently-unavailable saved ids
+        val rest = customOrderDraft.filter { it != CustomHomeBlock.Hero.id && it !in currentIds }
+        customOrderDraft = listOf(CustomHomeBlock.Hero.id) + currentIds + rest
         haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
     }
 
@@ -1507,8 +1511,8 @@ fun HomeScreen(
                         }
                     }
                     HomeStyle.CUSTOM -> {
-                        val firstIsHero = visibleCustomBlocks.firstOrNull() is CustomHomeBlock.Hero
-                        if (isEditingCustomHome || !firstIsHero) {
+                        val showHero = visibleCustomBlocks.any { it is CustomHomeBlock.Hero }
+                        if (isEditingCustomHome || !showHero) {
                             item(key = "custom_top_spacer", contentType = "spacer") {
                                 Spacer(
                                     Modifier.height(
@@ -1520,7 +1524,7 @@ fun HomeScreen(
                         if (isEditingCustomHome) {
                             item(key = "custom_edit_hint", contentType = "hint") {
                                 Text(
-                                    text = "Drag the 3-line handle to reorder, or tap Top to pin a section first",
+                                    text = "Drag the 3-line handle to reorder, or tap Top to move a section first",
                                     fontFamily = InterFontFamily,
                                     fontSize = 14.sp,
                                     color = Color.White.copy(alpha = 0.72f),
@@ -1528,9 +1532,44 @@ fun HomeScreen(
                                 )
                             }
                         }
+                        if (showHero) {
+                            item(
+                                key = CustomHomeBlock.Hero.id,
+                                contentType = if (isEditingCustomHome) "custom_hero_pinned" else "hero",
+                            ) {
+                                if (isEditingCustomHome) {
+                                    val heroSong = mediaMetadataState.value ?: lastPlayedSong
+                                    CustomHomePinnedHeroCard(
+                                        subtitle = heroSong?.title?.takeIf { it.isNotBlank() } ?: "Pinned at top (hide in + Add Section)",
+                                        thumbnailUrl = heroSong?.thumbnailUrl,
+                                    )
+                                } else {
+                                    HeroCarousel(
+                                        keepListening = keepListening,
+                                        lastPlayedSong = mediaMetadataState.value ?: lastPlayedSong,
+                                        dailyDiscover = dailyDiscover,
+                                        playerConnection = playerConnection,
+                                        navController = navController,
+                                        heroScrollProgressProvider = heroScrollProgressProvider,
+                                        isLoading = isFirstLoad || starterSongs == null,
+                                        hold = launchHold,
+                                        gachaPool = gachaPool,
+                                        starterItems = starterItems,
+                                        playlistPicks = playlistPicks,
+                                        similarRecommendations = similarRecommendations,
+                                        onRepeat = mostPlayedSongsForHome,
+                                        forgottenFavorites = forgottenFavorites,
+                                        speedDialCovers = speedDialCovers,
+                                        onSummonSpeedDial = openSpeedDial,
+                                        modifier = Modifier.launchRise(order = 1),
+                                    )
+                                }
+                            }
+                        }
                         if (!launchHold) {
+                            val reorderableCustomBlocks = visibleCustomBlocks.filterNot { it is CustomHomeBlock.Hero }
                             itemsIndexed(
-                                items = visibleCustomBlocks,
+                                items = reorderableCustomBlocks,
                                 key = { _, it -> it.id },
                                 contentType = { _, _ -> if (isEditingCustomHome) "custom_edit_card" else "custom_block" },
                             ) { blockIndex, block ->
@@ -1648,11 +1687,11 @@ fun HomeScreen(
                                             isFirst = blockIndex == 0,
                                             isDragging = isDragging,
                                             onMoveToTop = {
-                                                val currentIds = visibleCustomBlocks.map { it.id }.toMutableList()
+                                                val currentIds = reorderableCustomBlocks.map { it.id }.toMutableList()
                                                 if (currentIds.remove(block.id)) {
                                                     currentIds.add(0, block.id)
-                                                    val rest = customOrderDraft.filter { it !in currentIds }
-                                                    val updated = currentIds + rest
+                                                    val rest = customOrderDraft.filter { it != CustomHomeBlock.Hero.id && it !in currentIds }
+                                                    val updated = listOf(CustomHomeBlock.Hero.id) + currentIds + rest
                                                     customOrderDraft = updated
                                                     onCustomHomeOrderChange(serializeCustomHomeOrder(updated))
                                                     haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)

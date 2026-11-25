@@ -122,18 +122,21 @@ internal fun orderCustomHomeBlocks(
     hidden: Set<String>,
 ): List<CustomHomeBlock> {
     val visible = available.filterNot { isCustomBlockHidden(it, hidden) }
-    if (savedOrder.isEmpty()) return visible
-    val byId = visible.associateBy { it.id }
-    val picked = ArrayList<CustomHomeBlock>(visible.size)
-    val seen = HashSet<String>(visible.size)
+    val hero = visible.firstOrNull { it is CustomHomeBlock.Hero }
+    val others = visible.filterNot { it is CustomHomeBlock.Hero }
+    if (savedOrder.isEmpty()) return listOfNotNull(hero) + others
+    val byId = others.associateBy { it.id }
+    val picked = ArrayList<CustomHomeBlock>(others.size)
+    val seen = HashSet<String>(others.size)
     for (id in savedOrder) {
+        if (id == CustomHomeBlock.Hero.id) continue
         val block = byId[id] ?: continue
         if (seen.add(block.id)) picked += block
     }
-    for (block in visible) {
+    for (block in others) {
         if (seen.add(block.id)) picked += block
     }
-    return picked
+    return listOfNotNull(hero) + picked
 }
 
 private val EditCardShape = RoundedCornerShape(22.dp)
@@ -664,6 +667,87 @@ internal fun ReorderableCollectionItemScope.CustomHomeCompactEditCard(
                 contentDescription = "Drag section",
                 tint = Color.White.copy(alpha = if (isDragging) 1f else 0.82f),
                 modifier = Modifier.size(20.dp),
+            )
+        }
+    }
+}
+
+@Composable
+internal fun CustomHomePinnedHeroCard(
+    subtitle: String,
+    thumbnailUrl: String?,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 5.dp)
+            .clip(EditCardShape)
+            .background(Color.White.copy(alpha = 0.055f))
+            .drawWithContent {
+                drawContent()
+                val radius = CornerRadius(22.dp.toPx(), 22.dp.toPx())
+                drawRoundRect(
+                    color = Color.White.copy(alpha = 0.18f),
+                    cornerRadius = radius,
+                    style = Stroke(width = 1.25.dp.toPx()),
+                )
+            }
+            .padding(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
+    ) {
+        if (!thumbnailUrl.isNullOrBlank()) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.White.copy(alpha = 0.12f)),
+            ) {
+                AsyncImage(
+                    model = thumbnailUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "Hero Carousel",
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp,
+                color = Color.White.copy(alpha = 0.9f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = subtitle,
+                fontFamily = InterFontFamily,
+                fontSize = 12.sp,
+                color = Color.White.copy(alpha = 0.55f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+
+        Spacer(Modifier.width(8.dp))
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .height(30.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.12f))
+                .padding(horizontal = 12.dp),
+        ) {
+            Text(
+                text = "Pinned",
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp,
+                color = Color.White.copy(alpha = 0.78f),
             )
         }
     }
