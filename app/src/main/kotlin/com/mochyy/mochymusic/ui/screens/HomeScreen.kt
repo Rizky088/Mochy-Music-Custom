@@ -114,6 +114,8 @@ import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.models.YTItem
 import com.mochyy.mochymusic.constants.HomeStyle
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.mochyy.mochymusic.constants.HomeStyleKey
 import androidx.activity.compose.BackHandler
 import com.mochyy.mochymusic.constants.CustomHomeHiddenKey
@@ -2330,7 +2332,7 @@ fun HomeScreen(
                                             onCustomHomeHiddenChange(serializeCustomHomeHidden(next))
                                         },
                                         onReset = {
-                                            customOrderDraft = emptyList()
+                                            customOrderDraft = emptyList<String>()
                                             onCustomHomeOrderChange("")
                                             onCustomHomeHiddenChange("")
                                         },
