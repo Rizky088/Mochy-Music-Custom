@@ -12,6 +12,7 @@
     "Tools"
   ],
   "chart": [
+    "cd-archive",
     "pixelquest",
     "yeno-orbit",
     "vitro-glass",
@@ -671,6 +672,35 @@
       "updated": 1795695770826,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573357652115984504",
       "postUrl": "https://discord.com/channels/916351383341522994/1573357652115984504"
+    },
+    {
+      "id": "cd-archive",
+      "name": "CD Archive",
+      "moduleId": "cd-archive",
+      "version": "3.8",
+      "author": "you",
+      "description": "CD player styles: CD in case (opens and swaps discs), loose CD with disc carousel and a This one! button, CD Orbit (full-screen 3D discs: line, straight gallery or circle) and Collage. Optional plastic textures, animated art on the disc, selectable backgrounds (including the song's animated cover) and an adaptive bottom gradient that follows the playing song. v3.7: removed the Lyrics + disc style, all options in English, adaptive bottom gradient now on by default and shown in the customise sheet.",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/cd-archive.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/cd-archive.webp",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/cd-archive-1795695863-0.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/cd-archive-1795695863-1.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/cd-archive-1795695863-2.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/cd-archive-1795695863-3.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/cd-archive.zip",
+      "size": 954590,
+      "updated": 1795695863569,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1575112001385144370",
+      "postUrl": "https://discord.com/channels/916351383341522994/1575112001385144370"
     }
   ]
 }
