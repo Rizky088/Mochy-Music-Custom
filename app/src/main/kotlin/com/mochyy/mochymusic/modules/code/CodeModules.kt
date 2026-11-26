@@ -71,10 +71,8 @@ internal object CodeModules {
         val dir = ModuleSanitizer.safeChild(root(context), segment, stamp) ?: return null
         val target = File(dir, ApkName)
         target.parentFile?.mkdirs()
-        if (!apk.renameTo(target)) {
-            apk.copyTo(target, overwrite = true)
-            apk.delete()
-        }
+        if (!apk.isFile) return null
+        apk.copyTo(target, overwrite = true)
         if (allowUntrusted && !signedLikeMochy(context, target)) {
             val info = context.packageManager.getPackageArchiveInfo(target.path, SignatureFlags)
             recordApproval(context, folder, target, info)
