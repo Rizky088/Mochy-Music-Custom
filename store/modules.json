@@ -12,6 +12,7 @@
     "Tools"
   ],
   "chart": [
+    "tape-deck",
     "vinyl-wave",
     "pixelquest",
     "yeno-orbit",
@@ -701,6 +702,32 @@
       "updated": 1795696027901,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1572753661086539807",
       "postUrl": "https://discord.com/channels/916351383341522994/1572753661086539807"
+    },
+    {
+      "id": "tape-deck",
+      "name": "Tape Deck",
+      "moduleId": "tape-deck",
+      "version": "1.0",
+      "author": "Sandipeyy",
+      "description": "Retro cassette walkman: spinning reels, VU needle that swings with the bass, tape seekbar, deck keys, lyrics on paper",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/tape-deck.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/tape-deck.webp",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/tape-deck-1795696224-0.png"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/tape-deck.zip",
+      "size": 698575,
+      "updated": 1795696224190,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1575026606391562250",
+      "postUrl": "https://discord.com/channels/916351383341522994/1575026606391562250"
     }
   ]
 }
