@@ -646,7 +646,7 @@
     {
       "id": "sn-haze",
       "name": "Sn-Haze",
-      "moduleId": "Sn-Float-Background-Haze",
+      "moduleId": "sn-haze",
       "version": "1.58",
       "author": "Azaraeth(Solora-N)",
       "description": "Minimal music player inspired by spotify clean and calm no over kill features just balance and clean.",
@@ -668,7 +668,7 @@
       "install": "zip",
       "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/sn-haze.zip",
       "size": 293926,
-      "updated": 1795695700082,
+      "updated": 1795695722718,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1573928756387774615",
       "postUrl": "https://discord.com/channels/916351383341522994/1573928756387774615"
     }
