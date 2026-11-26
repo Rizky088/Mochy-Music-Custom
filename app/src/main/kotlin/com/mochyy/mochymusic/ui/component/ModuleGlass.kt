@@ -102,7 +102,7 @@ internal fun ModuleChromeGlass(
         ) {
             // Subscribe to first-frame / post-resume content readiness so HWUI always links the RenderNode
             @Suppress("UNUSED_VARIABLE")
-            val readyTick = state.contentVersion
+            val readyTick = state.drawGeneration
             val node = state.renderNode ?: return@Canvas
             if (!glassNodeHasContent(node)) return@Canvas
             translate(left = -(position.x - state.rootPosition.x), top = -(position.y - state.rootPosition.y)) {
