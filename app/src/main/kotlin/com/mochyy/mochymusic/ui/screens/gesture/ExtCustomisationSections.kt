@@ -46,7 +46,6 @@ import com.mochyy.mochymusic.ui.screens.audiolab.LabCard
 import com.mochyy.mochymusic.ui.screens.audiolab.LabColors
 import com.mochyy.mochymusic.ui.theme.AppFontMode
 import com.mochyy.mochymusic.ui.theme.InterFontFamily
-import com.mochyy.mochymusic.ui.theme.UserFont
 import com.mochyy.mochymusic.utils.rememberPreference
 import java.io.File
 
@@ -97,10 +96,6 @@ internal fun AppFontSection() {
             android.os.Handler(android.os.Looper.getMainLooper()).post {
                 importing = false
                 if (loadedTypeface != null) {
-                    UserFont.customFamily = FontFamily(loadedTypeface)
-                    UserFont.customPath = outFile.absolutePath
-                    UserFont.customName = displayName
-                    UserFont.mode = AppFontMode.CUSTOM
                     setCustomPath(outFile.absolutePath)
                     setCustomName(displayName)
                     setFontMode(AppFontMode.CUSTOM.name)

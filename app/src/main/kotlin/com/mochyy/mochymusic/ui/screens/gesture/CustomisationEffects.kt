@@ -81,12 +81,10 @@ private const val DefaultBlurStrength = 25f
 private val BlurPreviewWidth = 104.dp
 
 private val PillShape = RoundedCornerShape(14.dp)
-private val PillTextStyle: TextStyle get() = TextStyle(
-    fontFamily = InterFontFamily,
-    fontWeight = FontWeight.SemiBold,
-    fontSize = 11.sp,
-    letterSpacing = (-0.02).em,
+private val PillTextStyleCache = com.mochyy.mochymusic.ui.theme.globalTextStyle(
+    TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 11.sp, letterSpacing = (-0.02).em),
 )
+private val PillTextStyle: TextStyle get() = PillTextStyleCache.current()
 
 // glass blur: on or off, progressive or flat bars, low or high quality, and how strong, with the app's own glass as the preview
 @Composable
@@ -251,7 +249,6 @@ private fun LyricsReadingToggles(modifier: Modifier = Modifier) {
     val languages = com.mochyy.mochymusic.ui.player.RomanizeLanguageKeys.map { rememberPreference(it, defaultValue = true) }
     val romanize = languages.any { it.value }
     val (asMain, onAsMain) = rememberPreference(com.mochyy.mochymusic.constants.LyricsRomanizeAsMainKey, defaultValue = false)
-    val (romanizeOnly, onRomanizeOnly) = rememberPreference(com.mochyy.mochymusic.constants.LyricsRomanizeOnlyKey, defaultValue = false)
     val (translate, onTranslate) = rememberPreference(com.mochyy.mochymusic.constants.TranslateLyricsKey, defaultValue = false)
     val (floating, onFloating) = com.mochyy.mochymusic.floating.rememberFloatingLyricsSwitch()
     com.mochyy.mochymusic.ui.screens.audiolab.LabCard(padding = 20.dp, modifier = modifier) {
@@ -266,13 +263,6 @@ private fun LyricsReadingToggles(modifier: Modifier = Modifier) {
             subtitle = stringResource(R.string.settings_romanize_as_main_desc),
             checked = asMain,
             onCheckedChange = onAsMain,
-            enabled = romanize,
-        )
-        com.mochyy.mochymusic.ui.screens.audiolab.LabToggleRow(
-            title = stringResource(R.string.settings_romanize_only),
-            subtitle = stringResource(R.string.settings_romanize_only_desc),
-            checked = romanizeOnly,
-            onCheckedChange = onRomanizeOnly,
             enabled = romanize,
         )
         com.mochyy.mochymusic.ui.screens.audiolab.LabToggleRow(
@@ -298,9 +288,9 @@ private fun LyricsReadingToggles(modifier: Modifier = Modifier) {
 private fun lyricStyleNameRes(style: LyricsMotionStyle): Int = when (style) {
     LyricsMotionStyle.MOTION -> R.string.appearance_style_1
     LyricsMotionStyle.LEGACY -> R.string.appearance_style_2
-    LyricsMotionStyle.CENTERED -> R.string.appearance_style_3
     LyricsMotionStyle.BORING -> R.string.customise_style_boring
     LyricsMotionStyle.PLAIN -> R.string.customise_style_plain
+    LyricsMotionStyle.CENTERED -> R.string.customise_style_3
 }
 
 // the phone's status bar over the open player

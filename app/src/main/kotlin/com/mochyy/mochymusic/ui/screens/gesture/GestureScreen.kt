@@ -2,8 +2,6 @@
 
 package com.mochyy.mochymusic.ui.screens.gesture
 
-import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
-
 import android.widget.Toast
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
@@ -96,6 +94,7 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.draw.drawWithContent
@@ -118,14 +117,10 @@ private val CardPadding = 20.dp
 private val PageMaxWidth = 680.dp
 private val LandscapePageMaxWidth = 1080.dp
 
-private val PageTitleStyle: TextStyle
-    get() = TextStyle(
-        fontFamily = InterFontFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 34.sp,
-        lineHeight = 38.sp,
-        letterSpacing = (-0.04).em,
-    )
+private val PageTitleStyleCache = com.mochyy.mochymusic.ui.theme.headingTextStyle(
+    TextStyle(fontWeight = FontWeight.Bold, fontSize = 34.sp, lineHeight = 38.sp, letterSpacing = (-0.04).em),
+)
+private val PageTitleStyle: TextStyle get() = PageTitleStyleCache.current()
 
 @Composable
 fun GestureScreen(navController: NavController) = CustomisationScreen(navController)
@@ -133,13 +128,12 @@ fun GestureScreen(navController: NavController) = CustomisationScreen(navControl
 // the customize page's parts in order, with what a search or a settings result can find each one by
 private enum class CustomiseSection(@StringRes val titleRes: Int, val keys: List<String>, val words: String) {
     ICONS(R.string.customise_icons, listOf("Icons", "App icon"), "icon icons app launcher home screen mochy outline anime material you white black dark transparent"),
+    FONT(R.string.customise_font, listOf(FontHighlightKey), "font typeface ttf otf import system heading subheading global bold italic light customizer 폰트 글꼴"),
     ROUNDING(R.string.customise_cover_rounding, listOf("Cover rounding"), "cover rounding corner radius square rounded art"),
     PLAYLIST(R.string.customise_playlist_styles, listOf("Playlist styles"), "playlist styles flow classic minimal header"),
     PLAYER(R.string.customise_player_styles, listOf("Player styles"), "player styles flagship turntable ipod poster timeline lyrics editor customize"),
     HOME(R.string.customise_home_styles, listOf("Home styles"), "home styles mochyy listen now hop in hero"),
     WALLPAPER(R.string.customise_wallpaper, listOf("Custom wallpaper", "Wallpaper"), "wallpaper background image photo home library search dim blur"),
-    EDGE_OVERLAYS(R.string.customise_edge_overlays, listOf("Edge glows", "Top glow", "Bottom fade"), "top glow red tint cover wash bottom dark scrim fade gradient clean wallpaper"),
-    APP_FONT(R.string.customise_app_font, listOf("App font", "Font"), "font typeface system device custom ttf otf inter text"),
     BLUR(R.string.appearance_blur, listOf("Blur", "Progressive blur", "Blur quality", "Blur strength"), "blur glass frosted progressive flat quality low high strength px"),
     ELEMENT_BLUR(R.string.customise_element_blur, listOf("Element blur"), "element blur lyrics lines cover zoom titles menus page swipes"),
     ANIMATION(R.string.appearance_animation, listOf("Animation", "Animation speed"), "animation speed motion transitions off faster slower"),
@@ -164,7 +158,8 @@ private enum class CustomiseSection(@StringRes val titleRes: Int, val keys: List
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CustomisationScreen(navController: NavController) {
-    var query by remember { mutableStateOf("") }
+    var query by rememberSaveable { mutableStateOf("") }
+    val fontSectionState = rememberFontSectionState()
     val statusTop = WindowInsets.stableStatusBars.asPaddingValues().calculateTopPadding()
     val bottomInset = LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateBottomPadding()
     val direction = LocalLayoutDirection.current
@@ -181,7 +176,7 @@ fun CustomisationScreen(navController: NavController) {
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier
                 .fillMaxSize()
-                .background(LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black)
+                .background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black)
                 .verticalScroll(scroll),
         ) {
             val landscape = maxWidth > maxHeight && maxWidth >= 600.dp
@@ -247,7 +242,7 @@ fun CustomisationScreen(navController: NavController) {
                             left.forEachIndexed { index, section ->
                                 if (index > 0) SectionRule()
                                 Box(Modifier.highlightTarget(section.keys)) {
-                                    CustomiseSectionContent(section, bleedPager = false)
+                                    CustomiseSectionContent(section, fontSectionState, bleedPager = false)
                                 }
                             }
                         }
@@ -255,7 +250,7 @@ fun CustomisationScreen(navController: NavController) {
                             right.forEachIndexed { index, section ->
                                 if (index > 0) SectionRule()
                                 Box(Modifier.highlightTarget(section.keys)) {
-                                    CustomiseSectionContent(section, bleedPager = false)
+                                    CustomiseSectionContent(section, fontSectionState, bleedPager = false)
                                 }
                             }
                         }
@@ -264,7 +259,7 @@ fun CustomisationScreen(navController: NavController) {
                     shown.forEachIndexed { index, section ->
                         if (index > 0) SectionRule()
                         Box(Modifier.highlightTarget(section.keys)) {
-                            CustomiseSectionContent(section, bleedPager = !landscape)
+                            CustomiseSectionContent(section, fontSectionState, bleedPager = !landscape)
                         }
                     }
                 }
@@ -274,10 +269,11 @@ fun CustomisationScreen(navController: NavController) {
 }
 
 @Composable
-private fun CustomiseSectionContent(section: CustomiseSection, bleedPager: Boolean = true) {
+private fun CustomiseSectionContent(section: CustomiseSection, fontSectionState: FontSectionState, bleedPager: Boolean = true) {
     val pagerBleed = if (bleedPager) Modifier.bleedHorizontally(CustomisePageMargin) else Modifier
     when (section) {
         CustomiseSection.ICONS -> IconsSection()
+        CustomiseSection.FONT -> FontSection(fontSectionState)
         CustomiseSection.ROUNDING -> {
             val (coverRadiusPx, onCoverRadiusChange) = rememberPreference(ThumbnailCornerRadiusKey, defaultValue = DefaultCoverRadius)
             CoverRoundingSection(
@@ -314,8 +310,6 @@ private fun CustomiseSectionContent(section: CustomiseSection, bleedPager: Boole
             ) { HomeStylePreview(style = it, coverRadius = coverRadiusPx.dp) }
         }
         CustomiseSection.WALLPAPER -> WallpaperPickerSection()
-        CustomiseSection.EDGE_OVERLAYS -> EdgeOverlaysSection()
-        CustomiseSection.APP_FONT -> AppFontSection()
         CustomiseSection.BLUR -> BlurSection()
         CustomiseSection.ELEMENT_BLUR -> ElementBlurSection()
         CustomiseSection.ANIMATION -> AnimationSection()
@@ -582,7 +576,6 @@ private fun PlayerGestureCard() {
         )
     }
 }
-
 
 @Composable
 private fun WallpaperPickerSection() {

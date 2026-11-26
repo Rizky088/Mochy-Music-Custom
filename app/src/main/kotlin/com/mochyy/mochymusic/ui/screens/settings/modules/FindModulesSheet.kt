@@ -2,13 +2,6 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.modules
 
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.TextButton
-import androidx.compose.ui.text.font.FontFamily
-import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
-
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -55,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import com.mochyy.mochymusic.R
 import com.mochyy.mochymusic.modules.CatalogModule
 import com.mochyy.mochymusic.modules.ModuleRegistry.LinkCheck
+import com.mochyy.mochymusic.ui.component.LocalZoomOutOverlayState
 import com.mochyy.mochymusic.ui.component.PopupSheetHandle
 import com.mochyy.mochymusic.ui.component.PopupSheetState
 import com.mochyy.mochymusic.ui.component.SheetLabel
@@ -101,21 +95,33 @@ fun PopupSheetState.showAddCheckedSheet(ready: LinkCheck.Ready, viewModel: Modul
 @Composable
 private fun AddCheckedContent(ready: LinkCheck.Ready, viewModel: ModulesViewModel, onAdded: (String) -> Unit, onCancel: () -> Unit) {
     val context = LocalContext.current
+    val overlay = LocalZoomOutOverlayState.current
     val scope = rememberCoroutineScope()
     var adding by remember { mutableStateOf(false) }
     var problem by remember { mutableStateOf<String?>(null) }
+
+    fun doInstall() {
+        adding = true
+        scope.launch {
+            val id = viewModel.install(ready, allowUntrusted = ready.untrustedCode)
+            if (id != null) {
+                if (ready.code != null) viewModel.acknowledgeScriptWarning(id)
+                return@launch onAdded(id)
+            }
+            adding = false
+            problem = context.getString(R.string.modules_code_broken)
+        }
+    }
+
     Column(Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
         ConfirmAdd(
             ready = ready,
             adding = adding,
             onAdd = {
-                adding = true
-                scope.launch {
-                    val id = runCatching { viewModel.install(ready, allowUntrusted = ready.untrustedCode) }.getOrNull()
-                    if (id != null) return@launch onAdded(id)
-                    // only a zip's own code can fail here
-                    adding = false
-                    problem = context.getString(R.string.modules_code_broken)
+                if (ready.code != null) {
+                    overlay.showScriptWarningSheet(targetName = ready.name, isCodeModule = true, onContinue = ::doInstall)
+                } else {
+                    doInstall()
                 }
             },
             onCancel = onCancel,
@@ -127,6 +133,7 @@ private fun AddCheckedContent(ready: LinkCheck.Ready, viewModel: ModulesViewMode
 @Composable
 private fun FindModulesContent(viewModel: ModulesViewModel, onAdded: (String) -> Unit) {
     val context = LocalContext.current
+    val overlay = LocalZoomOutOverlayState.current
     val scope = rememberCoroutineScope()
     val keyboard = LocalSoftwareKeyboardController.current
     var link by rememberSaveable { mutableStateOf("") }
@@ -150,8 +157,7 @@ private fun FindModulesContent(viewModel: ModulesViewModel, onAdded: (String) ->
         problem = null
         problemFromFile = false
         scope.launch {
-            val result = runCatching { viewModel.check(target) }.getOrElse { LinkCheck.Unreachable }
-            show(result)
+            show(viewModel.check(target))
             checking = false
         }
     }
@@ -162,8 +168,7 @@ private fun FindModulesContent(viewModel: ModulesViewModel, onAdded: (String) ->
         problem = null
         problemFromFile = true
         scope.launch {
-            val result = runCatching { viewModel.checkZip(uri) }.getOrElse { LinkCheck.Unreachable }
-            show(result)
+            show(viewModel.checkZip(uri))
             checking = false
         }
     }
@@ -185,22 +190,31 @@ private fun FindModulesContent(viewModel: ModulesViewModel, onAdded: (String) ->
 
         val confirming = ready
         if (confirming != null) {
+            fun doInstall() {
+                checking = true
+                scope.launch {
+                    val id = viewModel.install(confirming, allowUntrusted = confirming.untrustedCode)
+                    if (id != null) {
+                        if (confirming.code != null) viewModel.acknowledgeScriptWarning(id)
+                        return@launch onAdded(id)
+                    }
+                    checking = false
+                    ready = null
+                    problemFromFile = true
+                    problem = context.getString(R.string.modules_code_broken)
+                }
+            }
             ConfirmAdd(
                 ready = confirming,
                 adding = checking,
                 onAdd = {
-                    checking = true
-                    scope.launch {
-                        val id = runCatching { viewModel.install(confirming, allowUntrusted = confirming.untrustedCode) }.getOrNull()
-                        if (id != null) return@launch onAdded(id)
-                        // only a zip's own code can fail here, so the problem shows under the file button
-                        checking = false
-                        ready = null
-                        problemFromFile = true
-                        problem = context.getString(R.string.modules_code_broken)
+                    if (confirming.code != null) {
+                        overlay.showScriptWarningSheet(targetName = confirming.name, isCodeModule = true, onContinue = ::doInstall)
+                    } else {
+                        doInstall()
                     }
                 },
-                onCancel = { confirming.code?.delete(); ready = null },
+                onCancel = { ready = null },
             )
             return@Column
         }
@@ -237,13 +251,10 @@ private fun FindModulesContent(viewModel: ModulesViewModel, onAdded: (String) ->
         )
         problem?.takeIf { problemFromFile }?.let { ProblemText(it) }
 
-        val catalogItems = catalog?.getOrNull().orEmpty()
-        if (catalogItems.isNotEmpty()) {
-            Spacer(Modifier.height(26.dp))
-            SheetLabel(stringResource(R.string.modules_catalog))
-            Spacer(Modifier.height(10.dp))
-            CatalogList(catalog, busy = checking, onPick = { check(it.url) })
-        }
+        Spacer(Modifier.height(26.dp))
+        SheetLabel(stringResource(R.string.modules_catalog))
+        Spacer(Modifier.height(10.dp))
+        CatalogList(catalog, busy = checking, onPick = { check(it.url) })
     }
 }
 
@@ -315,100 +326,6 @@ private fun CatalogRow(item: CatalogModule, enabled: Boolean, onClick: () -> Uni
 /** what the link turned out to be, and one last yes before it's added */
 @Composable
 private fun ConfirmAdd(ready: LinkCheck.Ready, adding: Boolean, onAdd: () -> Unit, onCancel: () -> Unit) {
-    var showSignaturePrompt by remember(ready) { mutableStateOf(ready.untrustedCode) }
-
-    if (showSignaturePrompt) {
-        val palette = LocalWallpaperPalette.current
-        val dialogBg = palette?.surface ?: Color(0xFF1E1E1E)
-        val fpBg = palette?.surfaceContainer ?: Color(0xFF2B2B2B)
-        AlertDialog(
-            onDismissRequest = {
-                showSignaturePrompt = false
-                ready.code?.delete()
-                onCancel()
-            },
-            containerColor = dialogBg,
-            titleContentColor = Color.White,
-            textContentColor = SearchColors.Secondary,
-            title = {
-                Text(
-                    text = "Allow untrusted code module?",
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                )
-            },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(
-                        text = "\"${ready.name}\" runs its own executable code and is not signed with Mochy Ext's key.",
-                        color = Color.White.copy(alpha = 0.92f),
-                        fontSize = 14.sp,
-                        lineHeight = 20.sp,
-                    )
-                    Text(
-                        text = "Only allow modules from developers you trust. Malicious code can access app data or crash the app. Approval only applies to this exact module build.",
-                        color = SearchColors.Secondary,
-                        fontSize = 13.sp,
-                        lineHeight = 18.sp,
-                    )
-                    Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(fpBg)
-                            .padding(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Text(
-                            text = "Source: ${ready.from}",
-                            color = SearchColors.Secondary,
-                            fontSize = 11.sp,
-                        )
-                        Text(
-                            text = "Signer SHA-256:",
-                            color = SearchColors.Secondary,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        Text(
-                            text = ready.codeSignerFingerprint ?: "No signing certificate",
-                            color = ProblemColor,
-                            fontSize = 11.sp,
-                            lineHeight = 15.sp,
-                            fontFamily = FontFamily.Monospace,
-                        )
-                    }
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showSignaturePrompt = false
-                        ready.code?.delete()
-                        onCancel()
-                    },
-                ) {
-                    Text("Decline", color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.SemiBold)
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showSignaturePrompt = false
-                        onAdd()
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = ProblemColor,
-                        contentColor = Color.Black,
-                    ),
-                ) {
-                    Text("Allow & Install", fontWeight = FontWeight.Bold)
-                }
-            },
-        )
-    }
-
     Column(
         Modifier
             .fillMaxWidth()
@@ -426,15 +343,6 @@ private fun ConfirmAdd(ready: LinkCheck.Ready, adding: Boolean, onAdd: () -> Uni
         }
         Spacer(Modifier.height(12.dp))
         FeatureChips(ready.adds)
-        if (ready.untrustedCode) {
-            Spacer(Modifier.height(10.dp))
-            Text(
-                text = "Untrusted signature: this module runs its own code and requires your explicit approval.",
-                color = ProblemColor,
-                fontSize = 12.sp,
-                lineHeight = 17.sp,
-            )
-        }
         Spacer(Modifier.height(12.dp))
         Text(
             stringResource(if (ready.alreadyAdded) R.string.modules_confirm_update else R.string.modules_confirm_add),
@@ -442,13 +350,18 @@ private fun ConfirmAdd(ready: LinkCheck.Ready, adding: Boolean, onAdd: () -> Uni
             fontSize = 13.sp,
             lineHeight = 18.sp,
         )
+        if (ready.code != null) {
+            Spacer(Modifier.height(10.dp))
+            Text(
+                stringResource(R.string.modules_confirm_code_note),
+                color = Color(0xFFFFB340),
+                fontSize = 12.5.sp,
+                lineHeight = 17.sp,
+            )
+        }
     }
     Spacer(Modifier.height(16.dp))
-    SheetPillButton(
-        text = stringResource(if (adding) R.string.modules_adding else R.string.modules_add, ready.name),
-        onClick = { if (ready.untrustedCode) showSignaturePrompt = true else onAdd() },
-        enabled = !adding,
-    )
+    SheetPillButton(text = stringResource(if (adding) R.string.modules_adding else R.string.modules_add, ready.name), onClick = onAdd, enabled = !adding)
     Text(
         stringResource(R.string.modules_cancel),
         color = SearchColors.Secondary,
@@ -457,10 +370,7 @@ private fun ConfirmAdd(ready: LinkCheck.Ready, adding: Boolean, onAdd: () -> Uni
             .fillMaxWidth()
             .padding(top = 6.dp)
             .clip(RoundedCornerShape(12.dp))
-            .clickable {
-                ready.code?.delete()
-                onCancel()
-            }
+            .clickable(onClick = onCancel)
             .padding(vertical = 10.dp),
         textAlign = TextAlign.Center,
     )

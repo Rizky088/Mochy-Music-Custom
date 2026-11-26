@@ -10,8 +10,6 @@
 
 package com.mochyy.mochymusic.ui.screens.library
 
-import androidx.compose.foundation.border
-
 import androidx.compose.ui.res.stringResource
 import com.mochyy.mochymusic.ui.component.containerTransformSource
 import androidx.compose.foundation.shape.CircleShape
@@ -20,6 +18,7 @@ import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -260,13 +259,10 @@ private fun LibraryCoverStack(
 }
 
 /** The big grey count on every Library card. */
-private val LibraryCountStyle: TextStyle get() = TextStyle(
-    fontFamily = InterFontFamily,
-    fontWeight = FontWeight.Bold,
-    fontSize = 34.sp,
-    lineHeight = 36.sp,
-    letterSpacing = (-0.03).em,
+private val LibraryCountStyleCache = com.mochyy.mochymusic.ui.theme.headingTextStyle(
+    TextStyle(fontWeight = FontWeight.Bold, fontSize = 34.sp, lineHeight = 36.sp, letterSpacing = (-0.03).em),
 )
+private val LibraryCountStyle: TextStyle get() = LibraryCountStyleCache.current()
 
 /** A card's label, a step above its count. */
 @Composable

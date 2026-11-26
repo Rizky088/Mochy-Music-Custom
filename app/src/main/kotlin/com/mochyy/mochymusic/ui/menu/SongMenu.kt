@@ -457,12 +457,16 @@ fun SongMenu(
                         },
                         onClick = {
                             onDismiss()
-                            playerConnection.playQueue(
-                                ListQueue(
-                                    title = song.song.title,
-                                    items = listOf(song.toMediaItem()),
+                            if (song.song.isLocal) {
+                                playerConnection.playQueue(
+                                    ListQueue(
+                                        title = song.song.title,
+                                        items = listOf(song.toMediaItem()),
+                                    )
                                 )
-                            )
+                            } else {
+                                playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
+                            }
                         }
                     ),
                 )
@@ -487,7 +491,11 @@ fun SongMenu(
                             },
                             onClick = {
                                 onDismiss()
-                                playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
+                                if (song.id == playerConnection.mediaMetadata.value?.id) {
+                                    playerConnection.startRadioSeamlessly()
+                                } else {
+                                    playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
+                                }
                             }
                         )
                     } else null,

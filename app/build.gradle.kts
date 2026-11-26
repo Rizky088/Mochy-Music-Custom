@@ -30,7 +30,7 @@ extensions.configure<ApplicationExtension> {
         minSdk = 24
         targetSdk = 37
         versionCode = 81
-        versionName = "8.4.6.5 Ext"
+        versionName = "8.5.0.0 Ext"
 
         val gdriveClientIdForScheme = (localProperties.getProperty("GDRIVE_CLIENT_ID") ?: System.getenv("GDRIVE_CLIENT_ID") ?: "").trim()
         val gdriveRedirectScheme = gdriveClientIdForScheme

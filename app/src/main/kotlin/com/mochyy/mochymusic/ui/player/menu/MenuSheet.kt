@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animate
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -66,8 +67,10 @@ import com.mochyy.mochymusic.ui.component.RemoteFocus
 import com.mochyy.mochymusic.ui.component.LocalSheetHandleRoom
 import com.mochyy.mochymusic.ui.component.SheetHandleRoom
 import com.mochyy.mochymusic.ui.component.SheetHandleRow
+import com.mochyy.mochymusic.ui.component.onChrome
 import com.mochyy.mochymusic.ui.component.rememberSheetGrabberBend
 import com.mochyy.mochymusic.ui.component.underSheetHandle
+import com.mochyy.mochymusic.modules.skin.ActiveSkin
 
 private val DefaultMenuSurface = Color(0xFF0B0B0C)
 private val DefaultMenuRowSurface = Color(0xFF161619)
@@ -82,6 +85,27 @@ fun applyMenuSheetPalette(palette: com.mochyy.mochymusic.ui.component.WallpaperP
     menuSurfaceState = palette?.surface ?: DefaultMenuSurface
     menuRowSurfaceState = palette?.surfaceContainer ?: DefaultMenuRowSurface
 }
+
+/** resolved sheet surface/row/dim/corner colours from an active look module, clamped so sheets always stay readable */
+@Composable
+internal fun resolvedSheetSurface(): Color {
+    val active = ActiveSkin.sheet ?: return MenuSurface
+    val accent = androidx.compose.material3.MaterialTheme.colorScheme.primary
+    val raw = active.sheet.surface?.onChrome(accent, active.values) ?: return MenuSurface
+    return raw.copy(alpha = raw.alpha.coerceIn(0.86f, 1f))
+}
+
+@Composable
+internal fun resolvedSheetRowSurface(): Color {
+    val active = ActiveSkin.sheet ?: return MenuRowSurface
+    val accent = androidx.compose.material3.MaterialTheme.colorScheme.primary
+    val raw = active.sheet.rowSurface?.onChrome(accent, active.values) ?: return MenuRowSurface
+    return raw.copy(alpha = raw.alpha.coerceIn(0.75f, 1f))
+}
+
+@Composable
+internal fun resolvedSheetRowCorner(): androidx.compose.ui.unit.Dp =
+    ActiveSkin.sheet?.sheet?.rowCorner ?: 16.dp
 
 internal val MenuEasing = CubicBezierEasing(0.57f, 0.53f, 0f, 1f)
 
@@ -375,8 +399,18 @@ fun MenuSheetSurface(
             dismissEnabled && (closing || (pulling && offsetPx.floatValue > pullStartPx + arrowAfterPx))
         }
 
+        val activeSheet = ActiveSkin.sheet
+        val sheetBaseColor = resolvedSheetSurface()
+        val sheetRecedeColor = resolvedSheetRowSurface()
+        val sheetDim = activeSheet?.sheet?.dim ?: 0.6f
+        val sheetStroke = activeSheet?.sheet?.stroke
+        val sheetStrokeColor = activeSheet?.sheet?.strokeColor?.onChrome(
+            androidx.compose.material3.MaterialTheme.colorScheme.primary,
+            activeSheet.values,
+        ) ?: Color.White.copy(alpha = 0.16f)
+
         // the sheet's colour, stepping up to the row gray as it recedes; the fade behind its bar matches it
-        val surfaceColor: () -> Color = remember(stack, entry) {
+        val surfaceColor: () -> Color = remember(stack, entry, sheetBaseColor, sheetRecedeColor) {
             {
                 var recede = 0f
                 if (stack != null) {
@@ -384,7 +418,7 @@ fun MenuSheetSurface(
                     val index = entries.indexOf(entry)
                     if (index >= 0) recede = entries.depthAbove(index).coerceAtMost(1f)
                 }
-                lerp(MenuSurface, MenuRowSurface, recede)
+                lerp(sheetBaseColor, sheetRecedeColor, recede)
             }
         }
 
@@ -419,7 +453,7 @@ fun MenuSheetSurface(
                     // covered sheet that's meant to peek above this one.
                     alpha = if (isCovering) 0f else revealFraction()
                 }
-                .background(Color.Black.copy(alpha = 0.6f))
+                .background(Color.Black.copy(alpha = sheetDim))
                 .then(
                     if (dismissEnabled) {
                         Modifier.clickable(
@@ -493,7 +527,8 @@ fun MenuSheetSurface(
             }
         }
 
-        val sheetShape = if (floating) RoundedCornerShape(FloatingCorner) else RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+        val customCorner = activeSheet?.sheet?.corner
+        val sheetShape = if (floating) RoundedCornerShape(customCorner ?: FloatingCorner) else RoundedCornerShape(topStart = customCorner ?: 30.dp, topEnd = customCorner ?: 30.dp)
 
         Column(
             modifier = Modifier
@@ -553,6 +588,7 @@ fun MenuSheetSurface(
                     // sheet in front reads as its own layer instead of melting into it.
                     drawRect(surfaceColor())
                 }
+                .then(if (sheetStroke != null) Modifier.border(sheetStroke, sheetStrokeColor, sheetShape) else Modifier)
         ) {
             val dragHandle = Modifier.draggable(
                 state = rememberDraggableState { delta ->

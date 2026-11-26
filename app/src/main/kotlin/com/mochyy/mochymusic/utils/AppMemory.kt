@@ -36,7 +36,6 @@ object AppMemory {
                 SongVersions.trimMemory()
                 com.mochyy.mochymusic.ui.player.info.SongAboutLoader.trimMemory()
                 com.mochyy.mochymusic.canvas.SpotifyCanvasProvider.trimMemory()
-                YTPlayerUtils.trimMemory()
                 PlaybackLogManager.trimMemory()
                 scope.launch(Dispatchers.Main) {
                     runCatching { YTPlayerUtils.releaseWebViews() }
@@ -44,6 +43,8 @@ object AppMemory {
                     runCatching { EjsNTransformSolver.close() }
                 }
                 scope.launch(Dispatchers.IO) {
+                    // closing idle tls sockets writes close_notify; keep socket/http teardown off the main thread
+                    runCatching { YTPlayerUtils.trimMemory() }
                     runCatching { AppProxy.connectionPool.evictAll() }
                     runCatching { SQLiteDatabase.releaseMemory() }
                 }
@@ -55,6 +56,8 @@ object AppMemory {
                 LyricsUtils.releaseKuromoji()
                 YouTubeVideoSessions.releaseIdle()
                 scope.launch(Dispatchers.IO) {
+                    runCatching { YTPlayerUtils.trimMemory() }
+                    runCatching { AppProxy.connectionPool.evictAll() }
                     runCatching { SQLiteDatabase.releaseMemory() }
                 }
             }
