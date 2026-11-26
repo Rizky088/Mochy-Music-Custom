@@ -54,12 +54,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mochyy.mochymusic.R
-import com.mochyy.mochymusic.scrobble.ScrobbleSite
+import com.mochyy.mochymusic.modules.skin.ActiveSkin
 import com.mochyy.mochymusic.ui.screens.devices.showDeviceIntegration
-import com.mochyy.mochymusic.ui.screens.settings.importsync.YouTubeSyncRoute
 import com.mochyy.mochymusic.ui.screens.settings.integrations.IntegrationsRoute
-import com.mochyy.mochymusic.ui.screens.settings.integrations.discord.DiscordRoute
-import com.mochyy.mochymusic.ui.screens.settings.integrations.scrobbleServiceRoute
 import com.mochyy.mochymusic.constants.ProfilePicUriKey
 import com.mochyy.mochymusic.ui.component.GlassState
 import com.mochyy.mochymusic.ui.component.SettingsHighlight
@@ -323,20 +320,7 @@ fun MochySettingsScreen(navController: NavController, pane: SettingsPane? = null
     val context = LocalContext.current
     // picked again each time the list opens, so a tip that was just followed stops showing
     val recommendations = remember(context) { pickRecommendations(context) }
-    val results = remember(query.text, context) {
-        val q = query.text.trim()
-        if (q.isBlank()) {
-            emptyList()
-        } else {
-            SettingsIndex.filter {
-                it.title.contains(q, ignoreCase = true) ||
-                    (it.titleRes ?: LocalizedSettingsTitles[it.title])?.let { id -> context.getString(id).contains(q, ignoreCase = true) } == true ||
-                    (it.pageRes ?: LocalizedSettingsPages[it.page])?.let { id -> context.getString(id).contains(q, ignoreCase = true) } == true ||
-                    it.keywords.contains(q, ignoreCase = true) ||
-                    it.page.contains(q, ignoreCase = true)
-            }
-        }
-    }
+    val results = remember(query.text, context) { searchSettings(context, query.text) }
 
     // Same latch-and-settle collapse as Library/Search: crossing the threshold always finishes
     // the morph, even after the user stops scrolling mid-gesture.
@@ -351,10 +335,14 @@ fun MochySettingsScreen(navController: NavController, pane: SettingsPane? = null
     // flips only at the ends of the fade, so the page isn't recomposed on every frame of it
     val showContent by remember { derivedStateOf { contentAlpha > 0.001f } }
 
+    val customBg = ActiveSkin.appBackground?.let { bg ->
+        bg.background.screens.isEmpty() || "mochy_settings" in bg.background.screens || "settings" in bg.background.screens
+    } == true
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black),
+            .background(if (customBg) Color.Transparent else (com.mochyy.mochymusic.ui.component.LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black)),
     ) {
         Box(
             modifier = Modifier

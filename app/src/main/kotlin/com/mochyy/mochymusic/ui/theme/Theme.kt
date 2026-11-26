@@ -148,8 +148,8 @@ fun MochyTheme(
         }
     }
 
-    val font = InterFontFamily
-    val typography = remember(font) { appTypography(font) }
+    val resolvedFonts = AppFonts.resolvedFonts()
+    val typography = remember(resolvedFonts) { appTypography(resolvedFonts) }
     androidx.compose.runtime.CompositionLocalProvider(
         com.mochyy.mochymusic.ui.component.LocalWallpaperPalette provides wallpaperPalette,
     ) {

@@ -2,8 +2,6 @@
 
 package com.mochyy.mochymusic.ui.screens.gesture
 
-import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
-
 import android.widget.Toast
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
@@ -96,6 +94,7 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.draw.drawWithContent
@@ -118,14 +117,10 @@ private val CardPadding = 20.dp
 private val PageMaxWidth = 680.dp
 private val LandscapePageMaxWidth = 1080.dp
 
-private val PageTitleStyle: TextStyle
-    get() = TextStyle(
-        fontFamily = InterFontFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 34.sp,
-        lineHeight = 38.sp,
-        letterSpacing = (-0.04).em,
-    )
+private val PageTitleStyleCache = com.mochyy.mochymusic.ui.theme.headingTextStyle(
+    TextStyle(fontWeight = FontWeight.Bold, fontSize = 34.sp, lineHeight = 38.sp, letterSpacing = (-0.04).em),
+)
+private val PageTitleStyle: TextStyle get() = PageTitleStyleCache.current()
 
 @Composable
 fun GestureScreen(navController: NavController) = CustomisationScreen(navController)
@@ -133,13 +128,11 @@ fun GestureScreen(navController: NavController) = CustomisationScreen(navControl
 // the customize page's parts in order, with what a search or a settings result can find each one by
 private enum class CustomiseSection(@StringRes val titleRes: Int, val keys: List<String>, val words: String) {
     ICONS(R.string.customise_icons, listOf("Icons", "App icon"), "icon icons app launcher home screen mochy outline anime material you white black dark transparent"),
+    FONT(R.string.customise_font, listOf(FontHighlightKey), "font typeface ttf otf import system heading subheading global bold italic light customizer 폰트 글꼴"),
     ROUNDING(R.string.customise_cover_rounding, listOf("Cover rounding"), "cover rounding corner radius square rounded art"),
     PLAYLIST(R.string.customise_playlist_styles, listOf("Playlist styles"), "playlist styles flow classic minimal header"),
     PLAYER(R.string.customise_player_styles, listOf("Player styles"), "player styles flagship turntable ipod poster timeline lyrics editor customize"),
     HOME(R.string.customise_home_styles, listOf("Home styles"), "home styles mochyy listen now hop in hero"),
-    WALLPAPER(R.string.customise_wallpaper, listOf("Custom wallpaper", "Wallpaper"), "wallpaper background image photo home library search dim blur"),
-    EDGE_OVERLAYS(R.string.customise_edge_overlays, listOf("Edge glows", "Top glow", "Bottom fade"), "top glow red tint cover wash bottom dark scrim fade gradient clean wallpaper"),
-    APP_FONT(R.string.customise_app_font, listOf("App font", "Font"), "font typeface system device custom ttf otf inter text"),
     BLUR(R.string.appearance_blur, listOf("Blur", "Progressive blur", "Blur quality", "Blur strength"), "blur glass frosted progressive flat quality low high strength px"),
     ELEMENT_BLUR(R.string.customise_element_blur, listOf("Element blur"), "element blur lyrics lines cover zoom titles menus page swipes"),
     ANIMATION(R.string.appearance_animation, listOf("Animation", "Animation speed"), "animation speed motion transitions off faster slower"),
@@ -164,7 +157,8 @@ private enum class CustomiseSection(@StringRes val titleRes: Int, val keys: List
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CustomisationScreen(navController: NavController) {
-    var query by remember { mutableStateOf("") }
+    var query by rememberSaveable { mutableStateOf("") }
+    val fontSectionState = rememberFontSectionState()
     val statusTop = WindowInsets.stableStatusBars.asPaddingValues().calculateTopPadding()
     val bottomInset = LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateBottomPadding()
     val direction = LocalLayoutDirection.current
@@ -181,7 +175,7 @@ fun CustomisationScreen(navController: NavController) {
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier
                 .fillMaxSize()
-                .background(LocalWallpaperPalette.current?.surfaceDeep ?: Color.Black)
+                .background(Color.Black)
                 .verticalScroll(scroll),
         ) {
             val landscape = maxWidth > maxHeight && maxWidth >= 600.dp
@@ -247,7 +241,7 @@ fun CustomisationScreen(navController: NavController) {
                             left.forEachIndexed { index, section ->
                                 if (index > 0) SectionRule()
                                 Box(Modifier.highlightTarget(section.keys)) {
-                                    CustomiseSectionContent(section, bleedPager = false)
+                                    CustomiseSectionContent(section, fontSectionState, bleedPager = false)
                                 }
                             }
                         }
@@ -255,7 +249,7 @@ fun CustomisationScreen(navController: NavController) {
                             right.forEachIndexed { index, section ->
                                 if (index > 0) SectionRule()
                                 Box(Modifier.highlightTarget(section.keys)) {
-                                    CustomiseSectionContent(section, bleedPager = false)
+                                    CustomiseSectionContent(section, fontSectionState, bleedPager = false)
                                 }
                             }
                         }
@@ -264,7 +258,7 @@ fun CustomisationScreen(navController: NavController) {
                     shown.forEachIndexed { index, section ->
                         if (index > 0) SectionRule()
                         Box(Modifier.highlightTarget(section.keys)) {
-                            CustomiseSectionContent(section, bleedPager = !landscape)
+                            CustomiseSectionContent(section, fontSectionState, bleedPager = !landscape)
                         }
                     }
                 }
@@ -274,10 +268,11 @@ fun CustomisationScreen(navController: NavController) {
 }
 
 @Composable
-private fun CustomiseSectionContent(section: CustomiseSection, bleedPager: Boolean = true) {
+private fun CustomiseSectionContent(section: CustomiseSection, fontSectionState: FontSectionState, bleedPager: Boolean = true) {
     val pagerBleed = if (bleedPager) Modifier.bleedHorizontally(CustomisePageMargin) else Modifier
     when (section) {
         CustomiseSection.ICONS -> IconsSection()
+        CustomiseSection.FONT -> FontSection(fontSectionState)
         CustomiseSection.ROUNDING -> {
             val (coverRadiusPx, onCoverRadiusChange) = rememberPreference(ThumbnailCornerRadiusKey, defaultValue = DefaultCoverRadius)
             CoverRoundingSection(
@@ -313,9 +308,6 @@ private fun CustomiseSectionContent(section: CustomiseSection, bleedPager: Boole
                 modifier = pagerBleed,
             ) { HomeStylePreview(style = it, coverRadius = coverRadiusPx.dp) }
         }
-        CustomiseSection.WALLPAPER -> WallpaperPickerSection()
-        CustomiseSection.EDGE_OVERLAYS -> EdgeOverlaysSection()
-        CustomiseSection.APP_FONT -> AppFontSection()
         CustomiseSection.BLUR -> BlurSection()
         CustomiseSection.ELEMENT_BLUR -> ElementBlurSection()
         CustomiseSection.ANIMATION -> AnimationSection()
@@ -580,242 +572,5 @@ private fun PlayerGestureCard() {
             checked = follows,
             onCheckedChange = setFollows,
         )
-    }
-}
-
-
-@Composable
-private fun WallpaperPickerSection() {
-    val context = LocalContext.current
-    val (path, setPath) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperPathKey, defaultValue = "")
-    val (dim, setDim) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperDimKey, defaultValue = 0.42f)
-    val (blur, setBlur) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperBlurKey, defaultValue = 0f)
-    val (onHome, setOnHome) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperHomeKey, defaultValue = true)
-    val (onLibrary, setOnLibrary) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperLibraryKey, defaultValue = true)
-    val (onSearch, setOnSearch) = rememberPreference(com.mochyy.mochymusic.constants.CustomWallpaperSearchKey, defaultValue = false)
-    var processingLabel by remember { mutableStateOf<String?>(null) }
-
-    val picker = androidx.activity.compose.rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            val appCtx = context.applicationContext
-            val oldPath = path
-            val mime = runCatching { appCtx.contentResolver.getType(uri) }.getOrNull().orEmpty().lowercase(java.util.Locale.ROOT)
-            val isVideo = mime.startsWith("video/")
-            processingLabel = if (isVideo) "Optimizing video to 1080p..." else "Saving wallpaper..."
-            Thread {
-                val ext = when {
-                    mime.contains("png") -> "png"
-                    mime.contains("webp") -> "webp"
-                    mime.contains("webm") -> "webm"
-                    mime.contains("matroska") || mime.contains("mkv") -> "mkv"
-                    mime.contains("quicktime") || mime.contains("mov") -> "mov"
-                    isVideo -> "mp4"
-                    else -> "jpg"
-                }
-                val ts = System.currentTimeMillis()
-                var finalFile = java.io.File(appCtx.filesDir, "custom_wallpaper_$ts.$ext")
-                var optimized1080 = false
-                val ok = if (isVideo) {
-                    val tempRaw = java.io.File(appCtx.cacheDir, "wallpaper_raw_$ts.$ext")
-                    val copied = runCatching {
-                        appCtx.contentResolver.openInputStream(uri)!!.use { input ->
-                            tempRaw.outputStream().use { output -> input.copyTo(output) }
-                        }
-                        tempRaw.exists() && tempRaw.length() > 0L
-                    }.getOrDefault(false)
-                    if (!copied) {
-                        tempRaw.delete()
-                        false
-                    } else {
-                        val optimizedFile = java.io.File(appCtx.filesDir, "custom_wallpaper_$ts.mp4")
-                        if (com.mochyy.mochymusic.ui.component.optimizeWallpaperVideoTo1080p(appCtx, tempRaw, optimizedFile)) {
-                            tempRaw.delete()
-                            finalFile = optimizedFile
-                            optimized1080 = true
-                            true
-                        } else {
-                            val moved = runCatching {
-                                tempRaw.copyTo(finalFile, overwrite = true)
-                                tempRaw.delete()
-                                finalFile.exists() && finalFile.length() > 0L
-                            }.getOrDefault(false)
-                            if (!moved) {
-                                tempRaw.delete()
-                                finalFile.delete()
-                            }
-                            moved
-                        }
-                    }
-                } else {
-                    val copied = runCatching {
-                        appCtx.contentResolver.openInputStream(uri)!!.use { input ->
-                            finalFile.outputStream().use { output -> input.copyTo(output) }
-                        }
-                        finalFile.exists() && finalFile.length() > 0L
-                    }.getOrDefault(false)
-                    if (!copied) finalFile.delete()
-                    copied
-                }
-
-                val savedPath = if (ok) {
-                    runCatching {
-                        val oldFile = java.io.File(oldPath)
-                        if (oldPath.isNotBlank() && oldFile.absolutePath != finalFile.absolutePath &&
-                            oldFile.parentFile == appCtx.filesDir && oldFile.name.startsWith("custom_wallpaper_")
-                        ) {
-                            oldFile.delete()
-                        }
-                    }
-                    finalFile.absolutePath
-                } else {
-                    ""
-                }
-
-                android.os.Handler(android.os.Looper.getMainLooper()).post {
-                    processingLabel = null
-                    if (savedPath.isNotEmpty()) {
-                        setPath(savedPath)
-                        val msg = when {
-                            optimized1080 -> "Live wallpaper optimized to 1080p"
-                            isVideo -> "Live wallpaper updated"
-                            else -> "Wallpaper updated"
-                        }
-                        Toast.makeText(appCtx, msg, Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(appCtx, "Could not load media", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }.start()
-        }
-    }
-
-    Column {
-        Text(
-            text = stringResource(R.string.customise_wallpaper),
-            style = TextStyle(
-                fontFamily = InterFontFamily,
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
-                letterSpacing = (-0.05).em,
-            ),
-            color = Color.White,
-        )
-        Spacer(Modifier.height(14.dp))
-        LabCard(padding = CardPadding) {
-            if (path.isNotBlank()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(140.dp)
-                        .clip(RoundedCornerShape(14.dp)),
-                ) {
-                    if (com.mochyy.mochymusic.ui.component.isVideoWallpaperPath(path)) {
-                        com.mochyy.mochymusic.ui.component.LiveWallpaperVideo(
-                            path = path,
-                            blurDp = 0f,
-                            active = true,
-                            pauseWhenObscured = false,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                        Text(
-                            text = "LIVE · 1080P MAX",
-                            color = Color.White,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(8.dp)
-                                .clip(RoundedCornerShape(50))
-                                .background(Color.Black.copy(alpha = 0.6f))
-                                .padding(horizontal = 8.dp, vertical = 3.dp),
-                        )
-                    } else {
-                        coil3.compose.AsyncImage(
-                            model = java.io.File(path),
-                            contentDescription = null,
-                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
-                }
-                Spacer(Modifier.height(12.dp))
-            }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                androidx.compose.material3.Button(
-                    enabled = processingLabel == null,
-                    onClick = {
-                        picker.launch(
-                            androidx.activity.result.PickVisualMediaRequest(
-                                androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo
-                            )
-                        )
-                    },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(processingLabel ?: if (path.isBlank()) "Pick Image / Video" else "Change Wallpaper")
-                }
-                if (path.isNotBlank()) {
-                    androidx.compose.material3.OutlinedButton(
-                        enabled = processingLabel == null,
-                        onClick = {
-                            val oldPath = path
-                            setPath("")
-                            Thread {
-                                runCatching {
-                                    val f = java.io.File(oldPath)
-                                    if (f.parentFile == context.applicationContext.filesDir && f.name.startsWith("custom_wallpaper_")) {
-                                        f.delete()
-                                    }
-                                }
-                            }.start()
-                            Toast.makeText(context, "Wallpaper cleared", Toast.LENGTH_SHORT).show()
-                        },
-                    ) {
-                        Text("Clear", color = Color.White)
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(14.dp))
-            Text("Dim: ${(dim * 100).toInt()}%", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
-            androidx.compose.material3.Slider(
-                value = dim,
-                onValueChange = setDim,
-                valueRange = 0f..0.9f,
-            )
-
-            Spacer(Modifier.height(6.dp))
-            Text("Blur: ${blur.toInt()} dp", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
-            androidx.compose.material3.Slider(
-                value = blur,
-                onValueChange = setBlur,
-                valueRange = 0f..25f,
-            )
-
-            Spacer(Modifier.height(8.dp))
-            WallpaperScopeToggle("Show on Home", onHome, setOnHome)
-            WallpaperScopeToggle("Show on Library", onLibrary, setOnLibrary)
-            WallpaperScopeToggle("Show on Search", onSearch, setOnSearch)
-        }
-    }
-}
-
-@Composable
-private fun WallpaperScopeToggle(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) }
-            .padding(vertical = 6.dp),
-    ) {
-        Text(label, color = Color.White, fontSize = 14.sp)
-        androidx.compose.material3.Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }

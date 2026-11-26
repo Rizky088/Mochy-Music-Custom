@@ -7,8 +7,6 @@
 
 package com.mochyy.mochymusic.ui.screens.profile
 
-import com.mochyy.mochymusic.ui.component.LocalWallpaperPalette
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -97,14 +95,10 @@ internal val ProfilePhotoGrey = Color(0xFF4F4F4F)
 
 // both match the ID card's name and number (weight, tracking), so the copies flying between them
 // are the same text at both ends, only bigger or smaller
-internal val ProfileNameStyle: TextStyle get() = TextStyle(
-    fontFamily = InterFontFamily,
-    fontWeight = FontWeight.Bold,
-    fontSize = 60.sp,
-    lineHeight = 1.1.em,
-    letterSpacing = (-0.05).em,
-    color = Color.White,
+private val ProfileNameStyleCache = com.mochyy.mochymusic.ui.theme.headingTextStyle(
+    TextStyle(fontWeight = FontWeight.Bold, fontSize = 60.sp, lineHeight = 1.1.em, letterSpacing = (-0.05).em, color = Color.White),
 )
+internal val ProfileNameStyle: TextStyle get() = ProfileNameStyleCache.current()
 
 internal val ProfileTagStyle = TextStyle(
     fontFamily = FontFamily.Monospace,
@@ -122,12 +116,10 @@ private val DividerGrey = Color(0xFF262626)
 private val ListensCardGrey = Color(0xFF111111)
 private val FigureGrey = Color(0xFF707070)
 
-private val EmptyStyle: TextStyle get() = TextStyle(
-    fontFamily = InterFontFamily,
-    fontWeight = FontWeight.Medium,
-    fontSize = 13.sp,
-    color = Color.White.copy(alpha = 0.45f),
+private val EmptyStyleCache = com.mochyy.mochymusic.ui.theme.globalTextStyle(
+    TextStyle(fontWeight = FontWeight.Medium, fontSize = 13.sp, color = Color.White.copy(alpha = 0.45f)),
 )
+private val EmptyStyle: TextStyle get() = EmptyStyleCache.current()
 
 @Composable
 internal fun UserProfilePage(
@@ -157,7 +149,7 @@ internal fun UserProfilePage(
                 .onPlaced { state.target.photo = it }
                 .landedOnly(state)
                 .clip(CircleShape)
-                .background(LocalWallpaperPalette.current?.surfaceContainerHigh ?: ProfilePhotoGrey)
+                .background(ProfilePhotoGrey)
                 .clickable(onClick = openEditor),
         ) {
             if (photo != null) {
@@ -211,7 +203,7 @@ internal fun UserProfilePage(
                 .padding(horizontal = 30.dp)
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(LocalWallpaperPalette.current?.divider ?: DividerGrey),
+                .background(DividerGrey),
         )
         Spacer(Modifier.height(24.dp))
         ListensRow(state, viewModel, onOpenStats = { navController.navigate("stats") })
@@ -276,7 +268,7 @@ private fun EditProfilePill(onClick: () -> Unit, modifier: Modifier = Modifier) 
         ),
         modifier = modifier
             .clip(CircleShape)
-            .background(LocalWallpaperPalette.current?.chip ?: PillGrey)
+            .background(PillGrey)
             .clickable(onClick = onClick)
             .padding(horizontal = 15.dp, vertical = 8.dp),
     )
@@ -315,7 +307,7 @@ private fun ListensCard(total: ListenTotal, width: Dp, onClick: () -> Unit, modi
         modifier = modifier
             .width(width)
             .clip(RoundedCornerShape(18.dp))
-            .background(LocalWallpaperPalette.current?.surfaceContainer ?: ListensCardGrey)
+            .background(ListensCardGrey)
             .clickable(onClick = onClick)
             .padding(start = 22.dp, end = 16.dp, top = 18.dp, bottom = 14.dp),
     ) {
@@ -328,7 +320,7 @@ private fun ListensCard(total: ListenTotal, width: Dp, onClick: () -> Unit, modi
             Spacer(Modifier.width(6.dp))
             Text(
                 text = total.label,
-                style = TextStyle(fontFamily = FontFamily.Monospace, fontSize = 9.5.sp, color = LocalWallpaperPalette.current?.onSurfaceVariant ?: Color(0xFF8A8A8A)),
+                style = TextStyle(fontFamily = FontFamily.Monospace, fontSize = 9.5.sp, color = Color(0xFF8A8A8A)),
                 modifier = Modifier.alignByBaseline(),
             )
         }
@@ -349,19 +341,18 @@ private fun ListensFigure(value: String, unit: String, modifier: Modifier = Modi
         value.length == 3 -> 0.9f
         else -> 1f
     }
-    val figureColor = LocalWallpaperPalette.current?.onSurfaceVariant ?: FigureGrey
     Row(verticalAlignment = Alignment.Bottom, modifier = modifier) {
         OdometerNumber(
             value = value,
             fontSize = figureSp(46f * k),
             fontWeight = FontWeight.Bold,
             fontFamily = InterFontFamily,
-            color = figureColor,
+            color = FigureGrey,
             letterSpacing = (-2).sp,
         )
         Text(
             text = unit,
-            style = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = figureSp(19f * k), letterSpacing = (-0.6).sp, color = figureColor),
+            style = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.Bold, fontSize = figureSp(19f * k), letterSpacing = (-0.6).sp, color = FigureGrey),
             maxLines = 1,
             modifier = Modifier.padding(start = 4.dp, bottom = (7 * k).dp),
         )

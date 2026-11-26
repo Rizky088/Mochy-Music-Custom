@@ -2,9 +2,6 @@
 
 package com.mochyy.mochymusic.modules.code
 
-import org.json.JSONArray
-import org.json.JSONObject
-
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -17,6 +14,7 @@ import com.mochyy.mochymusic.module.bridge.BridgeOnlyParent
 import com.mochyy.mochymusic.module.bridge.BridgedModule
 import com.mochyy.mochymusic.module.bridge.shared.ModuleBridge
 import com.mochyy.mochymusic.modules.ModuleRegistry
+import com.mochyy.mochymusic.modules.security.ModuleSanitizer
 import dalvik.system.DexClassLoader
 import timber.log.Timber
 import java.io.File
@@ -31,7 +29,7 @@ internal object CodeModules {
     class Loaded(val module: BridgedModule, val folder: String)
 
     /** copies the apk at [path] in the zip out to the cache to be checked; null when it isn't there or is too big */
-    fun extract(context: Context, uri: Uri, path: String): File? = runCatching {
+    fun extract(context: Context, uri: Uri, path: String): File? {
         val dir = File(context.cacheDir, "code_check").apply {
             deleteRecursively()
             mkdirs()
@@ -39,164 +37,89 @@ internal object CodeModules {
         val target = File(dir, "module.apk")
         context.contentResolver.openInputStream(uri)?.use { raw ->
             ZipInputStream(raw.buffered()).use { zip ->
-                generateSequence { zip.nextEntry }.take(MaxZipEntries).firstOrNull { !it.isDirectory && it.name.trimStart('/') == path } ?: return@runCatching null
-                return@runCatching target.takeIf { copyCapped(zip, it) }
+                generateSequence { zip.nextEntry }.take(MaxZipEntries).firstOrNull { !it.isDirectory && it.name.trimStart('/') == path } ?: return null
+                return target.takeIf { copyCapped(zip, it) }
             }
         }
-        null
-    }.onFailure { Timber.tag(Tag).w(it, "Couldn't extract code module apk") }.getOrNull()
+        return null
+    }
 
     /** true when the apk is signed with exactly the keys this copy of mochy is signed with */
     fun signedLikeMochy(context: Context, apk: File): Boolean =
         signedLikeMochy(context, context.packageManager.getPackageArchiveInfo(apk.path, SignatureFlags))
 
-    /** true when Android can read the apk and it declares a Mochy module entry point */
-    fun isValidApk(context: Context, apk: File): Boolean = runCatching {
-        val info = context.packageManager.getPackageArchiveInfo(apk.path, SignatureFlags or PackageManager.GET_META_DATA)
-        info?.applicationInfo?.metaData?.getString(ModuleRegistry.EntryMetaKey) != null
-    }.getOrDefault(false)
-
-    /** formatted SHA-256 fingerprint of the apk's signing certificate, or null if unsigned */
-    fun signerFingerprint(context: Context, apk: File): String? = runCatching {
-        val info = context.packageManager.getPackageArchiveInfo(apk.path, SignatureFlags)
-        val fps = signers(info).sorted()
-        if (fps.isEmpty()) null else fps.first().chunked(2).joinToString(":").uppercase()
-    }.getOrNull()
-
-    /** puts a checked apk in place under [key] and starts it; null when its code can't run in this mochy */
-    fun install(context: Context, key: String, apk: File, allowUntrusted: Boolean = false): Loaded? {
-        // each copy gets a folder of its own, since a native library stays open in the class loader that loaded it and one path can't be loaded twice
-        val folder = "${safe(key)}/${System.currentTimeMillis()}"
-        val target = File(root(context), "$folder/$ApkName")
+    fun install(context: Context, key: String, apk: File, expectedId: String? = null): Loaded? {
+        val stamp = System.currentTimeMillis().toString()
+        val segment = safe(key)
+        val folder = "$segment/$stamp"
+        val dir = ModuleSanitizer.safeChild(root(context), segment, stamp) ?: return null
+        val target = File(dir, ApkName)
         target.parentFile?.mkdirs()
         if (!apk.renameTo(target)) {
             apk.copyTo(target, overwrite = true)
             apk.delete()
         }
-        if (allowUntrusted) {
-            val info = context.packageManager.getPackageArchiveInfo(target.path, SignatureFlags)
-            if (!signedLikeMochy(context, info)) {
-                recordApproval(context, folder, target, info)
-            }
-        }
         val loaded = load(context, folder)
-        if (loaded == null) {
-            revokeApproval(context, folder)
-            File(root(context), folder).deleteRecursively()
+        if (loaded == null || (expectedId != null && loaded.module.info.id != expectedId)) {
+            loaded?.module?.close()
+            dir.deleteRecursively()
+            return null
         }
         return loaded
     }
 
-    /** starts the module in [folder], checking its signature again first since a restored backup can bring any file back; null when it can't run here */
     fun load(context: Context, folder: String): Loaded? = runCatching {
-        val dir = File(root(context), folder)
+        val parts = folder.split('/')
+        if (parts.size != 2) return null
+        val dir = ModuleSanitizer.safeChild(root(context), parts[0], parts[1]) ?: return null
         val apk = File(dir, ApkName)
         if (!apk.isFile) return null
-        // android 14 refuses to load code from a file the app could still write to
         apk.setReadOnly()
         val info = context.packageManager.getPackageArchiveInfo(apk.path, SignatureFlags or PackageManager.GET_META_DATA)
-        if (!signedLikeMochy(context, info) && !isApproved(context, folder, apk, info)) {
-            Timber.tag(Tag).w("Skipping the module in $folder: not signed like Mochy and not approved")
+        if (!signedLikeMochy(context, info)) {
+            Timber.tag(Tag).w("Skipping the module in $folder: not signed like Mochy")
             return null
         }
         val entry = info?.applicationInfo?.metaData?.getString(ModuleRegistry.EntryMetaKey) ?: return null
         val optimized = File(context.codeCacheDir, "code_modules").apply { mkdirs() }
         val loader = DexClassLoader(apk.path, optimized.path, nativeLibs(apk, dir)?.path, BridgeOnlyParent(CodeModules::class.java.classLoader!!))
         val bridge = loader.loadClass(BridgedModule.ModuleSideClass).getDeclaredConstructor().newInstance() as ModuleBridge
-        Loaded(BridgedModule.open(bridge, entry), folder)
+        val opened = BridgedModule.open(bridge, entry)
+        if (!ModuleSanitizer.isValidModuleId(opened.info.id)) {
+            opened.close()
+            return null
+        }
+        Loaded(opened, folder)
     }.onFailure { Timber.tag(Tag).w(it, "Couldn't start the module in $folder") }.getOrNull()
 
-    /** deletes every copy but the ones in [keep]: the ones updates replaced and modules that were removed */
+    /** the folder this phone's copy of the module's native libraries sits in, null when it brought none */
+    fun nativeDir(context: Context, folder: String): File? {
+        val parts = folder.split('/')
+        if (parts.size != 2) return null
+        val dir = ModuleSanitizer.safeChild(root(context), parts[0], parts[1]) ?: return null
+        val abis = if (Process.is64Bit()) Build.SUPPORTED_64_BIT_ABIS else Build.SUPPORTED_32_BIT_ABIS
+        return abis.map { File(dir, "lib/$it") }.firstOrNull { it.isDirectory }
+    }
+
     fun tidy(context: Context, keep: Set<String>) {
         root(context).listFiles()?.forEach { key ->
             key.listFiles()?.forEach { copy -> if ("${key.name}/${copy.name}" !in keep) copy.deleteRecursively() }
             if (key.list().isNullOrEmpty()) key.delete()
         }
-        pruneApprovals(context, keep)
     }
 
-    /** takes a removed module's code away; a copy still running keeps what it already opened */
     fun delete(context: Context, folder: String) {
-        val prefix = folder.substringBefore('/')
-        File(root(context), prefix).deleteRecursively()
-        revokePrefix(context, prefix)
+        val key = folder.substringBefore('/')
+        ModuleSanitizer.safeChild(root(context), key)?.deleteRecursively()
     }
 
     private fun root(context: Context) = File(context.filesDir, "code_modules")
 
-    private fun safe(key: String) = key.lowercase().replace(Regex("[^a-z0-9._-]"), "-").ifBlank { "module" }
+    private fun safe(key: String) = ModuleSanitizer.safeSegment(key)
 
     private fun signedLikeMochy(context: Context, theirs: PackageInfo?): Boolean {
         val own = signers(context.packageManager.getPackageInfo(context.packageName, SignatureFlags))
         return own.isNotEmpty() && own == signers(theirs)
-    }
-
-    private fun approvalFile(context: Context) = File(context.noBackupFilesDir, "approved_code_modules.json")
-
-    private fun sha256File(file: File): String {
-        val md = MessageDigest.getInstance("SHA-256")
-        file.inputStream().use { input ->
-            val buf = ByteArray(64 * 1024)
-            while (true) {
-                val n = input.read(buf)
-                if (n < 0) break
-                md.update(buf, 0, n)
-            }
-        }
-        return md.digest().joinToString("") { "%02x".format(it) }
-    }
-
-    private fun readApprovals(context: Context): JSONObject = synchronized(this) {
-        val file = approvalFile(context)
-        if (!file.isFile) return@synchronized JSONObject()
-        runCatching { JSONObject(file.readText(Charsets.UTF_8)) }.getOrDefault(JSONObject())
-    }
-
-    private fun writeApprovals(context: Context, json: JSONObject) = synchronized(this) {
-        val file = approvalFile(context)
-        file.parentFile?.mkdirs()
-        file.writeText(json.toString(), Charsets.UTF_8)
-    }
-
-    private fun recordApproval(context: Context, folder: String, apk: File, info: PackageInfo?) = synchronized(this) {
-        val all = readApprovals(context)
-        val entry = JSONObject()
-            .put("apkSha256", sha256File(apk))
-            .put("signers", JSONArray(signers(info).sorted()))
-        all.put(folder, entry)
-        writeApprovals(context, all)
-    }
-
-    private fun isApproved(context: Context, folder: String, apk: File, info: PackageInfo?): Boolean = synchronized(this) {
-        val entry = readApprovals(context).optJSONObject(folder) ?: return@synchronized false
-        val expectedHash = entry.optString("apkSha256").takeIf { it.isNotBlank() } ?: return@synchronized false
-        if (expectedHash != sha256File(apk)) return@synchronized false
-        val arr = entry.optJSONArray("signers")
-        val expectedSigners = if (arr == null) emptySet() else (0 until arr.length()).map { arr.optString(it) }.toSet()
-        expectedSigners == signers(info)
-    }
-
-    private fun revokeApproval(context: Context, folder: String) = synchronized(this) {
-        val all = readApprovals(context)
-        if (all.remove(folder) != null) writeApprovals(context, all)
-    }
-
-    private fun revokePrefix(context: Context, prefix: String) = synchronized(this) {
-        val all = readApprovals(context)
-        val toRemove = all.keys().asSequence().filter { it == prefix || it.startsWith("$prefix/") }.toList()
-        if (toRemove.isNotEmpty()) {
-            toRemove.forEach { all.remove(it) }
-            writeApprovals(context, all)
-        }
-    }
-
-    private fun pruneApprovals(context: Context, keep: Set<String>) = synchronized(this) {
-        val all = readApprovals(context)
-        val toRemove = all.keys().asSequence().filter { it !in keep }.toList()
-        if (toRemove.isNotEmpty()) {
-            toRemove.forEach { all.remove(it) }
-            writeApprovals(context, all)
-        }
     }
 
     // the certificates it's signed with right now, as fingerprints
@@ -228,8 +151,10 @@ internal object CodeModules {
             mkdirs()
         }
         names.filter { it.startsWith("lib/$abi/") }.forEach { name ->
-            val library = File(staging, name.substringAfterLast('/'))
-            zip.getInputStream(zip.getEntry(name)).use { input -> library.outputStream().use { input.copyTo(it) } }
+            val libName = name.substringAfterLast('/')
+            val library = ModuleSanitizer.safeChild(staging, libName) ?: return@forEach
+            val ok = zip.getInputStream(zip.getEntry(name)).use { input -> copyCapped(input, library) }
+            if (!ok) return null
             library.setReadOnly()
         }
         target.takeIf { staging.renameTo(it) }

@@ -1224,7 +1224,7 @@ class MainActivity : ComponentActivity() {
                                     // the settings list stays at the left of a wide screen while its pages open beside it
                                     val settingsPane = isWideLayout() &&
                                         com.mochyy.mochymusic.ui.screens.settings.showsSettingsPane(backStack, currentRoute)
-                                    // one glass capture for both panes so the bar frosts what's under it, clear of a sideways phone's side nav bar (its shown size, so hiding it moves nothing)
+                                    // one glass capture for both panes so the bar frosts what's under it (including custom wallpaper or app-wide module background)
                                     // shared_search_wallpaper_box
                                     Box(
                                         Modifier
@@ -1243,6 +1243,10 @@ class MainActivity : ComponentActivity() {
                                         com.mochyy.mochymusic.ui.screens.search.showsSearchPane(currentRoute) -> wallpaperOnSearch
                                         else -> false
                                     }
+                                    com.mochyy.mochymusic.ui.screens.settings.modules.ModuleAppBackground(
+                                        currentRoute = currentRoute,
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
                                     com.mochyy.mochymusic.ui.component.CustomWallpaperLayer(
                                         enabled = keepWallpaperAlive,
                                         visible = showWallpaperHere,
@@ -1439,10 +1443,13 @@ class MainActivity : ComponentActivity() {
         // and the bedside is a clock on the nightstand, a row of notifications over it would only glow in the dark
         val portrait = LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
         // on its side the phone has little height to spare, so every style gets the whole of it
-        val hideStatusBar = !statusBarShown || !portrait || playerStyle == com.mochyy.mochymusic.constants.PlayerStyle.VIDEO || playerStyle.isBedside
+        val styleHidesStatusBar = !statusBarShown || !portrait || playerStyle == com.mochyy.mochymusic.constants.PlayerStyle.VIDEO || playerStyle.isBedside
+        // a module's live surface gone fullscreen takes both bars' room too, only while it's up
+        val surfaceFullscreen = com.mochyy.mochymusic.ui.player.styles.SurfaceSession.fullscreen
+        val hideStatusBar = styleHidesStatusBar || surfaceFullscreen
         // customize's bottom bar brings the navigation bar back, except where it would cut into the video or glow by the bed
         val (navBarShown) = rememberPreference(com.mochyy.mochymusic.constants.PlayerNavBarKey, defaultValue = com.mochyy.mochymusic.constants.PlayerNavBarDefault)
-        val hideNavBar = !navBarShown || playerStyle == com.mochyy.mochymusic.constants.PlayerStyle.VIDEO || playerStyle.isBedside
+        val hideNavBar = !navBarShown || playerStyle == com.mochyy.mochymusic.constants.PlayerStyle.VIDEO || playerStyle.isBedside || surfaceFullscreen
         // Back in the app (from Home, the recents, a dialog) it's hidden again: with
         // gesture navigation a swipe from the bottom brings it back for good (see
         // playerNavBarBehavior).
@@ -1471,8 +1478,9 @@ class MainActivity : ComponentActivity() {
             }
         }
         // set before the bar ever hides and left alone after, so hiding it never moves the window off the camera strip; on its side the app always fills the strip, android left it a black bar
-        LaunchedEffect(hideStatusBar, portrait) {
-            window.drawUnderCutout(!portrait || hideStatusBar)
+        // a fullscreen surface coming and going doesn't count, or the window would shift every time it's toggled
+        LaunchedEffect(styleHidesStatusBar, portrait) {
+            window.drawUnderCutout(!portrait || styleHidesStatusBar)
         }
         // A bar a swipe brought back while the player stays open (Samsung's swipe-from-
         // bottom gestures) goes away again after a moment, as the transient one does.
@@ -1577,29 +1585,32 @@ class MainActivity : ComponentActivity() {
         intent.removeExtra(Intent.EXTRA_TEXT)
         val coroutineScope = lifecycle.coroutineScope
 
+        fun safeRouteId(raw: String?): String? =
+            raw?.trim()?.takeIf { it.isNotEmpty() && it.length <= 256 && !it.contains('/') && !it.contains("..") && !it.contains('?') && !it.contains('#') && !it.any(Char::isWhitespace) }
+
         when (val path = uri.pathSegments.firstOrNull()) {
-            "playlist" -> uri.getQueryParameter("list")?.let { playlistId ->
+            "playlist" -> safeRouteId(uri.getQueryParameter("list"))?.let { playlistId ->
                 if (playlistId.startsWith("OLAK5uy_")) {
                     coroutineScope.launch(Dispatchers.IO) {
                         YouTube.albumSongs(playlistId).onSuccess { songs ->
-                            songs.firstOrNull()?.album?.id?.let { browseId ->
+                            safeRouteId(songs.firstOrNull()?.album?.id)?.let { browseId ->
                                 withContext(Dispatchers.Main) {
-                                    navController.navigate("album/$browseId")
+                                    navController.navigate("album/${android.net.Uri.encode(browseId)}")
                                 }
                             }
                         }.onFailure { reportException(it) }
                     }
                 } else {
-                    navController.navigate("online_playlist/$playlistId")
+                    navController.navigate("online_playlist/${android.net.Uri.encode(playlistId)}")
                 }
             }
 
-            "browse" -> uri.lastPathSegment?.let { browseId ->
-                navController.navigate("album/$browseId")
+            "browse" -> safeRouteId(uri.lastPathSegment)?.let { browseId ->
+                navController.navigate("album/${android.net.Uri.encode(browseId)}")
             }
 
-            "channel", "c" -> uri.lastPathSegment?.let { artistId ->
-                navController.navigate("artist/$artistId")
+            "channel", "c" -> safeRouteId(uri.lastPathSegment)?.let { artistId ->
+                navController.navigate("artist/${android.net.Uri.encode(artistId)}")
             }
 
             "search" -> {
