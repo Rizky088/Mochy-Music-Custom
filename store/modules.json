@@ -780,6 +780,32 @@
       "updated": 1795696441278,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1572945147220467833",
       "postUrl": "https://discord.com/channels/916351383341522994/1572945147220467833"
+    },
+    {
+      "id": "retro-cassette",
+      "name": "Retro Cassette Deck",
+      "moduleId": "retro-cassette",
+      "version": "1.3.0",
+      "author": "Zel",
+      "description": "Retro cassette deck with transparent cassette body cutout, segmented retro bar visualizer, lyrics highlight, and equalized 5-option colour palettes across all sections.",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "",
+      "banner": "",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/retro-cassette-1795696544-0.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/retro-cassette.zip",
+      "size": 826090,
+      "updated": 1795696544822,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573561657467084920",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573561657467084920"
     }
   ]
 }
