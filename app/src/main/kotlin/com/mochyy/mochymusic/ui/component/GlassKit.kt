@@ -48,6 +48,8 @@ class GlassState {
     var renderNode by mutableStateOf<Any?>(null)
     var rootPosition by mutableStateOf(Offset.Zero)
     // bumped whenever glassRoot records a fresh display list so fallback gl surfaces skip idle captures
+    var contentVersion by mutableIntStateOf(0)
+    internal var recorded: Boolean = false
     internal var drawGeneration: Long = 0L
     // count of active api 29-30 fallback glass readers; api 29-30 skips recording when zero
     internal val fallbackReaders = mutableIntStateOf(0)
@@ -62,6 +64,7 @@ class GlassState {
 
     // drops the recorded screen display list when the window hides so gpu textures can be reclaimed
     fun discard() {
+        recorded = false
         val node = renderNode ?: return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) glassNodeDiscard(node)
     }
@@ -197,6 +200,10 @@ fun Modifier.glassRoot(state: GlassState, isActive: () -> Boolean = { true }): M
                 state.drawGeneration++
 
                 if (glassNodeHasContent(node)) {
+                    if (!state.recorded) {
+                        state.recorded = true
+                        state.contentVersion++
+                    }
                     drawIntoCanvas { it.nativeCanvas.drawGlassNode(node) }
                 }
             } else {
