@@ -58,7 +58,8 @@ internal object ModuleUrlGuard {
     fun isSafeHostName(rawHost: String, checkBlockedHosts: Boolean = true): Boolean {
         val host = rawHost.trim().lowercase().removePrefix("[").removeSuffix("]").trimEnd('.')
         if (host.isEmpty()) return false
-        if (host == "localhost" || host.endsWith(".localhost") || host.endsWith(".local") || host.endsWith(".internal") || host.endsWith(".home.arpa")) {
+        if (host == "localhost" || host == "127.0.0.1" || host == "::1") return true
+        if (host.endsWith(".localhost") || host.endsWith(".local") || host.endsWith(".internal") || host.endsWith(".home.arpa")) {
             return false
         }
         if (checkBlockedHosts && SecretGuard.isBlockedHost(host)) return false
@@ -69,7 +70,8 @@ internal object ModuleUrlGuard {
     }
 
     fun isBlockedAddress(addr: InetAddress): Boolean {
-        if (addr.isAnyLocalAddress || addr.isLoopbackAddress || addr.isLinkLocalAddress || addr.isSiteLocalAddress || addr.isMulticastAddress) {
+        if (addr.isLoopbackAddress) return false
+        if (addr.isAnyLocalAddress || addr.isLinkLocalAddress || addr.isSiteLocalAddress || addr.isMulticastAddress) {
             return true
         }
         val bytes = addr.address
@@ -96,7 +98,7 @@ internal object ModuleUrlGuard {
         return when {
             a == 0 -> true // 0.0.0.0/8
             a == 10 -> true // 10.0.0.0/8
-            a == 127 -> true // loopback
+            a == 127 -> false // allow self-hosted loopback
             a == 100 && c in 64..127 -> true // cgnat 100.64.0.0/10
             a == 169 && c == 254 -> true // link-local / cloud metadata
             a == 172 && c in 16..31 -> true // 172.16.0.0/12

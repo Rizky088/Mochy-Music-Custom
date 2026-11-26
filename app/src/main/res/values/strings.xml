@@ -506,4 +506,5 @@
     <string name="mixit_clear_all">Reset all %1$d custom transitions</string>
     <string name="mixit_clear_all_confirm">Tap again to reset all %1$d custom transitions</string>
     <string name="mixit_need_two_songs">Add at least 2 songs to customize transitions</string>
+    <string name="customise_style_3">Style 3</string>
 </resources>
