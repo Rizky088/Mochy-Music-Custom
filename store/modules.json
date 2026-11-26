@@ -754,6 +754,32 @@
       "updated": 1795696333859,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1574132505311715349",
       "postUrl": "https://discord.com/channels/916351383341522994/1574132505311715349"
+    },
+    {
+      "id": "jarvis-hud",
+      "name": "JARVIS HUD",
+      "moduleId": "jarvis-hud",
+      "version": "2.6",
+      "author": "Mochy Community",
+      "description": "Iron Man-style holographic HUD: spinning hologram, glass lyrics panel, live spectrum, amber play key",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/jarvis-hud.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/jarvis-hud.webp",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/jarvis-hud-1795696441-0.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/jarvis-hud.zip",
+      "size": 2197331,
+      "updated": 1795696441278,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1572945147220467833",
+      "postUrl": "https://discord.com/channels/916351383341522994/1572945147220467833"
     }
   ]
 }
