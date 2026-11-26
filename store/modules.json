@@ -12,6 +12,7 @@
     "Tools"
   ],
   "chart": [
+    "pixelquest",
     "yeno-orbit",
     "vitro-glass",
     "vinyl-wave-player",
@@ -641,6 +642,33 @@
       "updated": 1795555989449,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1569206675011936337",
       "postUrl": "https://discord.com/channels/916351383341522994/1569206675011936337"
+    },
+    {
+      "id": "pixelquest",
+      "name": "PixelQuest",
+      "moduleId": "pixelquest",
+      "version": "2.8",
+      "author": "queasoh",
+      "description": "Warm 8-bit player: album art in a pixel game cartridge, a spinning pixel vinyl with a swinging tonearm, 8 warm palettes, and a side-by-side layout for landscape, tablets and big screens.",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/pixelquest.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/pixelquest.png",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/pixelquest-1795695612-0.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/pixelquest-1795695612-1.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/pixelquest.zip",
+      "size": 428123,
+      "updated": 1795695612048,
+      "discordPostUrl": "",
+      "postUrl": ""
     }
   ]
 }
