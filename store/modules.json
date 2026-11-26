@@ -397,33 +397,6 @@
       "postUrl": "https://discord.com/channels/916351383341522994/1572753661086539807"
     },
     {
-      "id": "sn-haze",
-      "name": "Sn-Haze",
-      "moduleId": "sn-haze",
-      "version": "1.46",
-      "author": "Azaraeth(Solora-N)",
-      "description": "Minimal music player inspired by spotify clean and calm no over kill features just balance and clean.",
-      "kind": "player",
-      "tags": [
-        "Players"
-      ],
-      "paid": false,
-      "locked": false,
-      "hidden": false,
-      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/sn-haze.png",
-      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/sn-haze.webp",
-      "previews": [
-        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/sn-haze-1795550869-0.jpg",
-        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/sn-haze-1795550869-1.jpg"
-      ],
-      "install": "zip",
-      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/sn-haze.zip",
-      "size": 187202,
-      "updated": 1795550869850,
-      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573928756387774615",
-      "postUrl": "https://discord.com/channels/916351383341522994/1573928756387774615"
-    },
-    {
       "id": "sn-float",
       "name": "Sn-Float",
       "moduleId": "sn-float",
@@ -669,6 +642,35 @@
       "updated": 1795695667287,
       "discordPostUrl": "https://discord.com/channels/916351383341522994/1575440951919509577",
       "postUrl": "https://discord.com/channels/916351383341522994/1575440951919509577"
+    },
+    {
+      "id": "sn-haze",
+      "name": "Sn-Haze",
+      "moduleId": "Sn-Float-Background-Haze",
+      "version": "1.58",
+      "author": "Azaraeth(Solora-N)",
+      "description": "Minimal music player inspired by spotify clean and calm no over kill features just balance and clean.",
+      "kind": "player",
+      "tags": [
+        "Players"
+      ],
+      "paid": false,
+      "locked": false,
+      "hidden": false,
+      "icon": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/icons/sn-haze.png",
+      "banner": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/banners/sn-haze.webp",
+      "previews": [
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/sn-haze-1795695700-0.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/sn-haze-1795695700-1.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/sn-haze-1795550869-0.jpg",
+        "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/previews/sn-haze-1795550869-1.jpg"
+      ],
+      "install": "zip",
+      "zipUrl": "https://raw.githubusercontent.com/Rizky088/Mochy-Music-Custom/main/store/zips/sn-haze.zip",
+      "size": 293926,
+      "updated": 1795695700082,
+      "discordPostUrl": "https://discord.com/channels/916351383341522994/1573928756387774615",
+      "postUrl": "https://discord.com/channels/916351383341522994/1573928756387774615"
     }
   ]
 }
