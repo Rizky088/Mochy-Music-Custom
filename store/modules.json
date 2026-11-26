@@ -12,10 +12,10 @@
     "Tools"
   ],
   "chart": [
-    "vinyl-wave",
-    "pixelquest",
     "yeno-orbit",
+    "vinyl-wave",
     "vitro-glass",
+    "pixelquest",
     "cassette-queue",
     "miku-player"
   ],
