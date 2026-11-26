@@ -103,7 +103,7 @@ private fun AddCheckedContent(ready: LinkCheck.Ready, viewModel: ModulesViewMode
     fun doInstall() {
         adding = true
         scope.launch {
-            val id = viewModel.install(ready)
+            val id = viewModel.install(ready, allowUntrusted = ready.untrustedCode)
             if (id != null) {
                 if (ready.code != null) viewModel.acknowledgeScriptWarning(id)
                 return@launch onAdded(id)
@@ -193,7 +193,7 @@ private fun FindModulesContent(viewModel: ModulesViewModel, onAdded: (String) ->
             fun doInstall() {
                 checking = true
                 scope.launch {
-                    val id = viewModel.install(confirming)
+                    val id = viewModel.install(confirming, allowUntrusted = confirming.untrustedCode)
                     if (id != null) {
                         if (confirming.code != null) viewModel.acknowledgeScriptWarning(id)
                         return@launch onAdded(id)

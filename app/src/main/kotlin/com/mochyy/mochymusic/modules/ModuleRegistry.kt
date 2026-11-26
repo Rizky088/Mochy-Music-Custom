@@ -369,6 +369,8 @@ class ModuleRegistry @Inject constructor(
             val code: File? = null,
             // where a newer copy can be found later: the github project or the link it came from
             val source: ModuleSource? = null,
+            val untrustedCode: Boolean = false,
+            val signerFingerprint: String? = null,
         ) : LinkCheck
         data object NotALink : LinkCheck
         data object Unreachable : LinkCheck
@@ -438,7 +440,9 @@ class ModuleRegistry @Inject constructor(
         val cleanCode = code.trimStart('/')
         if (cleanCode.isBlank() || '\\' in cleanCode || '\u0000' in cleanCode || cleanCode.split('/').any { it.isEmpty() || it == "." || it == ".." }) return LinkCheck.NotAModule
         val apk = CodeModules.extract(context, uri, root + cleanCode) ?: return LinkCheck.NotAModule
-        if (!CodeModules.signedLikeMochy(context, apk)) return LinkCheck.NotSigned
+        if (!CodeModules.isValidApk(context, apk)) return LinkCheck.NotAModule
+        val trusted = CodeModules.signedLikeMochy(context, apk)
+        val fingerprint = if (trusted) null else CodeModules.signerFingerprint(context, apk)
         val adds = buildSet {
             if (manifest.playsSongs) add(ModuleFeature.AudioSource)
             if (manifest.hasLyrics) add(ModuleFeature.Lyrics)
@@ -490,8 +494,8 @@ class ModuleRegistry @Inject constructor(
         }
     }.getOrNull() ?: uri.lastPathSegment.orEmpty()
 
-    fun install(ready: LinkCheck.Ready, expectedId: String? = null): String? {
-        ready.code?.let { return installCode(ready, it, expectedId) }
+    fun install(ready: LinkCheck.Ready, expectedId: String? = null, allowUntrusted: Boolean = false): String? {
+        ready.code?.let { return installCode(ready, it, expectedId, allowUntrusted) }
         val manifest = requireNotNull(WebModuleManifest.parse(ready.manifestText))
         val base = ready.base
         if (base != null && !ModuleUrlGuard.isSafeRemoteUrl(base)) return null
@@ -525,10 +529,11 @@ class ModuleRegistry @Inject constructor(
         return id
     }
 
-    private fun installCode(ready: LinkCheck.Ready, apk: File, expectedId: String? = null): String? {
+    private fun installCode(ready: LinkCheck.Ready, apk: File, expectedId: String? = null, allowUntrusted: Boolean = false): String? {
+        if (ready.untrustedCode && !allowUntrusted) return null
         val manifest = WebModuleManifest.parse(ready.manifestText)
         val key = manifest?.id?.ifBlank { null } ?: ready.name
-        val installed = CodeModules.install(context, key, apk, expectedId = expectedId) ?: return null
+        val installed = CodeModules.install(context, key, apk, expectedId = expectedId, allowUntrusted = allowUntrusted) ?: return null
         val id = installed.module.info.id
         // unpack pictures, fonts, shaders and surface data files sitting beside module.apk in the zip
         val files = ready.zip?.let { SkinFiles.unpack(context, it, id, ready.zipRoot) }
